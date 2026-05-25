@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ title|default:'Form Barang Inventory' }}</h5>
+        </div>
+
+        <div class="card-body">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nama Barang</label>
+                {{ form.name }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Kategori</label>
+                {{ form.category }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Supplier Default</label>
+                {{ form.default_supplier }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Model</label>
+                {{ form.model }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Barcode</label>
+                {{ form.barcode }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Stok Saat Ini (read-only)</label>
+                {{ form.current_stock }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Minimum Stok</label>
+                {{ form.min_stock }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Harga Beli</label>
+                {{ form.cost_price }}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Harga Jual</label>
+                {{ form.sell_price }}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Deskripsi</label>
+                {{ form.description }}
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check mt-2">
+                  {{ form.is_active }}
+                  <label class="form-check-label">Aktif</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check mt-2">
+                  {{ form.is_trackable }}
+                  <label class="form-check-label">Dapat Dilacak</label>
+                </div>
+              </div>
+
+              <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                <a href="{{ back_url|default:'/inventory/items/' }}" class="btn btn-outline-secondary">
+                  Kembali
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  Simpan Barang
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

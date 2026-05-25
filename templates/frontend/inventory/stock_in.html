@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Barang Masuk (Stock In)</h2>
+            <div class="text-muted">Transaksi barang masuk untuk menambah stok</div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" id="refreshBtn">
+                <i class="fas fa-redo"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Daftar Stock In</span>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addStockInBtn">
+                    <i class="fas fa-plus"></i> Tambah
+                </button>
+                <span class="text-muted small" id="metaText"></span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="stockInTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Supplier</th>
+                            <th>Transaksi</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                            <th>Total</th>
+                            <th style="min-width:180px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockInTbody">
+                        <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal detail (basic) -->
+<div class="modal fade" id="stockInDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Stock In</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="stockInDetailBody" class="text-muted">Memuat...</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    const tbody = document.getElementById('stockInTbody');
+    const metaText = document.getElementById('metaText');
+
+    const refreshBtn = document.getElementById('refreshBtn');
+
+
+    const detailModalEl = document.getElementById('stockInDetailModal');
+    const stockInDetailBody = document.getElementById('stockInDetailBody');
+    const detailModal = detailModalEl ? new bootstrap.Modal(detailModalEl) : null;
+
+    function buildQuery(){
+        return '';
+    }
+
+
+
+
+
+    function stockInBadge(status){
+        const s = status || '';
+        let cls = 'bg-secondary';
+        if(s === 'pending') cls = 'bg-warning text-dark';
+        else if(s === 'approved') cls = 'bg-primary';
+        else if(s === 'completed') cls = 'bg-success';
+        else if(s === 'canceled') cls = 'bg-danger';
+        return `<span class="badge rounded-pill ${cls}">${s || '-'}</span>`;
+    }
+
+    async function apiGet(url){
+        return SIMAN.apiRequest(url);
+    }
+
+    async function loadStockIns(){
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center">Memuat data...</td></tr>';
+
+        const qs = '';
+        const url = '/inventory/stock-in/' + (qs ? ('?' + qs) : '');
+
+        try{
+            const res = await apiGet(url);
+            const items = res?.results || res || [];
+
+            metaText.textContent = items.length ? `Menampilkan ${items.length} data` : 'Tidak ada data';
+
+            if(!items.length){
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada data</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map((si, idx) => {
+                const id = si.id;
+                const supplier = si.supplier?.name || '-';
+                const status = si.status || '';
+                const source = si.source || '-';
+                const date = si.transaction_date || si.created_at || '-';
+                const totalAmount = (si.total_amount ?? 0);
+
+                const approveBtn = (status === 'pending')
+                    ? `<button class="btn btn-sm btn-success" data-action="approve" data-id="${id}">Approve</button>`
+                    : '';
+
+                const completeBtn = (status === 'approved' && si.is_completed !== true)
+                    ? `<button class="btn btn-sm btn-primary" data-action="complete" data-id="${id}">Complete</button>`
+                    : '';
+
+                const cancelBtn = (status !== 'canceled' && si.is_completed !== true)
+                    ? `<button class="btn btn-sm btn-outline-danger" data-action="cancel" data-id="${id}">Cancel</button>`
+                    : '';
+
+                const detailBtn = `<button class="btn btn-sm btn-outline-primary" data-action="detail" data-id="${id}">Detail</button>`;
+
+                return `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>
+                            <div class="fw-semibold">${si.transaction_number || '-'}</div>
+                            <div class="text-muted small">Ref: ${si.reference_number || '-'}</div>
+                        </td>
+                        <td>${supplier}</td>
+                        <td>${source}</td>
+                        <td>${stockInBadge(status)}</td>
+                        <td>${date}</td>
+                        <td>${SIMAN.formatCurrency(totalAmount)}</td>
+                        <td class="d-flex gap-2 flex-wrap">${approveBtn}${completeBtn}${cancelBtn}${detailBtn}</td>
+                    </tr>
+                `;
+            }).join('');
+
+        }catch(err){
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data stock in</td></tr>';
+            metaText.textContent = '';
+        }
+    }
+
+    async function postStockInAction(id, action){
+        const url = `/inventory/stock-in/${id}/${action}/`;
+        const res = await SIMAN.apiRequest(url, 'POST', {});
+        return res;
+    }
+
+    async function loadDetail(id){
+        stockInDetailBody.innerHTML = 'Memuat detail...';
+        const res = await apiGet(`/inventory/stock-in/${id}/`);
+        // Pastikan struktur serializer sesuai backend; fallback jika key beda
+        const items = res?.items || res?.stock_in_items || res?.items_data || [];
+
+        const rows = Array.isArray(items) ? items.map((it) => {
+            return `
+                <tr>
+                    <td>${it.item?.name || it.item_name || '-'}</td>
+                    <td class="text-end">${it.quantity ?? 0}</td>
+                </tr>
+            `;
+        }).join('') : '';
+
+        stockInDetailBody.innerHTML = `
+            <div class="mb-3">
+                <div class="fw-semibold fs-6">${res.transaction_number || '-'}</div>
+                <div class="text-muted small">Supplier: ${res.supplier?.name || '-'}</div>
+                <div class="text-muted small">Reference: ${res.reference_number || '-'}</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows || '<tr><td colspan="2" class="text-center text-muted">Tidak ada item</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    tbody && tbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        if(!action || !id) return;
+
+        try{
+            if(action === 'detail'){
+                await loadDetail(id);
+                detailModal && detailModal.show();
+                return;
+            }
+
+            if(!confirm(`Konfirmasi aksi: ${action} untuk transaksi ${id}?`)) return;
+
+            const res = await postStockInAction(id, action);
+            showTemporaryAlert(res?.message || 'Berhasil melakukan aksi', 'success');
+            await loadStockIns();
+
+        }catch(err){
+            console.error(err);
+            showTemporaryAlert(err?.message || 'Gagal melakukan aksi', 'danger');
+        }
+    });
+
+    function showTemporaryAlert(message, type='info'){
+        const el = document.createElement('div');
+        el.className = `alert alert-${type} position-fixed top-0 end-0 m-3 shadow`;
+        el.style.zIndex = 1080;
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(()=> el.classList.add('fade'), 10);
+        setTimeout(()=> el.remove(), 3000);
+    }
+
+    refreshBtn && refreshBtn.addEventListener('click', loadStockIns);
+
+
+    loadStockIns();
+})();
+</script>
+{% endblock %}
+

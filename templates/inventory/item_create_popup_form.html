@@ -1,0 +1,68 @@
+<div class="p-3">
+    <form method="post" enctype="multipart/form-data" id="itemCreateForm" class="row g-3 needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="col-md-12">
+            <label class="form-label fw-bold text-dark">Nama Barang <span class="text-danger">*</span></label>
+            {{ form.name }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Kategori <span class="text-danger">*</span></label>
+            {{ form.category }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Brand</label>
+            {{ form.brand }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Harga Beli</label>
+            {{ form.cost_price }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Stok</label>
+
+            {{ form.stock }}
+        </div>
+
+
+        <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-primary" id="submitItemCreate">Simpan Barang</button>
+        </div>
+    </form>
+
+    <style>
+        #itemCreateForm .form-control,
+        #itemCreateForm .form-select {
+            background-color: #ffffff;
+            border: 2px solid #1c7ed6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        #itemCreateForm .form-control:focus,
+        #itemCreateForm .form-select:focus {
+            background-color: #f0f7ff;
+            border-color: #0b5ed7;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        #itemCreateForm .form-control::placeholder {
+            color: #6c757d;
+            opacity: 0.7;
+        }
+
+        #itemCreateForm .form-label {
+            margin-bottom: 8px;
+            color: #0b214f;
+            font-size: 14px;
+        }
+    </style>
+</div>
+
+

@@ -1,0 +1,683 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-wrapper">
+        <!-- Left Section - Brand -->
+        <div class="register-brand-section">
+            <div class="brand-content">
+                <div class="brand-logo-wrapper">
+                    {% load static %}
+                    <img src="{% static 'images/logo lentera.png' %}" alt="Logo" class="login-register-logo" onerror="this.style.display='none'">
+                </div>
+
+                <h1 class="brand-title">SIMAN</h1>
+                <p class="brand-subtitle">Sistem Informasi Manajemen</p>
+                <p class="brand-company">PT Lentera Anugerah Dimensi</p>
+
+            </div>
+        </div>
+
+        <!-- Right Section - Form -->
+        <div class="register-form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2 class="form-title">Buat Akun Baru</h2>
+                    <p class="form-subtitle">Bergabunglah dengan SIMAN hari ini</p>
+                </div>
+
+                {% if form.errors or messages %}
+                <div class="alert-container">
+                    {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <strong>Terjadi kesalahan!</strong>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+                            <div class="alert-icon">
+                                <i class="fas fa-{% if message.tags == 'error' %}times-circle{% else %}check-circle{% endif %}"></i>
+                            </div>
+                            <div class="alert-content">{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <form method="post" class="register-form" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="id_username" class="form-label">
+                            <i class="fas fa-user"></i> Username
+                        </label>
+                        <input type="text" name="username" id="id_username" 
+                               class="form-control" required autofocus
+                               placeholder="Pilih username Anda" 
+                               value="{{ form.username|default:'' }}">
+                        <small class="form-text">Minimal 3 karakter, alphanumerik</small>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="id_email" class="form-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" name="email" id="id_email" 
+                               class="form-control" required
+                               placeholder="email@perusahaan.com" 
+                               value="{{ form.email|default:'' }}">
+                        <small class="form-text">Gunakan email yang valid</small>
+                    </div>
+
+                    <!-- Name Row -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_first_name" class="form-label">
+                                <i class="fas fa-id-card"></i> Nama Depan
+                            </label>
+                            <input type="text" name="first_name" id="id_first_name" 
+                                   class="form-control" required
+                                   placeholder="Nama depan Anda" 
+                                   value="{{ form.first_name|default:'' }}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="id_last_name" class="form-label">
+                                <i class="fas fa-id-card"></i> Nama Belakang
+                            </label>
+                            <input type="text" name="last_name" id="id_last_name" 
+                                   class="form-control" required
+                                   placeholder="Nama belakang Anda" 
+                                   value="{{ form.last_name|default:'' }}">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="id_password" class="form-label">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <div class="password-input-group">
+                            <input type="password" name="password" id="id_password" 
+                                   class="form-control" required
+                                   placeholder="Masukkan password yang kuat">
+                            <button type="button" class="btn-toggle-password" 
+                                    onclick="togglePasswordVisibility('id_password')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="form-text">Minimal 8 karakter dengan kombinasi huruf, angka, dan simbol</small>
+                    </div>
+
+                    <!-- Password Confirm -->
+                    <div class="form-group">
+                        <label for="id_password_confirm" class="form-label">
+                            <i class="fas fa-lock"></i> Konfirmasi Password
+                        </label>
+                        <div class="password-input-group">
+                            <input type="password" name="password_confirm" id="id_password_confirm" 
+                                   class="form-control" required
+                                   placeholder="Ulangi password Anda">
+                            <button type="button" class="btn-toggle-password" 
+                                    onclick="togglePasswordVisibility('id_password_confirm')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terms Agreement -->
+                    <div class="form-check terms-check">
+                        <input type="checkbox" class="form-check-input" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            Saya setuju dengan <a href="#" class="terms-link">Syarat & Ketentuan</a> 
+                            dan <a href="#" class="terms-link">Kebijakan Privasi</a>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-register btn-lg w-100">
+                        <i class="fas fa-user-plus"></i> Daftar Akun
+                    </button>
+
+                    <!-- Login Link -->
+                    <div class="register-footer">
+                        <p>Sudah punya akun? 
+                            <a href="{% url 'frontend:login' %}" class="login-link">
+                                <strong>Login di sini</strong>
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    /* Register saja: hapus tema gelap/“hitam” agar senada dashboard */
+    --soft-black: #ffffff;
+    --soft-black-light: #f7fbff;
+    --soft-black-lighter: #eaf4ff;
+    --soft-blue: #63a4ff;
+    --soft-blue-light: #9acbff;
+    --text-light: #0b214f;
+    --text-muted: #495057;
+    --border-color: rgba(154, 203, 255, 0.28);
+}
+
+
+
+/* Register Container */
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: linear-gradient(180deg, var(--soft-black) 0%, var(--soft-black-light) 100%);
+    padding: 30px 20px 40px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-light);
+}
+
+.register-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(154, 203, 255, 0.18);
+    max-width: 1000px;
+    width: 100%;
+    animation: slideIn 0.5s ease-out;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Brand Section */
+.register-brand-section {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
+    color: var(--text-light);
+    padding: 60px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.brand-logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.brand-logo-wrapper .login-register-logo {
+    width: 260px;
+
+    height: auto;
+    display: block;
+}
+
+
+.register-brand-section {
+    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
+    color: var(--text-light);
+    padding: 60px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.brand-content {
+    text-align: center;
+}
+
+.brand-logo {
+    display: none;
+}
+
+
+
+.brand-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    color: var(--soft-blue);
+}
+
+.brand-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    margin-bottom: 5px;
+    color: var(--text-muted);
+}
+
+.brand-company {
+    font-size: 0.95rem;
+    opacity: 0.85;
+    margin-bottom: 40px;
+    color: var(--text-muted);
+}
+
+.brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    animation: slideInLeft 0.6s ease-out backwards;
+}
+
+.feature-item:nth-child(1) { animation-delay: 0.1s; }
+.feature-item:nth-child(2) { animation-delay: 0.2s; }
+.feature-item:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.feature-item i {
+    font-size: 1.2rem;
+    color: var(--soft-blue);
+}
+
+/* Form Section */
+.register-form-section {
+    padding: 60px 40px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.form-container {
+    width: 100%;
+}
+
+.form-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.form-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--soft-blue);
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Alert Container */
+.alert-container {
+    margin-bottom: 25px;
+}
+
+.alert {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    align-items: flex-start;
+}
+
+.alert-icon {
+    font-size: 1.3rem;
+    min-width: 24px;
+    margin-top: 2px;
+}
+
+.alert-content {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.alert-danger {
+    background-color: #3b0b0b;
+    color: #ffd6d6;
+}
+
+.alert-danger .alert-icon {
+    color: #ffb3b3;
+}
+
+.alert-success {
+    background-color: rgba(47,143,74,0.06);
+    color: #eaf4ff;
+}
+
+.alert-success .alert-icon {
+    color: var(--soft-blue);
+}
+
+/* Form Styles */
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-label i {
+    color: var(--soft-blue);
+    font-size: 1rem;
+}
+
+.form-control {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    background-color: var(--soft-black-light);
+    color: var(--text-light);
+}
+
+.form-control:focus {
+    background-color: var(--soft-black);
+    border-color: rgba(47,143,74,0.6);
+    box-shadow: 0 0 0 6px rgba(47,143,74,0.06);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #999;
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Form Row */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Password Input Group */
+.password-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #667eea;
+    font-size: 0.95rem;
+    padding: 0;
+    transition: color 0.3s ease;
+}
+
+.btn-toggle-password:hover {
+    color: var(--soft-blue);
+}
+
+/* Terms Check */
+.terms-check {
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-top: 3px;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--soft-blue);
+    border-color: var(--soft-blue);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.terms-link {
+    color: var(--soft-blue-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.25s ease;
+}
+
+.terms-link:hover {
+    color: var(--soft-blue);
+    text-decoration: underline;
+}
+
+/* Register Button */
+.btn-register {
+    background: linear-gradient(90deg, var(--soft-blue-light), var(--soft-blue));
+    color: var(--soft-black);
+    border: none;
+    font-weight: 700;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 10px;
+}
+
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(47,143,74,0.08);
+    color: var(--soft-black);
+}
+
+.btn-register:active {
+    transform: translateY(0);
+}
+
+.btn-register i {
+    margin-right: 8px;
+}
+
+/* Register Footer */
+.register-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.register-footer p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.login-link {
+    color: var(--soft-blue-light);
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+
+.login-link:hover {
+    color: var(--soft-blue);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .register-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .register-brand-section {
+        padding: 40px 30px;
+        display: none;
+    }
+
+    .register-form-section {
+        padding: 40px 25px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-title {
+        font-size: 2rem;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-register {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-container {
+        padding: 10px;
+    }
+
+    .register-form-section {
+        padding: 30px 20px;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+
+    .form-title {
+        font-size: 1.3rem;
+    }
+
+    .register-footer p {
+        font-size: 0.85rem;
+    }
+}
+
+/* Input Animation */
+.form-control {
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.form-control:nth-of-type(1) { animation-delay: 0.1s; }
+.form-control:nth-of-type(2) { animation-delay: 0.15s; }
+.form-control:nth-of-type(3) { animation-delay: 0.2s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+    /* Glowing red list style (garis merah menyala) */
+    .glow-list { list-style: none; padding: 0; margin: 0; display:flex; flex-direction:column; gap:10px; }
+    .glow-list li { background: linear-gradient(180deg,#0b275d,#123e85); padding:12px 16px; border-radius:8px; border-left:4px solid #63a4ff; box-shadow: 0 2px 8px rgba(99,164,255,0.12), inset 0 0 12px rgba(99,164,255,0.04); color:#f6f9ff; }
+    .glow-list li:hover { box-shadow: 0 6px 20px rgba(99,164,255,0.18), 0 0 14px rgba(99,164,255,0.10); transform:translateY(-2px); }
+</style>
+
+<script>
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = event.target.closest('.btn-toggle-password');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+        field.type = 'password';
+        button.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 id="pageTitle">Item Baru</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form id="itemForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">SKU <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="sku" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Item <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Kategori <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category" required>
+                                <option value="">Pilih Kategori</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Barcode</label>
+                            <input type="text" class="form-control" id="barcode">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="brand">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Model</label>
+                            <input type="text" class="form-control" id="model">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label">Spesifikasi</label>
+                            <textarea class="form-control" id="specs"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Unit</label>
+                            <select class="form-select" id="unit">
+                                <option value="pcs">Pcs</option>
+                                <option value="unit">Unit</option>
+                                <option value="box">Box</option>
+                                <option value="roll">Roll</option>
+                                <option value="meter">Meter</option>
+                                <option value="set">Set</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Min Stock</label>
+                            <input type="number" class="form-control" id="min_stock" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Max Stock</label>
+                            <input type="number" class="form-control" id="max_stock" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Harga Beli</label>
+                            <input type="number" class="form-control" id="cost_price" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Harga Jual</label>
+                            <input type="number" class="form-control" id="sell_price" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi Gudang</label>
+                            <input type="text" class="form-control" id="warehouse_location">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi Rak</label>
+                            <input type="text" class="form-control" id="rack_location">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Supplier Default</label>
+                            <select class="form-select" id="default_supplier">
+                                <option value="">Pilih Supplier</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-check">
+                                <input type="checkbox" class="form-check-input" id="is_trackable">
+                                <label class="form-check-label">Lacak Serial Number</label>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/inventory/" class="btn btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let itemId = null;
+
+async function loadCategories() {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/categories/');
+        if (response) {
+            const select = document.getElementById('category');
+            const categories = response.results || response;
+            select.innerHTML = '<option value="">Pilih Kategori</option>' + 
+                categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+async function loadSuppliers() {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/suppliers/');
+        if (response) {
+            const select = document.getElementById('default_supplier');
+            const suppliers = response.results || response;
+            select.innerHTML = '<option value="">Pilih Supplier</option>' + 
+                suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading suppliers:', error);
+    }
+}
+
+async function loadItem(id) {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/items/' + id + '/');
+        if (response) {
+            document.getElementById('pageTitle').textContent = 'Edit Item';
+            itemId = id;
+            
+            document.getElementById('sku').value = response.sku || '';
+            document.getElementById('sku').readOnly = true;
+            document.getElementById('name').value = response.name || '';
+            document.getElementById('barcode').value = response.barcode || '';
+            document.getElementById('brand').value = response.brand || '';
+            document.getElementById('model').value = response.model || '';
+            document.getElementById('specs').value = response.specs || '';
+            document.getElementById('min_stock').value = response.min_stock || 0;
+            document.getElementById('max_stock').value = response.max_stock || 0;
+            document.getElementById('cost_price').value = response.cost_price || 0;
+            document.getElementById('sell_price').value = response.sell_price || 0;
+            document.getElementById('warehouse_location').value = response.warehouse_location || '';
+            document.getElementById('rack_location').value = response.rack_location || '';
+            document.getElementById('is_trackable').checked = response.is_trackable || false;
+            
+            if (response.unit) document.getElementById('unit').value = response.unit;
+            if (response.category) document.getElementById('category').value = response.category;
+            if (response.default_supplier) document.getElementById('default_supplier').value = response.default_supplier;
+        }
+    } catch (error) {
+        console.error('Error loading item:', error);
+    }
+}
+
+document.getElementById('itemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+        sku: document.getElementById('sku').value,
+        name: document.getElementById('name').value,
+        category: document.getElementById('category').value,
+        barcode: document.getElementById('barcode').value,
+        brand: document.getElementById('brand').value,
+        model: document.getElementById('model').value,
+        specs: document.getElementById('specs').value,
+        unit: document.getElementById('unit').value,
+        min_stock: parseInt(document.getElementById('min_stock').value) || 0,
+        max_stock: parseInt(document.getElementById('max_stock').value) || 0,
+        cost_price: parseFloat(document.getElementById('cost_price').value) || 0,
+        sell_price: parseFloat(document.getElementById('sell_price').value) || 0,
+        warehouse_location: document.getElementById('warehouse_location').value,
+        rack_location: document.getElementById('rack_location').value,
+        default_supplier: document.getElementById('default_supplier').value || null,
+        is_trackable: document.getElementById('is_trackable').checked
+    };
+
+    try {
+        let response;
+        if (itemId) {
+            response = await SIMAN.apiRequest('/inventory/items/' + itemId + '/', 'PUT', data);
+        } else {
+            response = await SIMAN.apiRequest('/inventory/items/', 'POST', data);
+        }
+
+        if (response && !response.error) {
+            showToast('Item disimpan!', 'success');
+            window.location.href = '/inventory/';
+        } else {
+            showToast(response?.error || 'Gagal menyimpan', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving item:', error);
+        showToast('Gagal menyimpan item!', 'error');
+    }
+});
+
+function init() {
+    loadCategories();
+    loadSuppliers();
+    
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts[pathParts.length - 2] === 'edit') {
+        loadItem(pathParts[pathParts.length - 3]);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+{% endblock %}

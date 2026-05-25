@@ -1,0 +1,7 @@
+Page ini menggunakan endpoint DRF:
+- GET  /inventory/stock-in/ (list)
+- GET  /inventory/stock-in/{id}/ (detail)
+- POST /inventory/stock-in/{id}/approve/
+- POST /inventory/stock-in/{id}/complete/
+- POST /inventory/stock-in/{id}/cancel/
+

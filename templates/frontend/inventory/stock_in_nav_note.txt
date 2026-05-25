@@ -1,0 +1,4 @@
+Pastikan route frontend untuk halaman ini diarahkan ke template:
+templates/frontend/inventory/stock_in.html
+Contoh di sidebar: link ke /inventory/stock-in/ (tergantung implementasi frontend_urls.py)
+

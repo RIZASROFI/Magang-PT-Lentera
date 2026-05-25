@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header"><h2>Absensi Karyawan</h2><p>Data kehadiran dan absensi harian karyawan</p></div>
+  <div class="toolbar">
+    <div class="search-box"><i class="fas fa-search"></i><input id="searchInput" type="text" placeholder="Cari absensi..." /></div>
+    <select id="statusFilter"><option value="">Semua Status</option><option value="present">Hadir</option><option value="absent">Tidak Hadir</option><option value="sick">Sakit</option><option value="permission">Izin</option><option value="leave">Cuti</option><option value="late">Terlambat</option></select>
+    <input type="date" id="dateFilter" class="form-control" style="max-width:200px;border:2px solid #27ae60;border-radius:14px;padding:10px 12px;" />
+  </div>
+  <div class="data-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="m-0">Daftar Absensi</h5>
+      <div><span id="totalCount" class="badge bg-primary">0</span> absensi</div>
+    </div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Karyawan</th><th>Tanggal</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Keterangan</th></tr></thead><tbody id="tableBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+.page-container{padding:24px 0 40px;}
+.page-header h2{color:#27ae60;font-weight:800;}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0;}
+.search-box{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #27ae60;border-radius:14px;padding:10px 14px;min-width:280px;flex:1;}
+.search-box input{border:none;outline:none;flex:1;font-size:14px;}
+.toolbar select{background:#fff;border:2px solid #27ae60;border-radius:14px;padding:10px 12px;min-width:200px;outline:none;}
+.data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;}
+.table tbody td{vertical-align:middle;padding:10px 15px;}
+.table tbody tr:hover{background:rgba(39,174,96,.05);}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){
+  const tbody=document.getElementById('tableBody'),search=document.getElementById('searchInput'),statusF=document.getElementById('statusFilter'),dateF=document.getElementById('dateFilter'),count=document.getElementById('totalCount');
+  async function load(){
+    tbody.innerHTML='<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>';
+    try{
+      const params=new URLSearchParams();
+      if(search.value.trim()) params.set('search',search.value.trim());
+      if(statusF.value) params.set('status',statusF.value);
+      if(dateF.value) params.set('date_from',dateF.value);
+      const qs=params.toString();
+      const res=await fetch('/api/hr/attendances/'+(qs?'?'+qs:''),{credentials:'include'});
+      if(!res.ok) throw new Error(res.status);
+      const data=await res.json();
+      const items=data.results||data;
+      count.textContent=items.length;
+      if(!items.length){tbody.innerHTML='<tr><td colspan="6" class="text-center text-muted">Tidak ada data</td></tr>';return;}
+      tbody.innerHTML=items.map(a=>`<tr><td>${a.employee_name||a.employee||'-'}</td><td>${a.date||'-'}</td><td><span class="badge ${a.status==='present'?'bg-success':a.status==='late'?'bg-warning text-dark':a.status==='sick'?'bg-info':a.status==='absent'?'bg-danger':'bg-secondary'}">${a.status||'-'}</span></td><td>${a.check_in||'-'}</td><td>${a.check_out||'-'}</td><td>${a.notes||'-'}</td></tr>`).join('');
+    }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';}
+  }
+  search.addEventListener('input',()=>{clearTimeout(window.__t);window.__t=setTimeout(load,300);});
+  statusF.addEventListener('change',load);
+  dateF.addEventListener('change',load);
+  load();
+})();
+</script>
+{% endblock %}

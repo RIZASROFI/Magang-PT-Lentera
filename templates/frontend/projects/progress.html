@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header"><h2>Progress Proyek</h2><p>Pantau perkembangan dan status proyek secara real-time</p></div>
+  
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-tasks text-primary"></i></div><h6>Total Proyek</h6><h3 id="totalProyek">0</h3></div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-spinner text-warning"></i></div><h6>Dalam Progress</h6><h3 id="progressProyek">0</h3></div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle text-success"></i></div><h6>Selesai</h6><h3 id="selesaiProyek">0</h3></div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock text-info"></i></div><h6>Tertunda</h6><h3 id="tertundaProyek">0</h3></div>
+    </div>
+  </div>
+
+  <div class="data-card">
+    <div class="card-header"><h5 class="m-0">Daftar Progress Proyek</h5></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Proyek</th><th>Kategori</th><th>Nilai Kontrak</th><th>Progress</th><th>Status</th><th>Tenggat</th></tr></thead><tbody id="tableBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+.page-container{padding:24px 0 40px;}
+.page-header h2{color:#27ae60;font-weight:800;}
+.stat-card{background:#fff;border:2px solid #27ae60;border-radius:18px;padding:20px;box-shadow:0 10px 28px rgba(39,174,96,.15);}
+.stat-icon{width:50px;height:50px;background:rgba(39,174,96,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:10px;}
+.stat-card h6{color:#666;font-size:13px;margin-bottom:5px;}
+.stat-card h3{font-weight:800;margin:0;color:#1b4e8f;}
+.data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;}
+.table tbody td{vertical-align:middle;padding:10px 15px;}
+.table tbody tr:hover{background:rgba(39,174,96,.05);}
+.progress-bar-custom{height:8px;border-radius:4px;background:#e9ecef;overflow:hidden;min-width:100px;}
+.progress-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#28a745,#20c997);transition:width .5s;}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){
+  const tbody=document.getElementById('tableBody');
+  async function load(){
+    tbody.innerHTML='<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>';
+    try{
+      const res=await fetch('/api/projects/',{credentials:'include'});
+      if(!res.ok) throw new Error(res.status);
+      const data=await res.json();
+      const items=data.results||data;
+      const stats={total:items.length,progress:0,completed:0,pending:0};
+      if(items.length){
+        tbody.innerHTML=items.map(p=>{
+          const stat=p.status||'';
+          if(stat==='progress'||stat==='in_progress'||stat==='survey'||stat==='testing') stats.progress++;
+          else if(stat==='completed') stats.completed++;
+          else stats.pending++;
+          const progressVal=p.progress_percentage||0;
+          return `<tr><td><strong>${p.name||'-'}</strong></td><td>${p.category?.name||'-'}</td><td>Rp ${(p.contract_value||0).toLocaleString('id')}</td><td><div class="progress-bar-custom"><div class="progress-bar-fill" style="width:${progressVal}%"></div></div><small class="text-muted ms-2">${progressVal}%</small></td><td><span class="badge ${stat==='completed'?'bg-success':stat==='progress'||stat==='in_progress'?'bg-primary':stat==='pending'?'bg-warning text-dark':stat==='canceled'?'bg-danger':'bg-secondary'}">${stat||'-'}</span></td><td>${p.end_date||'-'}</td></tr>`;
+        }).join('');
+      }
+      document.getElementById('totalProyek').textContent=stats.total;
+      document.getElementById('progressProyek').textContent=stats.progress;
+      document.getElementById('selesaiProyek').textContent=stats.completed;
+      document.getElementById('tertundaProyek').textContent=stats.pending;
+    }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';}
+  }
+  load();
+})();
+</script>
+{% endblock %}

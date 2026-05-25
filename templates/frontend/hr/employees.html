@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hr-page">
+  <div class="page-header">
+    <h2>Manajemen Karyawan</h2>
+    <p>Kelola data karyawan, posisi, dan departemen secara terstruktur.</p>
+  </div>
+
+  <div class="hr-toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input id="employeeSearch" type="text" placeholder="Cari nama" />
+    </div>
+    <div class="filters">
+      <select id="departmentFilter">
+        <option value="">Semua Departemen</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">Semua Status</option>
+        <option value="permanent">Permanent</option>
+        <option value="contract">Contract</option>
+        <option value="probation">Probation</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="hr-card">
+    <div class="hr-card-header">
+      <h3>Daftar Karyawan</h3>
+      <div class="hr-actions">
+        <button class="btn btn-primary" type="button" id="refreshBtn">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <button class="btn btn-success" type="button" id="addEmployeeBtn">
+          <i class="fas fa-user-plus"></i> Tambah Karyawan
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Tambah Karyawan (popup saja) -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; overflow:hidden; background:#ffffff;">
+          <div class="modal-header" style="background:linear-gradient(135deg, rgba(77,171,247,0.18), rgba(77,171,247,0.05)); background-color:#ffffff;">
+            <h5 class="modal-title" style="font-weight:800; color:#0b214f;">Tambah Karyawan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addEmployeeForm" autocomplete="off">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label">Nama</label>
+                  <input type="text" class="form-control" name="name" placeholder="Masukkan nama" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Departemen</label>
+                  <select class="form-select" name="department" id="departmentSelect" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
+                    <option value="">Pilih departemen...</option>
+                    <option value="teknisi_cctv">Departemen Teknisi CCTV</option>
+                    <option value="teknisi_videotron">Departemen Teknisi Videotron</option>
+                    <option value="administrasi">Departemen Administrasi</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Jabatan</label>
+                  <input type="text" class="form-control" name="position" placeholder="Contoh: Manager" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" name="status" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
+                    <option value="permanent">permanent</option>
+                    <option value="contract">contract</option>
+                    <option value="probation">probation</option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Tanggal Join</label>
+                  <input type="date" class="form-control" name="join_date" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
+                </div>
+
+                <div class="col-12">
+                  <div id="addEmployeeAlert" class="alert alert-danger" style="display:none;"></div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-primary" id="saveEmployeeBtn">
+              <i class="fas fa-save"></i> Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table hr-table">
+        <thead>
+          <tr>
+            <th style="width: 70px;">Nomor</th>
+            <th>Nama</th>
+            <th style="min-width: 180px;">Departemen</th>
+            <th style="min-width: 180px;">Jabatan</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="employeeTbody">
+          <tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hr-page{padding:24px 0 40px;}
+  .page-header{margin-bottom:18px;}
+  .page-header h2{margin:0 0 6px 0;color:#27ae60;font-weight:800;}
+  .page-header p{margin:0;color:#16a34a;}
+
+  .hr-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0;}
+  .search-box{display:flex;align-items:center;gap:10px;background:#ffffff;border:2px solid #27ae60;border-radius:14px;padding:10px 14px;min-width:280px;flex:1;}
+  .search-box i{color:#27ae60;}
+  .search-box input{border:none;outline:none;flex:1;background:#ffffff;font-size:14px;}
+
+  .filters{display:flex;gap:10px;flex-wrap:wrap;}
+  .filters select{background:#ffffff;border:2px solid #27ae60;border-radius:14px;padding:10px 12px;min-width:220px;outline:none;}
+
+  .hr-card{background:#ffffff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
+  .hr-card-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:2px solid #27ae60;}
+  .hr-card-header h3{margin:0;color:#27ae60;font-size:16px;font-weight:800;}
+
+  .hr-table thead th{background:#27ae60;border-bottom:2px solid #229954;color:#ffffff;font-weight:700;}
+  .hr-table tbody td{vertical-align:middle;}
+
+  @media (max-width:768px){
+    .filters select{min-width: 160px;}
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const tbody = document.getElementById('employeeTbody');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const searchEl = document.getElementById('employeeSearch');
+  const deptEl = document.getElementById('departmentFilter');
+  const statusEl = document.getElementById('statusFilter');
+
+  const addBtn = document.getElementById('addEmployeeBtn');
+  const modalEl = document.getElementById('addEmployeeModal');
+  const saveBtn = document.getElementById('saveEmployeeBtn');
+  const formEl = document.getElementById('addEmployeeForm');
+  const alertEl = document.getElementById('addEmployeeAlert');
+
+  function showAlert(msg){
+    if(!alertEl) return;
+    alertEl.style.display = 'block';
+    alertEl.textContent = msg;
+  }
+
+  function hideAlert(){
+    if(!alertEl) return;
+    alertEl.style.display = 'none';
+    alertEl.textContent = '';
+  }
+
+  const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+
+  async function apiFetch(url){
+    // Menggunakan session auth DRF (cookie-based). Sesuaikan bila perlu.
+    const res = await fetch(url, {credentials:'include'});
+    if(!res.ok) throw new Error('Failed: ' + res.status);
+    return res.json();
+  }
+
+  // Catatan: UI tambah karyawan sekarang menggunakan input nama manual (bukan dropdown user).
+  // Fungsi loadUsersIntoSelect sengaja tidak dipakai.
+  async function loadUsersIntoSelect(){}
+
+  // muat user dropdown saat halaman ready (tidak dipakai) 
+  loadUsersIntoSelect();
+
+  function renderRows(items){
+    if(!items || items.length===0){
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada data</td></tr>';
+      return;
+    }
+    tbody.innerHTML = items.map(emp=>{
+      const name = emp.user?.first_name ? (emp.user.first_name + ' ' + (emp.user.last_name||'')) : (emp.user?.email || '-');
+      const dept = emp.department?.name || '-';
+      const pos = emp.position?.name || '-';
+      const status = emp.status || '-';
+      return `
+        <tr>
+          <td>${emp.employee_id ?? '-'}</td>
+          <td>${name}</td>
+          <td>${dept}</td>
+          <td>${pos}</td>
+          <td><span class="badge badge-success" style="background:linear-gradient(135deg,#28a745,#20c997)">${status}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function buildQuery(){
+    const params = new URLSearchParams();
+    const q = (searchEl.value||'').trim();
+    const dept = deptEl.value;
+    const status = statusEl.value;
+    if(q) params.set('search', q);
+    if(dept) params.set('department', dept);
+    if(status) params.set('status', status);
+    return params.toString();
+  }
+
+  async function loadEmployees(){
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>';
+    const qs = buildQuery();
+    // Endpoint API dari router hr app
+    const url = `/api/hr/employees/${qs ? ('?'+qs) : ''}`;
+
+    try{
+      const data = await apiFetch(url);
+      // DRF default: list akan berbentuk {results:[]} jika pagination enabled
+      const items = data.results || data;
+      renderRows(items);
+    }catch(e){
+      console.error(e);
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuat data karyawan</td></tr>';
+    }
+  }
+
+  refreshBtn?.addEventListener('click', loadEmployees);
+  searchEl?.addEventListener('input', ()=>{ clearTimeout(window.__hrTimer); window.__hrTimer=setTimeout(loadEmployees, 350);});
+  deptEl?.addEventListener('change', loadEmployees);
+  statusEl?.addEventListener('change', loadEmployees);
+
+  // Modal: tambah karyawan
+  addBtn?.addEventListener('click', ()=>{
+    hideAlert();
+    formEl?.reset();
+    modal?.show();
+  });
+
+  saveBtn?.addEventListener('click', async ()=>{
+    try{
+      hideAlert();
+      if(!formEl) throw new Error('Form tidak ditemukan');
+
+      const fd = new FormData(formEl);
+
+      // Serializer EmployeeDetailSerializer expects:
+      // - employee.user (FK OneToOne) -> DRF will require a PK for `user`
+      //   sehingga kita tidak dapat membuat employee via endpoint ini hanya dengan username/email.
+      // Untuk sekarang, payload minimal yang valid adalah `user` (id), plus field employee wajib.
+      // (Jika backend Anda diharapkan menerima nested user fields, perlu penyesuaian serializer. )
+      // Form saat ini hanya menyediakan: username (sebagai Nama), email, status, join_date.
+      // Backend Employee tetap butuh `user` (PK) dan relasi lain mungkin wajib (tergantung model/serializer).
+      // Karena saat ini belum ada UI untuk memilih department/position/user_id,
+      // payload yang dikirim disesuaikan dengan field yang tersedia.
+      const payload = {
+        // Backend saat ini biasanya butuh user (PK FK).
+        // Karena UI sudah jadi input nama manual, payload minimal dikirim sebagai `name`.
+        name: fd.get('name'),
+        department: fd.get('department') || undefined,
+        position: fd.get('position') || undefined,
+        status: fd.get('status'),
+        join_date: fd.get('join_date')
+      };
+
+      // CSRF token untuk SessionAuthentication
+      const csrfToken = (() => {
+        // 1) cek cookie csrftoken
+        const m = document.cookie.match(/(?:^|;\\s*)csrftoken=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : '';
+      })();
+
+      const res = await fetch('/api/hr/employees/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type':'application/json',
+          ...(csrfToken ? {'X-CSRFToken': csrfToken} : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if(!res.ok){
+        const err = await res.json().catch(()=>null);
+        const msg = err?.detail || err || ('Gagal menyimpan ('+res.status+')');
+        throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      }
+
+      modal?.hide();
+      await loadEmployees();
+    }catch(e){
+      console.error(e);
+      showAlert(e.message || 'Gagal menyimpan karyawan');
+    }
+  });
+
+  loadEmployees();
+})();
+</script>
+{% endblock %}
+

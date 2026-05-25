@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Daftar Proyek</h2>
+        <div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            <a href="/projects/create/" class="btn btn-success">
+                <i class="fas fa-plus"></i> Proyek Baru
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Total Proyek</h4>
+                    <h5 id="total-projects">0</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Sedang Berjalan</h4>
+                    <h5 id="progress-projects">0</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Selesai</h4>
+                    <h5 id="completed-projects">0</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h4 class="card-title">Nilai Kontrak</h4>
+                    <h5 id="total-value">Rp 0</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Projects Table -->
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="projectTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button">Semua</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="progress-tab" data-bs-toggle="tab" data-bs-target="#progress" type="button">Berjalan</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button">Selesai</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Nama Proyek</th>
+                            <th>Klien</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Nilai Kontrak</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filter Proyek</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="filterStatus">
+                        <option value="">Semua</option>
+                        <option value="draft">Rencana</option>
+                        <option value="survey">Survei</option>
+                        <option value="progress">Sedang Berjalan</option>
+                        <option value="pending">Menunggu</option>
+                        <option value="testing">Testing</option>
+                        <option value="completed">Selesai</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Priority</label>
+                    <select class="form-select" id="filterPriority">
+                        <option value="">Semua</option>
+                        <option value="low">Rendah</option>
+                        <option value="medium">Sedang</option>
+                        <option value="high">Tinggi</option>
+                        <option value="urgent">Mendesak</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tanggal Mulai Dari</label>
+                    <input type="date" class="form-control" id="filterStartDateFrom">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tanggal Mulai Sampai</label>
+                    <input type="date" class="form-control" id="filterStartDateTo">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="applyFilter()">Terapkan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Proyek -->
+<div class="modal fade" id="projectDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectDetailTitle">Detail Proyek</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="projectDetailBody">Memuat detail...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let projects = [];
+let currentFilter = {};
+
+async function loadProjects() {
+    try {
+        const response = await SIMAN.apiRequest('/projects/');
+        if (response) {
+            projects = response.results || response;
+            renderProjects(projects);
+            updateStats(projects);
+        }
+    } catch (error) {
+        console.error('Error loading projects:', error);
+    }
+}
+
+function renderProjects(data) {
+    const tbody = document.getElementById('projectsTableBody');
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada proyek</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = data.map(project => `
+        <tr>
+            <td><strong>${project.project_code}</strong></td>
+            <td>${project.name}</td>
+            <td>${project.client_name}</td>
+            <td>${project.city || '-'}</td>
+            <td>${getStatusBadge(project.status)}</td>
+            <td>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: ${project.progress_percentage || 0}%">
+                        ${project.progress_percentage || 0}%
+                    </div>
+                </div>
+            </td>
+            <td>${SIMAN.formatCurrency(project.contract_value)}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-info" onclick="openProjectDetail(${project.id})" aria-label="Lihat detail">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <a href="/projects/${project.id}/edit/" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                <button class="btn btn-sm btn-danger" onclick="deleteProject(${project.id})"><i class="fas fa-trash"></i></button>
+
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateStats(data) {
+    document.getElementById('total-projects').textContent = data.length;
+    document.getElementById('progress-projects').textContent = data.filter(p => p.status === 'progress').length;
+    document.getElementById('completed-projects').textContent = data.filter(p => p.status === 'completed').length;
+    
+    const total = data.reduce((sum, p) => sum + (parseFloat(p.contract_value) || 0), 0);
+    document.getElementById('total-value').textContent = SIMAN.formatCurrency(total);
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'draft': '<span class="badge bg-secondary">Rencana</span>',
+        'survey': '<span class="badge bg-info">Survei</span>',
+        'progress': '<span class="badge bg-primary">Berjalan</span>',
+        'pending': '<span class="badge bg-warning">Menunggu</span>',
+        'testing': '<span class="badge bg-warning">Testing</span>',
+        'completed': '<span class="badge bg-success">Selesai</span>',
+        'canceled': '<span class="badge bg-danger">Batal</span>'
+    };
+    return badges[status] || status;
+}
+
+function applyFilter() {
+    const status = document.getElementById('filterStatus').value;
+    const priority = document.getElementById('filterPriority').value;
+    
+    currentFilter = { status, priority };
+    
+    let filtered = projects;
+    if (status) filtered = filtered.filter(p => p.status === status);
+    if (priority) filtered = filtered.filter(p => p.priority === priority);
+    
+    renderProjects(filtered);
+    bootstrap.Modal.getInstance(document.getElementById('filterModal')).hide();
+}
+
+async function deleteProject(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus proyek ini?')) {
+        const response = await SIMAN.apiRequest(`/projects/${id}/`, 'DELETE');
+        if (response === null || response !== false) {
+            showToast('Proyek dihapus!', 'success');
+            loadProjects();
+        }
+    }
+}
+
+function escapeHtml(text) {
+    return String(text ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '<')
+        .replaceAll('>', '>')
+        .replaceAll('"', '"')
+        .replaceAll("'", '&#039;');
+}
+
+async function openProjectDetail(id) {
+    try {
+        const res = await SIMAN.apiRequest('/projects/' + id + '/');
+        if (!res) throw new Error('No response');
+
+        const body = document.getElementById('projectDetailBody');
+        const titleEl = document.getElementById('projectDetailTitle');
+
+        titleEl.textContent = res.name ? ('Detail Proyek: ' + res.name) : 'Detail Proyek';
+
+        const rows = [
+            ['Kode Proyek', res.project_code],
+            ['Nama Proyek', res.name],
+            ['Kategori', res.category?.name ?? res.category],
+            ['Priority', res.priority],
+            ['Klien', res.client_name],
+            ['Kontak Klien', res.client_contact],
+            ['Telepon Klien', res.client_phone],
+            ['Email Klien', res.client_email],
+            ['Alamat', res.address],
+            ['Kota', res.city],
+            ['Provinsi', res.province],
+            ['Deskripsi', res.description],
+            ['Scope of Work', res.scope_of_work],
+            ['Tanggal Mulai', res.start_date],
+            ['Tanggal Selesai', res.end_date],
+            ['Due Date', res.due_date],
+            ['Nilai Kontrak', res.contract_value != null ? SIMAN.formatCurrency(res.contract_value) : '-'],
+            ['Status', res.status],
+        ];
+
+        body.innerHTML = `
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="alert alert-info mb-3 py-2" style="border-radius:14px">
+                        Menampilkan detail proyek dari API
+                    </div>
+                </div>
+                ${rows.map(([k,v]) => {
+                    const safeK = escapeHtml(k);
+                    let safeV = escapeHtml(v);
+                    if (typeof v === 'object' && v !== null) safeV = escapeHtml(JSON.stringify(v));
+                    return `
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded" style="background: rgba(255,255,255,0.75)">
+                                <div class="text-muted small">${safeK}</div>
+                                <div class="fw-semibold">${safeV || '-'}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        const modalEl = document.getElementById('projectDetailModal');
+        const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+        modal && modal.show();
+    } catch (err) {
+        console.error(err);
+        showToast('Gagal memuat detail proyek', 'error');
+    }
+}
+
+
+// Tab filtering
+document.getElementById('all-tab').addEventListener('click', () => renderProjects(projects));
+document.getElementById('progress-tab').addEventListener('click', () => {
+    renderProjects(projects.filter(p => p.status === 'progress'));
+});
+document.getElementById('completed-tab').addEventListener('click', () => {
+    renderProjects(projects.filter(p => p.status === 'completed'));
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', loadProjects);
+</script>
+{% endblock %}

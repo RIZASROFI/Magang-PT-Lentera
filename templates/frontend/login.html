@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-page">
+    <div class="login-wrapper">
+        <div class="login-brand-section">
+            <div class="brand-panel">
+                <div class="brand-logo-wrapper">
+                    {% load static %}
+                    <img src="{% static 'images/logo lentera.png' %}" alt="Logo" class="login-register-logo" onerror="this.style.display='none'">
+                </div>
+                <div class="brand-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h1>SIMAN</h1>
+                <p class="brand-text">Sistem Informasi Manajemen PT Lentera Anugerah Dimensi</p>
+
+            </div>
+        </div>
+
+        <div class="login-form-section">
+            <div class="form-card">
+                <div class="form-header">
+                    <h2 class="form-title">Masuk ke Akun Anda</h2>
+                    <p class="form-subtitle">Gunakan email atau username untuk melanjutkan</p>
+                </div>
+
+                <form id="loginForm" method="post" action="{% url 'frontend:login' %}" class="login-form" novalidate>
+                    {% csrf_token %}
+                    {% if messages %}
+                    <div class="alert-container">
+                        {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+                            <div class="alert-icon">
+                                <i class="fas fa-{% if message.tags == 'error' %}times-circle{% else %}check-circle{% endif %}"></i>
+                            </div>
+                            <div class="alert-content">{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+
+                    <div id="errorAlert" class="alert alert-error" style="display: none;">
+                        <span id="errorMessage"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_email" class="form-label">
+                            <i class="fas fa-user"></i> Email
+                        </label>
+                        <input type="text" name="email" id="id_email" class="form-control" required 
+                               placeholder="email@perusahaan.com" autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password" class="form-label">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" name="password" id="id_password" class="form-control" required 
+                               placeholder="••••••••">
+                    </div>
+
+                    <div class="form-group remember-me">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="remember" class="form-check-input">
+                            Ingat saya
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Masuk
+                    </button>
+
+                    <div class="login-footer">
+                        <p>Belum punya akun? <a href="{% url 'frontend:register' %}">Daftar di sini</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    /* Login saja: hapus tema gelap/“hitam” agar senada dashboard */
+    --soft-black: #ffffff;
+    --soft-black-light: #f7fbff;
+    --soft-black-lighter: #eaf4ff;
+    --soft-blue: #63a4ff;
+    --soft-blue-light: #9acbff;
+    --text-light: #0b214f;
+    --text-muted: #495057;
+    --border-color: rgba(154, 203, 255, 0.28);
+}
+
+
+/* Login Container */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, var(--soft-black) 0%, var(--soft-black-light) 100%);
+    padding: 30px 20px 40px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-light);
+}
+
+.login-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(154, 203, 255, 0.18);
+    max-width: 1000px;
+    width: 100%;
+    animation: slideIn 0.5s ease-out;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Brand Section */
+.login-brand-section {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
+    color: var(--text-light);
+    padding: 60px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.brand-logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.brand-logo-wrapper .login-register-logo {
+    width: 260px;
+
+    height: auto;
+    display: block;
+}
+
+
+.login-brand-section {
+    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
+    color: var(--text-light);
+    padding: 60px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.brand-panel {
+    text-align: center;
+}
+
+.brand-icon {
+    display: none;
+}
+
+
+
+.brand-panel h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    color: var(--soft-blue);
+}
+
+.brand-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    color: var(--text-light);
+}
+
+.brand-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 16px;
+}
+
+.brand-features li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text-light);
+    font-size: 0.96rem;
+    animation: slideInLeft 0.6s ease-out backwards;
+}
+
+.brand-features li:nth-child(1) { animation-delay: 0.1s; }
+.brand-features li:nth-child(2) { animation-delay: 0.2s; }
+.brand-features li:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.brand-features li i {
+    font-size: 1rem;
+    color: var(--soft-blue);
+}
+
+/* Form Section */
+.login-form-section {
+    padding: 60px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 480px;
+}
+
+.form-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.form-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--soft-blue);
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Form Styles */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-label i {
+    color: var(--soft-blue);
+    font-size: 1rem;
+}
+
+.form-control {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    background-color: var(--soft-black-light);
+    color: var(--text-light);
+}
+
+.form-control:focus {
+    background-color: var(--soft-black);
+    border-color: rgba(47,143,74,0.6);
+    box-shadow: 0 0 0 6px rgba(47,143,74,0.06);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #999;
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Password Input Group */
+.password-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #667eea;
+    font-size: 0.95rem;
+    padding: 0;
+    transition: color 0.3s ease;
+}
+
+.btn-toggle-password:hover {
+    color: var(--soft-blue);
+}
+
+/* Remember Me */
+.remember-me {
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-top: 3px;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--soft-blue);
+    border-color: var(--soft-blue);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-check-label {
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+/* Terms Check */
+.terms-check {
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+.terms-link {
+    color: var(--soft-blue-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.25s ease;
+}
+
+.terms-link:hover {
+    color: var(--soft-blue);
+    text-decoration: underline;
+}
+
+/* Login Button */
+.btn-login {
+    background: linear-gradient(90deg, var(--soft-blue-light), var(--soft-blue));
+    color: var(--soft-black);
+    border: none;
+    font-weight: 700;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(47,143,74,0.08);
+    color: var(--soft-black);
+}
+
+.btn-login i {
+    font-size: 1.1rem;
+}
+
+/* Register Button (for consistency) */
+.btn-register {
+    background: linear-gradient(90deg, var(--soft-blue-light), var(--soft-blue));
+    color: var(--soft-black);
+    border: none;
+    font-weight: 700;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 10px;
+}
+
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(47,143,74,0.08);
+    color: var(--soft-black);
+}
+
+.btn-register i {
+    margin-right: 8px;
+}
+
+/* Login Footer */
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.login-footer p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.login-link {
+    color: var(--soft-blue-light);
+    text-decoration: none;
+    transition: color 0.25s ease;
+    font-weight: 600;
+}
+
+.login-link:hover {
+    color: var(--soft-blue);
+}
+
+/* Alert Container */
+.alert-container {
+    margin-bottom: 25px;
+}
+
+.alert {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    align-items: flex-start;
+}
+
+.alert-icon {
+    font-size: 1.3rem;
+    min-width: 24px;
+    margin-top: 2px;
+}
+
+.alert-content {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.alert-danger {
+    background-color: #3b0b0b;
+    color: #ffd6d6;
+}
+
+.alert-danger .alert-icon {
+    color: #ffb3b3;
+}
+
+.alert-success {
+    background-color: rgba(47,143,74,0.06);
+    color: #eaf4ff;
+}
+
+.alert-success .alert-icon {
+    color: var(--soft-blue);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .login-brand-section {
+        padding: 40px 30px;
+        display: none;
+    }
+
+    .login-form-section {
+        padding: 40px 25px;
+    }
+
+    .brand-title {
+        font-size: 2rem;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-login {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        padding: 10px;
+    }
+
+    .login-form-section {
+        padding: 30px 20px;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+
+    .form-title {
+        font-size: 1.3rem;
+    }
+
+    .login-footer p {
+        font-size: 0.85rem;
+    }
+}
+
+/* Input Animation */
+.form-control {
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.form-control:nth-of-type(1) { animation-delay: 0.1s; }
+.form-control:nth-of-type(2) { animation-delay: 0.15s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Glowing red list style (garis merah menyala) */
+.glow-list { list-style: none; padding: 0; margin: 0; display:flex; flex-direction:column; gap:10px; }
+.glow-list li { background: linear-gradient(180deg,#0b275d,#123e85); padding:12px 16px; border-radius:8px; border-left:4px solid #63a4ff; box-shadow: 0 2px 8px rgba(99,164,255,0.12), inset 0 0 12px rgba(99,164,255,0.04); color:#f6f9ff; }
+.glow-list li:hover { box-shadow: 0 6px 20px rgba(99,164,255,0.18), 0 0 14px rgba(99,164,255,0.10); transform:translateY(-2px); }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = event.target.closest('.btn-toggle-password');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+        field.type = 'password';
+        button.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+}
+</script>
+{% endblock %}

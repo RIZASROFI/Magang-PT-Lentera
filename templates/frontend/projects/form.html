@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 id="pageTitle">Proyek Baru</h2>
+            <p class="text-muted mb-0">Kelola informasi proyek dengan tampilan yang rapi, modern, dan responsif.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/projects/" class="btn btn-secondary" aria-label="Kembali">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+
+    <div class="card project-form-card">
+        <div class="card-body">
+            <form id="projectForm" class="project-form-body">
+                <!-- Identitas Proyek -->
+                <div class="project-section mb-4">
+                    <div class="project-section__title">
+                        <span class="project-section__icon"><i class="fas fa-layer-group"></i></span>
+                        <h5 class="m-0">Identitas Proyek</h5>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Kode Proyek <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="project_code" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Nama Proyek <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Kategori</label>
+                                <select class="form-select" id="category">
+                                    <option value="">Pilih Kategori</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="priority">
+                                    <option value="medium">Sedang</option>
+                                    <option value="high">Tinggi</option>
+                                    <option value="low">Rendah</option>
+                                    <option value="urgent">Mendesak</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informasi Klien -->
+                <div class="project-section mb-4">
+                    <div class="project-section__title">
+                        <span class="project-section__icon"><i class="fas fa-user-tie"></i></span>
+                        <h5 class="m-0">Informasi Klien</h5>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Nama Klien <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="client_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Kontak Klien</label>
+                                <input type="text" class="form-control" id="client_contact">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Telepon Klien</label>
+                                <input type="text" class="form-control" id="client_phone">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Email Klien</label>
+                                <input type="email" class="form-control" id="client_email">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lokasi Proyek -->
+                <div class="project-section mb-4">
+                    <div class="project-section__title">
+                        <span class="project-section__icon"><i class="fas fa-map-marked-alt"></i></span>
+                        <h5 class="m-0">Lokasi Proyek</h5>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-12">
+                            <div class="mb-0">
+                                <label class="form-label">Alamat <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="address" required rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Kota</label>
+                                <input type="text" class="form-control" id="city">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Provinsi</label>
+                                <input type="text" class="form-control" id="province">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Proyek -->
+                <div class="project-section mb-4">
+                    <div class="project-section__title">
+                        <span class="project-section__icon"><i class="fas fa-clipboard-list"></i></span>
+                        <h5 class="m-0">Detail Proyek</h5>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-12">
+                            <div class="mb-0">
+                                <label class="form-label">Deskripsi</label>
+                                <textarea class="form-control" id="description" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-12">
+                            <div class="mb-0">
+                                <label class="form-label">Scope of Work</label>
+                                <textarea class="form-control" id="scope_of_work" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jadwal & Nilai -->
+                <div class="project-section mb-4">
+                    <div class="project-section__title">
+                        <span class="project-section__icon"><i class="fas fa-calendar-check"></i></span>
+                        <h5 class="m-0">Jadwal & Nilai</h5>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-4">
+                            <div class="mb-0">
+                                <label class="form-label">Tanggal Mulai <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="start_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-0">
+                                <label class="form-label">Tanggal Selesai</label>
+                                <input type="date" class="form-control" id="end_date">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-0">
+                                <label class="form-label">Due Date</label>
+                                <input type="date" class="form-control" id="due_date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Nilai Kontrak</label>
+                                <input type="number" class="form-control" id="contract_value" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-0">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="status">
+                                    <option value="draft">Rencana</option>
+                                    <option value="survey">Survei</option>
+                                    <option value="progress">Sedang Berjalan</option>
+                                    <option value="pending">Menunggu</option>
+                                    <option value="testing">Testing</option>
+                                    <option value="completed">Selesai</option>
+                                    <option value="canceled">Dibatalkan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="project-form-actions d-flex justify-content-end gap-2 pt-2">
+                    <a href="/projects/" class="btn btn-secondary project-form-btn">Batal</a>
+                    <button type="submit" class="btn btn-primary project-form-btn">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .project-section{
+        border: 1px solid rgba(77, 171, 247, 0.25);
+        border-radius: 18px;
+        background: rgba(255,255,255,0.75);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 28px rgba(77, 171, 247, 0.08);
+        padding: 18px 18px 16px;
+    }
+
+    .project-section__title{
+        display:flex;
+        align-items:center;
+        gap: 10px;
+        margin-bottom: 2px;
+    }
+
+    .project-section__icon{
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background: linear-gradient(135deg, rgba(77,171,247,0.18), rgba(28,126,214,0.06));
+        border: 1px solid rgba(77,171,247,0.25);
+        color: #1c7ed6;
+    }
+
+    .project-section__title h5{
+        font-weight: 800;
+        color: var(--text-dark);
+        letter-spacing: 0.2px;
+    }
+
+    .project-form-card{
+        border-radius: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.75);
+    }
+
+    .project-section .form-label{
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .project-section .form-control,
+    .project-section .form-select{
+        border-width: 2px;
+        border-color: rgba(77, 171, 247, 0.35);
+        box-shadow: 0 6px 18px rgba(77, 171, 247, 0.06);
+        background: rgba(255,255,255,0.98);
+    }
+
+    .project-section .form-control:focus,
+    .project-section .form-select:focus{
+        border-color: rgba(77, 171, 247, 0.55);
+        box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.18);
+    }
+
+    @media (max-width: 768px){
+        .project-section{padding: 14px;}
+    }
+</style>
+{% endblock %}
+
+
+
+
+
+{% block extra_js %}
+<script>
+let projectId = null;
+
+async function loadCategories() {
+    try {
+        const response = await SIMAN.apiRequest('/projects/categories/');
+        if (response) {
+            const select = document.getElementById('category');
+            const categories = response.results || response;
+            select.innerHTML = '<option value="">Pilih Kategori</option>' + 
+                categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+async function loadProject(id) {
+    try {
+        const response = await SIMAN.apiRequest('/projects/' + id + '/');
+        if (response) {
+            document.getElementById('pageTitle').textContent = 'Edit Proyek';
+            projectId = id;
+            
+            document.getElementById('project_code').value = response.project_code || '';
+            document.getElementById('name').value = response.name || '';
+            document.getElementById('client_name').value = response.client_name || '';
+            document.getElementById('client_contact').value = response.client_contact || '';
+            document.getElementById('client_phone').value = response.client_phone || '';
+            document.getElementById('client_email').value = response.client_email || '';
+            document.getElementById('address').value = response.address || '';
+            document.getElementById('city').value = response.city || '';
+            document.getElementById('province').value = response.province || '';
+            document.getElementById('description').value = response.description || '';
+            document.getElementById('scope_of_work').value = response.scope_of_work || '';
+            document.getElementById('start_date').value = response.start_date || '';
+            document.getElementById('end_date').value = response.end_date || '';
+            document.getElementById('due_date').value = response.due_date || '';
+            document.getElementById('contract_value').value = response.contract_value || 0;
+            
+            if (response.priority) {
+                document.getElementById('priority').value = response.priority;
+            }
+            if (response.status) {
+                document.getElementById('status').value = response.status;
+            }
+            if (response.category) {
+                document.getElementById('category').value = response.category;
+            }
+            
+            document.getElementById('project_code').readOnly = true;
+        }
+    } catch (error) {
+        console.error('Error loading project:', error);
+    }
+}
+
+document.getElementById('projectForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+        project_code: document.getElementById('project_code').value,
+        name: document.getElementById('name').value,
+        category: document.getElementById('category').value || null,
+        client_name: document.getElementById('client_name').value,
+        client_contact: document.getElementById('client_contact').value,
+        client_phone: document.getElementById('client_phone').value,
+        client_email: document.getElementById('client_email').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        province: document.getElementById('province').value,
+        description: document.getElementById('description').value,
+        scope_of_work: document.getElementById('scope_of_work').value,
+        start_date: document.getElementById('start_date').value,
+        end_date: document.getElementById('end_date').value || null,
+        due_date: document.getElementById('due_date').value || null,
+        contract_value: parseFloat(document.getElementById('contract_value').value) || 0,
+        priority: document.getElementById('priority').value,
+        status: document.getElementById('status').value
+    };
+
+    try {
+        let response;
+        if (projectId) {
+            response = await SIMAN.apiRequest('/projects/' + projectId + '/', 'PUT', data);
+        } else {
+            response = await SIMAN.apiRequest('/projects/', 'POST', data);
+        }
+
+        if (response && !response.error) {
+            showToast('Proyek disimpan!', 'success');
+            window.location.href = '/projects/';
+        } else {
+            showToast(response?.error || 'Gagal menyimpan proyek', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving project:', error);
+        showToast('Gagal menyimpan proyek!', 'error');
+    }
+});
+
+// Check if edit mode
+const pathParts = window.location.pathname.split('/');
+if (pathParts[pathParts.length - 2] === 'edit') {
+    loadProject(pathParts[pathParts.length - 3]);
+} else {
+    loadCategories();
+}
+</script>
+{% endblock %}

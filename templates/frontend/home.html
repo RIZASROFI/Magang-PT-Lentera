@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <h1>SIMAN - Sistem Informasi Manajemen</h1>
+        <h2>PT Lentera Anugerah Dimensi</h2>
+        <p class="tagline">IT Networking: CCTV, Videotron, Server</p>
+        
+        <div class="hero-buttons">
+            <a href="{% url 'frontend:login' %}" class="btn btn-primary">Login</a>
+            <a href="#features" class="btn btn-secondary">Pelajari Lebih Lanjut</a>
+        </div>
+    </div>
+    
+    <div id="features" class="features-section">
+        <h3>Fitur Utama</h3>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h4>Project Management</h4>
+                <p>Kelola proyek, lokasi, dan progress pekerjaan dengan mudah.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h4>Inventory</h4>
+                <p>Transaksi barang masuk/keluar dengan sistem TPS.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h4>Keuangan</h4>
+                <p>Kelola income, expense, dan laporan keuangan.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h4>HR Management</h4>
+                <p>Kelola karyawan dan absensi dengan efisien.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛒</div>
+                <h4>Penjualan & Pembelian</h4>
+                <p>Kelola quotations, sales order, dan purchase order.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h4>Dashboard</h4>
+                <p>Pantau kinerja perusahaan dengan visualisasi data.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h3>Tentang SIMAN</h3>
+        <p>Sistem Informasi Manajemen (SIMAN) adalah sistem terintegrasi untuk membantu pengelolaan bisnis PT Lentera Anugerah Dimensi. Dengan konsep ERP, TPS, dan MIS, sistem ini membantu perusahaan dalam:</p>
+        <ul>
+            <li>Mengelola proyek dari awal hingga selesai</li>
+            <li>Memantau inventaris barang</li>
+            <li>Merekam transaksi keuangan</li>
+            <li>Mengelola sumber daya manusia</li>
+            <li>Menganalisis data untuk pengambilan keputusan</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    text-align: center;
+    padding: 70px 20px;
+    background: linear-gradient(135deg, rgba(77, 171, 247, 0.18), rgba(240, 248, 255, 0.95));
+    color: #1c4a9b;
+    border-radius: 0 0 50px 50px;
+    margin-bottom: 50px;
+    box-shadow: 0 20px 60px rgba(77, 171, 247, 0.12);
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #103a75;
+}
+
+.hero-section h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    opacity: 0.8;
+    margin-bottom: 30px;
+    color: #2f4c7d;
+}
+
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 32px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--water-blue-1), var(--water-blue-4));
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 12px 25px rgba(77, 171, 247, 0.18);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--water-blue-2), var(--water-blue-5));
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--water-blue-4);
+    border: 1px solid rgba(77, 171, 247, 0.25);
+}
+
+.btn-secondary:hover {
+    background: rgba(77, 171, 247, 0.08);
+    transform: translateY(-2px);
+}
+
+.features-section {
+    padding: 40px 20px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.features-section h3 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 40px;
+    color: var(--water-blue-5);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid rgba(77, 171, 247, 0.14);
+    box-shadow: 0 18px 40px rgba(77, 171, 247, 0.08);
+    text-align: center;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--water-blue-3);
+    box-shadow: 0 24px 55px rgba(77, 171, 247, 0.16);
+}
+
+.feature-icon {
+    font-size: 3.4rem;
+    margin-bottom: 18px;
+}
+
+.feature-card h4 {
+    color: var(--water-blue-4);
+    margin-bottom: 10px;
+    font-size: 1.25rem;
+}
+
+.feature-card p {
+    color: #4f5f7d;
+    line-height: 1.75;
+}
+
+.info-section {
+    padding: 50px 20px 70px;
+    max-width: 840px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.info-section h3 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--water-blue-5);
+}
+
+.info-section p {
+    color: #4f5f7d;
+    line-height: 1.8;
+    margin-bottom: 28px;
+}
+
+.info-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 620px;
+    text-align: left;
+}
+
+.info-section li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 14px;
+    color: #4f5f7d;
+    line-height: 1.9;
+}
+
+.info-section li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 4px;
+    height: 18px;
+    background: var(--red-glowing);
+    border-radius: 2px;
+}
+</style>
+{% endblock %}

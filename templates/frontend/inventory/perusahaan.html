@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page ini sengaja dinonaktifkan (diminta user untuk tidak menampilkan file/halaman) -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Inventory Perusahaan</h2>
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary" href="/inventory/items/">
+                <i class="fas fa-boxes"></i> Buka Semua Barang
+            </a>
+            <button class="btn btn-success" type="button" onclick="showCreate()">
+                <i class="fas fa-plus"></i> Tambah Item
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Daftar Barang (Dummy: CCTV, Kabel LAN, Module Videotron)</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Nama</th>
+                            <th>Kategori</th>
+                            <th>Brand/Model</th>
+                            <th>Stok</th>
+                            <th>Min Stock</th>
+                            <th>Harga Beli</th>
+                            <th>Harga Jual</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        <tr><td colspan="9" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick CRUD via API (minimal) -->
+<script>
+    function getStockClass(current, min){
+        if ((current || 0) <= (min || 0)) return 'text-danger fw-bold';
+        return '';
+    }
+
+    function renderItems(items){
+        const tbody = document.getElementById('itemsBody');
+        if(!items || items.length === 0){
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Tidak ada item</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map(it => `
+            <tr>
+                <td><strong>${it.sku}</strong></td>
+                <td>${it.name}</td>
+                <td>${it.category_name || '-'}</td>
+                <td>${it.brand || '-'} / ${it.model || '-'}</td>
+                <td class="${getStockClass(it.current_stock, it.min_stock)}">${it.current_stock ?? 0}</td>
+                <td>${it.min_stock ?? 0}</td>
+                <td>${SIMAN.formatCurrency(it.cost_price)}</td>
+                <td>${SIMAN.formatCurrency(it.sell_price)}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editItem(${it.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteItem(${it.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function loadCompanyItems(){
+        // Filter dummy items by SKU set
+        const SKUS = ['SKU-CCTV-2MP-BULLET', 'SKU-CABLE-LAN-CAT6-305M', 'SKU-VID-MODULE-PIX'];
+
+        const res = await SIMAN.apiRequest('/inventory/items/');
+        const items = res?.results || res || [];
+        renderItems(items.filter(x => SKUS.includes(x.sku)));
+    }
+
+    function showCreate(){
+        // Disabled: tidak jadi pakai halaman ini
+        // window.location.href = '/inventory/items/create/';
+        alert('Menu tambah item dinonaktifkan.');
+    }
+
+
+    function editItem(id){
+        window.location.href = `/inventory/items/${id}/edit/`;
+    }
+
+    async function deleteItem(id){
+        if(!confirm('Hapus item ini?')) return;
+        const res = await SIMAN.apiRequest('/inventory/items/' + id + '/', 'DELETE');
+        if(res && res.error){
+            showToast(res.error, 'error');
+            return;
+        }
+        showToast('Item dihapus!', 'success');
+        loadCompanyItems();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCompanyItems();
+    });
+</script>
+{% endblock %}
+

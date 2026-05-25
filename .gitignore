@@ -1,0 +1,43 @@
+# ============================================================
+# SIMAN - .gitignore
+# PT Lentera Anugerah Dimensi
+# ============================================================
+
+# --- Environment Variables ---
+.env
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+*.egg-info/
+
+# --- Virtual Environment ---
+venv/
+.env/
+.venv/
+env/
+
+# --- IDE & Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# --- Django ---
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# --- OS ---
+Thumbs.db
+Desktop.ini

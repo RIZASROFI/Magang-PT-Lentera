@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header d-flex justify-content-between align-items-center">
+    <div><h2>Transaksi Keuangan</h2><p>Kelola pendapatan (income) dan pengeluaran (expense)</p></div>
+    <div class="d-flex gap-2">
+      <a href="#incomes" class="btn btn-outline-success btn-sm" onclick="showTab('incomes')">Pendapatan</a>
+      <a href="#expenses" class="btn btn-outline-success btn-sm" onclick="showTab('expenses')">Pengeluaran</a>
+    </div>
+  </div>
+  <div id="incomesSection">
+    <div class="toolbar">
+      <div class="search-box"><i class="fas fa-search"></i><input id="incomeSearch" type="text" placeholder="Cari pendapatan..." /></div>
+      <select id="incomeStatus"><option value="">Semua Status</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option></select>
+    </div>
+    <div class="data-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Pendapatan (Income)</h5>
+        <div><span id="incomeCount" class="badge bg-primary">0</span> transaksi</div>
+      </div>
+      <div class="table-responsive"><table class="table"><thead><tr><th>No</th><th>Tanggal</th><th>Kategori</th><th>Deskripsi</th><th>Jumlah</th><th>Status</th></tr></thead><tbody id="incomeBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div id="expensesSection" style="display:none;">
+    <div class="toolbar">
+      <div class="search-box"><i class="fas fa-search"></i><input id="expenseSearch" type="text" placeholder="Cari pengeluaran..." /></div>
+      <select id="expenseStatus"><option value="">Semua Status</option><option value="draft">Draft</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option></select>
+    </div>
+    <div class="data-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Pengeluaran (Expense)</h5>
+        <div><span id="expenseCount" class="badge bg-danger">0</span> transaksi</div>
+      </div>
+      <div class="table-responsive"><table class="table"><thead><tr><th>No</th><th>Tanggal</th><th>Kategori</th><th>Deskripsi</th><th>Jumlah</th><th>Status</th></tr></thead><tbody id="expenseBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+.page-container{padding:24px 0 40px;}
+.page-header h2{color:#27ae60;font-weight:800;}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:14px 0;}
+.search-box{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #27ae60;border-radius:14px;padding:10px 14px;min-width:280px;flex:1;}
+.search-box input{border:none;outline:none;flex:1;font-size:14px;}
+.toolbar select{background:#fff;border:2px solid #27ae60;border-radius:14px;padding:10px 12px;min-width:200px;outline:none;}
+.data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;margin-top:10px;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;}
+.table tbody td{vertical-align:middle;padding:10px 15px;}
+.table tbody tr:hover{background:rgba(39,174,96,.05);}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showTab(t){document.getElementById('incomesSection').style.display=t==='incomes'?'':'none';document.getElementById('expensesSection').style.display=t==='expenses'?'':'none';}
+(function(){
+  function loadTable(endpoint,searchId,statusId,bodyId,countId){
+    const body=document.getElementById(bodyId),search=document.getElementById(searchId),statusEl=document.getElementById(statusId),count=document.getElementById(countId);
+    async function load(){
+      body.innerHTML='<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>';
+      try{
+        const params=new URLSearchParams();
+        if(search.value.trim()) params.set('search',search.value.trim());
+        if(statusEl.value) params.set('status',statusEl.value);
+        const qs=params.toString();
+        const res=await fetch('/api/finance/'+endpoint+'/'+(qs?'?'+qs:''),{credentials:'include'});
+        if(!res.ok) throw new Error(res.status);
+        const data=await res.json();
+        const items=data.results||data;
+        count.textContent=items.length;
+        if(!items.length){body.innerHTML='<tr><td colspan="6" class="text-center text-muted">Tidak ada data</td></tr>';return;}
+        body.innerHTML=items.map(i=>`<tr><td>${i.income_number||i.expense_number||'-'}</td><td>${i.date||'-'}</td><td>${i.category?.name||'-'}</td><td>${(i.description||'').substring(0,50)}</td><td><strong>Rp ${(i.amount||0).toLocaleString('id')}</strong></td><td><span class="badge ${i.status==='completed'?'bg-success':i.status==='confirmed'?'bg-info':i.status==='pending'?'bg-warning':'bg-secondary'}">${i.status||'-'}</span></td></tr>`).join('');
+      }catch(e){console.error(e);body.innerHTML='<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';}
+    }
+    search.addEventListener('input',()=>{clearTimeout(window['__t'+endpoint]);window['__t'+endpoint]=setTimeout(load,300);});
+    statusEl.addEventListener('change',load);
+    load();
+  }
+  loadTable('incomes','incomeSearch','incomeStatus','incomeBody','incomeCount');
+  loadTable('expenses','expenseSearch','expenseStatus','expenseBody','expenseCount');
+})();
+</script>
+{% endblock %}

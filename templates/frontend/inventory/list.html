@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Daftar Inventory</h2>
+        <div>
+            <button class="btn btn-info" onclick="showStockInModal()">
+                <i class="fas fa-arrow-down"></i> Barang Masuk
+            </button>
+            <button class="btn btn-warning" onclick="showStockOutModal()">
+                <i class="fas fa-arrow-up"></i> Barang Keluar
+            </button>
+            <a href="/inventory/create/" class="btn btn-success">
+                <i class="fas fa-plus"></i> Item Baru
+            </a>
+        </div>
+    </div>
+
+    <!-- Stock Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Item</h5>
+                    <h2 id="total-items">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Masuk Bulan Ini</h5>
+                    <h2 id="stock-in-month">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Stock Keluar Bulan Ini</h5>
+                    <h2 id="stock-out-month">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Alert Stok Rendah</h5>
+                    <h2 id="low-stock-count">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs" id="inventoryTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#items">Items</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#stock-in">Barang Masuk</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#stock-out">Barang Keluar</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#categories">Kategori</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- Items Tab -->
+                <div class="tab-pane fade show active" id="items">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Nama Item</th>
+                                    <th>Kategori</th>
+                                    <th>Brand/Model</th>
+                                    <th>Stok</th>
+                                    <th>Min Stock</th>
+                                    <th>Harga Beli</th>
+                                    <th>Aksi</th>
+                                    <th>Harga Jual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTableBody">
+                                <tr><td colspan="9" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Stock In Tab -->
+                <div class="tab-pane fade" id="stock-in">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="stockInTable">
+                            <thead>
+                                <tr>
+                                    <th>No. Transaksi</th>
+                                    <th>Sumber</th>
+                                    <th>Supplier</th>
+                                    <th>Tanggal</th>
+                                    <th>Total Items</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockInTableBody">
+                                <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Stock Out Tab -->
+                <div class="tab-pane fade" id="stock-out">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="stockOutTable">
+                            <thead>
+                                <tr>
+                                    <th>No. Transaksi</th>
+                                    <th>Tipe</th>
+                                    <th>Proyek</th>
+                                    <th>Tanggal</th>
+                                    <th>Total Items</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockOutTableBody">
+                                <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Categories Tab -->
+                <div class="tab-pane fade" id="categories">
+                    <button class="btn btn-success mb-3" onclick="showCategoryModal()">
+                        <i class="fas fa-plus"></i> Tambah Kategori
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="categoriesTable">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama</th>
+                                    <th>Deskripsi</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kategori</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Kode</label>
+                    <input type="text" class="form-control" id="categoryCode" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nama</label>
+                    <input type="text" class="form-control" id="categoryName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea class="form-control" id="categoryDescription"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let items = [];
+let stockIns = [];
+let stockOuts = [];
+let categories = [];
+
+async function loadItems() {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/items/');
+        if (response) {
+            items = response.results || response;
+            renderItems(items);
+            document.getElementById('total-items').textContent = items.length;
+        }
+    } catch (error) {
+        console.error('Error loading items:', error);
+    }
+}
+
+async function loadStockIns() {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/stock-in/');
+        if (response) {
+            stockIns = response.results || response;
+            renderStockIns(stockIns);
+        }
+    } catch (error) {
+        console.error('Error loading stock ins:', error);
+    }
+}
+
+async function loadStockOuts() {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/stock-out/');
+        if (response) {
+            stockOuts = response.results || response;
+            renderStockOuts(stockOuts);
+        }
+    } catch (error) {
+        console.error('Error loading stock outs:', error);
+    }
+}
+
+async function loadCategories() {
+    try {
+        const response = await SIMAN.apiRequest('/inventory/categories/');
+        if (response) {
+            categories = response.results || response;
+            renderCategories(categories);
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+function renderItems(data) {
+    const tbody = document.getElementById('itemsTableBody');
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Tidak ada item</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map(item => `
+        <tr>
+            <td><strong>${item.sku}</strong></td>
+            <td>${item.name}</td>
+            <td>${item.category_name || '-'}</td>
+            <td>${item.brand || '-'} / ${item.model || '-'}</td>
+            <td>
+                <span class="${item.current_stock <= item.min_stock ? 'text-danger fw-bold' : ''}">${item.current_stock || 0}</span>
+            </td>
+            <td>${item.min_stock || 0}</td>
+            <td>${SIMAN.formatCurrency(item.cost_price)}</td>
+            <td>
+                <a href="/inventory/${item.id}/edit/" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button>
+            </td>
+            <td>${SIMAN.formatCurrency(item.sell_price)}</td>
+        </tr>
+    `).join('');
+}
+
+function renderStockIns(data) {
+    const tbody = document.getElementById('stockInTableBody');
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada transaksi</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map(si => `
+        <tr>
+            <td><strong>${si.transaction_number}</strong></td>
+            <td>${si.get_source_display || si.source}</td>
+            <td>${si.supplier_name || '-'}</td>
+            <td>${si.transaction_date}</td>
+            <td>${si.total_items || 0}</td>
+            <td>${getStatusBadge(si.status)}</td>
+            <td>
+                <a href="/stock-in/${si.id}/" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderStockOuts(data) {
+    const tbody = document.getElementById('stockOutTableBody');
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada transaksi</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map(so => `
+        <tr>
+            <td><strong>${so.transaction_number}</strong></td>
+            <td>${so.get_out_type_display || so.out_type}</td>
+            <td>${so.project_name || '-'}</td>
+            <td>${so.transaction_date}</td>
+            <td>${so.total_items || 0}</td>
+            <td>${getStatusBadge(so.status)}</td>
+            <td>
+                <a href="/stock-out/${so.id}/" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderCategories(data) {
+    const tbody = document.getElementById('categoriesTableBody');
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada kategori</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map(cat => `
+        <tr>
+            <td><strong>${cat.code}</strong></td>
+            <td>${cat.name}</td>
+            <td>${cat.description || '-'}</td>
+            <td>${cat.is_active ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-secondary">Nonaktif</span>'}</td>
+            <td>
+                <button class="btn btn-sm btn-warning" onclick="editCategory(${cat.id})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCategory(${cat.id})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'draft': '<span class="badge bg-secondary">Draft</span>',
+        'pending': '<span class="badge bg-warning">Menunggu</span>',
+        'approved': '<span class="badge bg-info">Disetujui</span>',
+        'completed': '<span class="badge bg-success">Selesai</span>',
+        'canceled': '<span class="badge bg-danger">Batal</span>'
+    };
+    return badges[status] || status;
+}
+
+function showCategoryModal() {
+    document.getElementById('categoryCode').value = '';
+    document.getElementById('categoryName').value = '';
+    document.getElementById('categoryDescription').value = '';
+    new bootstrap.Modal(document.getElementById('categoryModal')).show();
+}
+
+async function saveCategory() {
+    const data = {
+        code: document.getElementById('categoryCode').value,
+        name: document.getElementById('categoryName').value,
+        description: document.getElementById('categoryDescription').value
+    };
+
+    const response = await SIMAN.apiRequest('/inventory/categories/', 'POST', data);
+    if (response && !response.error) {
+        showToast('Kategori disimpan!', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+        loadCategories();
+    } else {
+        showToast(response?.error || 'Gagal menyimpan', 'error');
+    }
+}
+
+async function deleteItem(id) {
+    if (confirm('Hapus item ini?')) {
+        await SIMAN.apiRequest('/inventory/' + id + '/', 'DELETE');
+        showToast('Item dihapus!', 'success');
+        loadItems();
+    }
+}
+
+async function deleteCategory(id) {
+    if (confirm('Hapus kategori ini?')) {
+        await SIMAN.apiRequest('/inventory/categories/' + id + '/', 'DELETE');
+        showToast('Kategori dihapus!', 'success');
+        loadCategories();
+    }
+}
+
+function showStockInModal() {
+    window.location.href = '/inventory/stock-in/create/';
+}
+
+function showStockOutModal() {
+    window.location.href = '/inventory/stock-out/create/';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadItems();
+    loadStockIns();
+    loadStockOuts();
+    loadCategories();
+});
+</script>
+{% endblock %}

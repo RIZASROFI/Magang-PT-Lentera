@@ -1,0 +1,61 @@
+<div class="p-3">
+    <form method="post" enctype="multipart/form-data" id="itemEditForm" class="row g-3 needs-validation" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ form.instance.id }}" />
+
+        <div class="col-md-12">
+            <label class="form-label fw-bold text-dark">Nama Barang <span class="text-danger">*</span></label>
+            {{ form.name }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Kategori <span class="text-danger">*</span></label>
+            {{ form.category }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Brand</label>
+            {{ form.brand }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Harga Beli</label>
+            {{ form.cost_price }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Stok</label>
+            {{ form.stock }}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">Harga Jual</label>
+            {{ form.sell_price }}
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label fw-bold text-dark">Deskripsi</label>
+            {{ form.description }}
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-check mt-2">
+                {{ form.is_active }}
+                <label class="form-check-label">Aktif</label>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-check mt-2">
+                {{ form.is_trackable }}
+                <label class="form-check-label">Dapat Dilacak</label>
+            </div>
+        </div>
+
+        <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-primary" id="submitItemEdit">Simpan Perubahan</button>
+        </div>
+    </form>
+</div>
+

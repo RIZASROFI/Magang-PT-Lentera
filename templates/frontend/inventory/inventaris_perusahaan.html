@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Inventaris Barang Perusahaan</h2>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="location.reload();">
+                <i class="fas fa-boxes"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+                <span>Inventaris Barang Perusahaan</span>
+                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#itemCreateModal">
+                    <i class="fas fa-plus"></i> Tambah Barang
+                </button>
+
+            </div>
+
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="companyItemsTable">
+                    <thead>
+                        <tr>
+
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th>Brand</th>
+                            <th>Stok</th>
+                            <th>Harga Beli</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                <tbody id="companyItemsBody">
+                        <tr><td colspan="7" class="text-center">Loading...</td></tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Item Create Modal -->
+<div class="modal fade" id="itemCreateModal" tabindex="-1" aria-labelledby="itemCreateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="itemCreateModalLabel">Tambah Barang Inventory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+            <div class="modal-body p-3">
+                <div id="itemCreateModalContent">
+                        <div class="d-flex justify-content-center align-items-center" style="min-height:240px;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                        </div>
+                </div>
+            </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Item Edit Modal -->
+<div class="modal fade" id="itemEditModal" tabindex="-1" aria-labelledby="itemEditModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="itemEditModalLabel">Edit Barang Inventory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <div id="itemEditModalContent">
+          <div class="d-flex justify-content-center align-items-center" style="min-height:240px;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+    function getStockClass(current, min){
+
+        if ((current || 0) <= (min || 0)) return 'text-danger fw-bold';
+        return '';
+    }
+
+    function renderItems(items){
+        const tbody = document.getElementById('companyItemsBody');
+        if(!items || items.length === 0){
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada item</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((it, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${it.name}</td>
+                <td>${it.category_name || '-'}</td>
+                <td>${it.brand || '-'}</td>
+                <td class="${getStockClass(it.current_stock, it.min_stock)}">${it.current_stock ?? 0}</td>
+                <td>${SIMAN.formatCurrency(it.cost_price)}</td>
+                <td>
+            <button class="btn btn-sm btn-warning" onclick="showEditModal(${it.id})" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+
+                    <button class="btn btn-sm btn-danger" onclick="deleteItem(${it.id})"><i class="fas fa-trash"></i></button>
+
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function deleteItem(id){
+        if(!confirm('Hapus item ini?')) return;
+        const res = await SIMAN.apiRequest('/inventory/items/' + id + '/', 'DELETE');
+        if(res && res.error){
+            showTemporaryAlert(res.error, 'error');
+            return;
+        }
+        showTemporaryAlert('Item dihapus!', 'success');
+        loadDummyCompanyItems();
+    }
+
+    async function loadDummyCompanyItems(){
+        const SKUS = ['SKU-CCTV-2MP-BULLET', 'SKU-CABLE-LAN-CAT6-305M', 'SKU-VID-MODULE-PIX'];
+
+        const res = await SIMAN.apiRequest('/inventory/items/');
+        const items = res?.results || res || [];
+        renderItems(items.filter(x => SKUS.includes(x.sku)));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDummyCompanyItems();
+    });
+</script>
+
+<script>
+// Edit modal
+async function showEditModal(id){
+    const modalEl = document.getElementById('itemEditModal');
+    const container = document.getElementById('itemEditModalContent');
+    if(!modalEl || !container) return;
+
+    container.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height:240px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    const bsModal = new bootstrap.Modal(modalEl);
+    bsModal.show();
+
+    try{
+        const res = await fetch('/inventory/items/' + id + '/edit/?modal=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const html = await res.text();
+        container.innerHTML = html;
+
+        const form = container.querySelector('#itemEditForm');
+        if(!form) return;
+
+        const clearFormErrors = (f) => {
+            f.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            f.querySelectorAll('[data-generated="invalid-feedback"]').forEach(el => el.remove());
+        };
+
+        const showFormErrors = (f, errors) => {
+            clearFormErrors(f);
+            let nonField = [];
+            for(const key in errors){
+                const msgs = errors[key];
+                if(key === '__all__' || key === 'non_field_errors'){
+                    nonField = nonField.concat(msgs);
+                    continue;
+                }
+                const el = f.querySelector(`[name="${key}"]`);
+                const message = Array.isArray(msgs) ? msgs.join(' ') : String(msgs);
+                if(el){
+                    el.classList.add('is-invalid');
+                    const div = document.createElement('div');
+                    div.className = 'invalid-feedback';
+                    div.setAttribute('data-generated', 'invalid-feedback');
+                    div.textContent = message;
+                    if(el.parentNode) el.parentNode.appendChild(div);
+                    else el.after(div);
+                } else {
+                    nonField.push(message);
+                }
+            }
+            if(nonField.length) showTemporaryAlert(nonField.join(' '), 'danger');
+        };
+
+        form.addEventListener('submit', async function(e){
+            e.preventDefault();
+            clearFormErrors(form);
+            if(!form.checkValidity()){
+                form.classList.add('was-validated');
+                showTemporaryAlert('Periksa input form.', 'warning');
+                return;
+            }
+
+            const btn = form.querySelector('button[type="submit"]');
+            const fd = new FormData(form);
+            btn.disabled = true;
+            try{
+                const postRes = await fetch('/inventory/items/' + id + '/edit/?modal=1', {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if(postRes.ok){
+                    const data = await postRes.json().catch(()=>({message:'Berhasil diperbarui.'}));
+                    const editModalInstance = bootstrap.Modal.getInstance(modalEl);
+                    editModalInstance.hide();
+                    loadDummyCompanyItems();
+                    showTemporaryAlert(data.message || 'Berhasil diperbarui.', 'success');
+                } else {
+                    const err = await postRes.json().catch(()=>({errors:null, message:'Server error'}));
+                    if(err && err.errors) showFormErrors(form, err.errors);
+                    else showTemporaryAlert('Terjadi kesalahan: ' + (err.message || 'Periksa input.'), 'danger');
+                }
+            } catch(ex){
+                showTemporaryAlert('Gagal mengirim form.', 'danger');
+            } finally{
+                btn.disabled = false;
+            }
+        });
+    } catch(ex){
+        container.innerHTML = '<div class="text-danger p-3">Gagal memuat form.</div>';
+    }
+}
+
+
+// Modal: load form fragment and handle AJAX submit
+const itemCreateModal = document.getElementById('itemCreateModal');
+
+itemCreateModal && itemCreateModal.addEventListener('show.bs.modal', async function (event) {
+    const container = document.getElementById('itemCreateModalContent');
+    if(!container) return;
+    container.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height:240px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    try{
+        const res = await fetch('/inventory/items/create/?modal=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const html = await res.text();
+        container.innerHTML = html;
+
+        const form = container.querySelector('#itemCreateForm');
+        if(form){
+            const clearFormErrors = (f) => {
+                f.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                f.querySelectorAll('[data-generated="invalid-feedback"]').forEach(el => el.remove());
+            };
+
+            const showFormErrors = (f, errors) => {
+                clearFormErrors(f);
+                let nonField = [];
+                for(const key in errors){
+                    const msgs = errors[key];
+                    // Django may send non_field_errors as __all__ or non_field_errors
+                    if(key === '__all__' || key === 'non_field_errors'){
+                        nonField = nonField.concat(msgs);
+                        continue;
+                    }
+                    const el = f.querySelector(`[name="${key}"]`);
+                    const message = Array.isArray(msgs) ? msgs.join(' ') : String(msgs);
+                    if(el){
+                        el.classList.add('is-invalid');
+                        const div = document.createElement('div');
+                        div.className = 'invalid-feedback';
+                        div.setAttribute('data-generated', 'invalid-feedback');
+                        div.textContent = message;
+                        // place after input
+                        if(el.parentNode) el.parentNode.appendChild(div);
+                        else el.after(div);
+                    } else {
+                        nonField.push(message);
+                    }
+                }
+                if(nonField.length) showTemporaryAlert(nonField.join(' '), 'danger');
+            };
+
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+                clearFormErrors(form);
+                // Client-side HTML5 validation
+                if(!form.checkValidity()){
+                    form.classList.add('was-validated');
+                    showTemporaryAlert('Periksa input form.', 'warning');
+                    return;
+                }
+
+                const btn = form.querySelector('button[type="submit"]');
+                const fd = new FormData(form);
+                btn.disabled = true;
+                try{
+                    const postRes = await fetch('/inventory/items/create/?modal=1', {
+                        method: 'POST',
+                        body: fd,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    if(postRes.ok){
+                        const data = await postRes.json();
+                        var modalEl = bootstrap.Modal.getInstance(itemCreateModal);
+                        modalEl.hide();
+                        loadDummyCompanyItems();
+                        showTemporaryAlert(data.message || 'Berhasil disimpan.', 'success');
+                    } else {
+                        const err = await postRes.json().catch(()=>({errors: null, message: 'Server error'}));
+                        if(err && err.errors){
+                            showFormErrors(form, err.errors);
+                        } else {
+                            showTemporaryAlert('Terjadi kesalahan: ' + (err.message || 'Periksa input.'), 'danger');
+                        }
+                    }
+                } catch(err){
+                    showTemporaryAlert('Gagal mengirim form.', 'danger');
+                } finally{
+                    btn.disabled = false;
+                }
+            });
+        }
+    } catch(err){
+        container.innerHTML = '<div class="text-danger p-3">Gagal memuat form.</div>';
+    }
+});
+
+function showTemporaryAlert(message, type='info'){
+    const el = document.createElement('div');
+    el.className = `alert alert-${type} position-fixed top-0 end-0 m-3 shadow`;
+    el.style.zIndex = 1080;
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(()=> el.classList.add('fade'), 10);
+    setTimeout(()=> el.remove(), 3000);
+}
+</script>
+{% endblock %}
+
