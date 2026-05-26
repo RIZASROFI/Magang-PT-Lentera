@@ -83,13 +83,13 @@ WSGI_APPLICATION = 'siman.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', 'postgres'),
+        'NAME': os.getenv('DB_NAME', 'siman_tri'),
         'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'WNTvibing12'),
-        'HOST': os.getenv('DB_HOST', 'db.vzfktzfkxncfqdgzogvd.supabase.co'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'password123'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
         'OPTIONS': {
-            'sslmode': 'require',  # Required untuk Supabase
+            'sslmode': 'disable',  # Disable SSL untuk database lokal
         },
     }
 }
