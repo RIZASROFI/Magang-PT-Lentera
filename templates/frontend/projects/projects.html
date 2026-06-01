@@ -3,41 +3,119 @@
 {% block title %}Projects - SIMAN{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
+<div class="container-fluid px-4 py-4">
+    <!-- Header Section -->
+    <div class="row mb-4 align-items-center">
         <div class="col-md-8">
-            <h1 class="h2">Projects</h1>
+            <div class="d-flex align-items-center gap-3">
+                <div class="header-icon">
+                    <i class="fas fa-project-diagram fa-3x"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-bold mb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        Projects
+                    </h1>
+                    <p class="text-muted mt-2 mb-0">Manage and track all your projects in one place</p>
+                </div>
+            </div>
         </div>
         <div class="col-md-4 text-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                <i class="bi bi-plus-circle"></i> New Project
+            <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+                <i class="fas fa-plus-circle me-2"></i> New Project
             </button>
         </div>
     </div>
 
-    <!-- Projects Table -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Project List</h5>
+    <!-- Stats Cards -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="stat-card gradient-blue">
+                <div class="stat-card__icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-card__info">
+                    <h3 class="stat-card__number" id="totalProjects">0</h3>
+                    <p class="stat-card__label">Total Projects</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
+        <div class="col-md-3">
+            <div class="stat-card gradient-green">
+                <div class="stat-card__icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-card__info">
+                    <h3 class="stat-card__number" id="completedProjects">0</h3>
+                    <p class="stat-card__label">Completed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card gradient-orange">
+                <div class="stat-card__icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="stat-card__info">
+                    <h3 class="stat-card__number" id="inProgressProjects">0</h3>
+                    <p class="stat-card__label">In Progress</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card gradient-purple">
+                <div class="stat-card__icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-card__info">
+                    <h3 class="stat-card__number" id="pendingProjects">0</h3>
+                    <p class="stat-card__label">On Hold</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold mb-0">
+                    <i class="fas fa-list me-2 text-primary"></i>Project List
+                </h5>
+                <div class="d-flex gap-2">
+                    <div class="input-group" style="width: 250px;">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search projects...">
+                    </div>
+                    <button class="btn btn-outline-secondary rounded-pill" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover" id="projectsTable">
-                    <thead>
+                <table class="table table-hover mb-0" id="projectsTable">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Project Name</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Priority</th>
-                            <th>Leader</th>
-                            <th>Start Date</th>
-                            <th>Due Date</th>
-                            <th>Actions</th>
+                            <th class="border-0 rounded-start">Project Name</th>
+                            <th class="border-0">Category</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0">Priority</th>
+                            <th class="border-0">Leader</th>
+                            <th class="border-0">Start Date</th>
+                            <th class="border-0">Due Date</th>
+                            <th class="border-0 rounded-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="projectsTableBody">
                         <tr>
-                            <td colspan="8" class="text-center text-muted">Loading...</td>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -48,61 +126,435 @@
 
 <!-- Create/Edit Project Modal -->
 <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createProjectModalLabel">New Project</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title text-white fw-bold" id="createProjectModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>Create New Project
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="projectForm">
-                    <div class="mb-3">
-                        <label for="projectName" class="form-label">Project Name</label>
-                        <input type="text" class="form-control" id="projectName" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="projectCategory" class="form-label">Category</label>
-                        <select class="form-control" id="projectCategory" name="category_id" required>
-                            <option value="">Select Category</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="projectStatus" class="form-label">Status</label>
-                        <select class="form-control" id="projectStatus" name="status" required>
-                            <option value="">Select Status</option>
-                            <option value="planning">Planning</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="on_hold">On Hold</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="projectDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="projectDescription" name="description" rows="3"></textarea>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="projectName" name="name" placeholder="Project Name" required>
+                                <label>Project Name <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-control" id="projectCategory" name="category_id" required>
+                                    <option value="">Select Category</option>
+                                    <option value="1">Web Development</option>
+                                    <option value="2">Mobile App</option>
+                                    <option value="3">Design</option>
+                                    <option value="4">Marketing</option>
+                                </select>
+                                <label>Category <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-control" id="projectStatus" name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="planning">📋 Planning</option>
+                                    <option value="in_progress">🚀 In Progress</option>
+                                    <option value="on_hold">⏸️ On Hold</option>
+                                    <option value="completed">✅ Completed</option>
+                                    <option value="cancelled">❌ Cancelled</option>
+                                </select>
+                                <label>Status <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-control" id="projectPriority" name="priority">
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium">🟡 Medium</option>
+                                    <option value="high">🔴 High</option>
+                                    <option value="urgent">⚠️ Urgent</option>
+                                </select>
+                                <label>Priority</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-control" id="projectLeader" name="leader_id">
+                                    <option value="">Select Leader</option>
+                                </select>
+                                <label>Project Leader</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="startDate" name="start_date">
+                                <label>Start Date</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="dueDate" name="due_date">
+                                <label>Due Date</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" id="projectDescription" name="description" rows="3" style="height: 100px" placeholder="Description"></textarea>
+                                <label>Description</label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveProjectBtn">Save Project</button>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="saveProjectBtn">
+                    <i class="fas fa-save me-2"></i>Save Project
+                </button>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+:root {
+    --gradient-blue: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-green: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    --gradient-orange: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+    min-height: 100vh;
+}
+
+/* Header Icon */
+.header-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #667eea;
+}
+
+/* Stat Cards */
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.gradient-blue {
+    --gradient: var(--gradient-blue);
+    border-left: 4px solid #667eea;
+}
+
+.gradient-green {
+    --gradient: var(--gradient-green);
+    border-left: 4px solid #84fab0;
+}
+
+.gradient-orange {
+    --gradient: var(--gradient-orange);
+    border-left: 4px solid #fda085;
+}
+
+.gradient-purple {
+    --gradient: var(--gradient-purple);
+    border-left: 4px solid #a8edea;
+}
+
+.stat-card__icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: var(--gradient);
+    color: white;
+}
+
+.gradient-blue .stat-card__icon {
+    background: var(--gradient-blue);
+}
+
+.gradient-green .stat-card__icon {
+    background: var(--gradient-green);
+}
+
+.gradient-orange .stat-card__icon {
+    background: var(--gradient-orange);
+}
+
+.gradient-purple .stat-card__icon {
+    background: var(--gradient-purple);
+}
+
+.stat-card__info {
+    flex: 1;
+}
+
+.stat-card__number {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin: 0;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-card__label {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Table Styling */
+.table {
+    --bs-table-hover-bg: rgba(102, 126, 234, 0.05);
+}
+
+.table thead th {
+    font-weight: 600;
+    color: #495057;
+    padding: 1rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    transform: scale(1.01);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+}
+
+.status-planning { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #2d3436; }
+.status-in_progress { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+.status-on_hold { background: linear-gradient(135deg, #dfe6e9, #b2bec3); color: #2d3436; }
+.status-completed { background: linear-gradient(135deg, #55efc4, #00b894); color: white; }
+.status-cancelled { background: linear-gradient(135deg, #ff7675, #d63031); color: white; }
+
+/* Priority Badges */
+.priority-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.priority-low { background: #e8f5e9; color: #2e7d32; }
+.priority-medium { background: #fff3e0; color: #ef6c00; }
+.priority-high { background: #ffebee; color: #c62828; }
+.priority-urgent { background: #fce4ec; color: #d81b60; }
+
+/* Action Buttons */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    margin: 0 2px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Form Styling */
+.form-floating > .form-control,
+.form-floating > .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* Search Input */
+.input-group-text {
+    border: 2px solid #e2e8f0;
+    border-right: none;
+    border-radius: 50px 0 0 50px;
+}
+
+.input-group input {
+    border: 2px solid #e2e8f0;
+    border-left: none;
+    border-radius: 0 50px 50px 0;
+}
+
+.input-group input:focus {
+    border-color: #667eea;
+    box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-card__icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .stat-card__number {
+        font-size: 1.25rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.75rem;
+    }
+    
+    .action-btn {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+tbody tr {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     loadProjects();
+    loadStats();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        filterProjects(e.target.value);
+    });
+    
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        loadProjects();
+        loadStats();
+        showToast('Projects refreshed!', 'success');
+    });
     
     // Save project button
     document.getElementById('saveProjectBtn').addEventListener('click', function() {
         saveProject();
     });
-});
+}
+
+function loadStats() {
+    fetch('/api/projects/', {
+        headers: {
+            'Authorization': 'Bearer ' + getToken(),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.results) {
+            const total = data.results.length;
+            const completed = data.results.filter(p => p.status === 'completed').length;
+            const inProgress = data.results.filter(p => p.status === 'in_progress').length;
+            const onHold = data.results.filter(p => p.status === 'on_hold').length;
+            
+            document.getElementById('totalProjects').textContent = total;
+            document.getElementById('completedProjects').textContent = completed;
+            document.getElementById('inProgressProjects').textContent = inProgress;
+            document.getElementById('pendingProjects').textContent = onHold;
+        }
+    })
+    .catch(error => console.error('Error loading stats:', error));
+}
 
 function loadProjects() {
-    // Fetch projects from API
     fetch('/api/projects/', {
         headers: {
             'Authorization': 'Bearer ' + getToken(),
@@ -114,37 +566,62 @@ function loadProjects() {
         tbody.innerHTML = '';
         
         if (data.results && data.results.length > 0) {
-            data.results.forEach(project => {
+            data.results.forEach((project, index) => {
                 const row = document.createElement('tr');
+                row.style.animationDelay = `${index * 0.05}s`;
                 row.innerHTML = `
-                    <td>${project.name}</td>
-                    <td>${project.category_name || 'N/A'}</td>
-                    <td><span class="badge bg-info">${project.status}</span></td>
-                    <td>${project.priority || 'N/A'}</td>
-                    <td>${project.leader_name || 'Unassigned'}</td>
-                    <td>${new Date(project.start_date).toLocaleDateString()}</td>
-                    <td>${new Date(project.due_date).toLocaleDateString()}</td>
+                    <td class="fw-semibold">${escapeHtml(project.name)}</td>
+                    <td><span class="badge bg-secondary bg-opacity-10 text-dark">${escapeHtml(project.category_name || 'N/A')}</span></td>
+                    <td><span class="status-badge status-${project.status}">${getStatusIcon(project.status)} ${formatStatus(project.status)}</span></td>
+                    <td><span class="priority-badge priority-${project.priority || 'medium'}">${getPriorityIcon(project.priority)} ${formatPriority(project.priority)}</span></td>
+                    <td><i class="fas fa-user-circle me-1 text-primary"></i> ${escapeHtml(project.leader_name || 'Unassigned')}</td>
+                    <td><i class="far fa-calendar-alt me-1 text-muted"></i> ${formatDate(project.start_date)}</td>
+                    <td><i class="far fa-calendar-check me-1 text-muted"></i> ${formatDate(project.due_date)}</td>
                     <td>
-                        <button class="btn btn-sm btn-info" onclick="viewProject(${project.id})">View</button>
-                        <button class="btn btn-sm btn-warning" onclick="editProject(${project.id})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProject(${project.id})">Delete</button>
+                        <button class="btn btn-sm btn-outline-info action-btn" onclick="viewProject(${project.id})" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning action-btn" onclick="editProject(${project.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteProject(${project.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No projects found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5"><i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>No projects found</td></tr>';
         }
     })
     .catch(error => {
         console.error('Error loading projects:', error);
-        document.getElementById('projectsTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading projects</td></tr>';
+        document.getElementById('projectsTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-danger py-5"><i class="fas fa-exclamation-triangle fa-3x mb-3 d-block"></i>Error loading projects</td></tr>';
+    });
+}
+
+function filterProjects(searchTerm) {
+    const rows = document.querySelectorAll('#projectsTableBody tr');
+    const term = searchTerm.toLowerCase();
+    
+    rows.forEach(row => {
+        if (row.cells) {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(term) ? '' : 'none';
+        }
     });
 }
 
 function saveProject() {
     const form = document.getElementById('projectForm');
     const formData = new FormData(form);
+    const submitBtn = document.getElementById('saveProjectBtn');
+    
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
     
     fetch('/api/projects/', {
         method: 'POST',
@@ -157,13 +634,23 @@ function saveProject() {
     .then(response => response.json())
     .then(data => {
         if (data.id) {
-            alert('Project created successfully!');
+            showToast('Project created successfully!', 'success');
             form.reset();
             bootstrap.Modal.getInstance(document.getElementById('createProjectModal')).hide();
             loadProjects();
+            loadStats();
+        } else {
+            showToast('Failed to create project', 'error');
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error saving project', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
 }
 
 function deleteProject(id) {
@@ -175,23 +662,103 @@ function deleteProject(id) {
             }
         })
         .then(() => {
-            alert('Project deleted successfully!');
+            showToast('Project deleted successfully!', 'success');
             loadProjects();
+            loadStats();
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error deleting project', 'error');
+        });
     }
 }
 
 function viewProject(id) {
-    alert('View project ' + id + ' - Feature coming soon');
+    showToast('View feature coming soon!', 'info');
 }
 
 function editProject(id) {
-    alert('Edit project ' + id + ' - Feature coming soon');
+    showToast('Edit feature coming soon!', 'info');
+}
+
+function getStatusIcon(status) {
+    const icons = {
+        'planning': '📋',
+        'in_progress': '🚀',
+        'on_hold': '⏸️',
+        'completed': '✅',
+        'cancelled': '❌'
+    };
+    return icons[status] || '📌';
+}
+
+function formatStatus(status) {
+    return status?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'N/A';
+}
+
+function getPriorityIcon(priority) {
+    const icons = {
+        'low': '🟢',
+        'medium': '🟡',
+        'high': '🔴',
+        'urgent': '⚠️'
+    };
+    return icons[priority] || '⚪';
+}
+
+function formatPriority(priority) {
+    return priority?.charAt(0).toUpperCase() + priority?.slice(1) || 'Medium';
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+function showToast(message, type = 'success') {
+    // Create toast container if not exists
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        toastContainer.style.zIndex = '1050';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} me-2"></i>
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
 }
 
 function getToken() {
-    // Get CSRF token or auth token
     return document.querySelector('meta[name="csrf-token"]')?.content || '';
 }
 </script>

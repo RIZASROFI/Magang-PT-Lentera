@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'siman.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', 'siman_tri'),
+        'NAME': os.getenv('DB_NAME', 'magang_db'),
         'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'password123'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '12'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
         'OPTIONS': {

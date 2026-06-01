@@ -77,14 +77,13 @@
                             <th>Klien</th>
                             <th>Lokasi</th>
                             <th>Status</th>
-                            <th>Progress</th>
                             <th>Nilai Kontrak</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="projectsTableBody">
                         <tr>
-                            <td colspan="8" class="text-center">Loading...</td>
+                            <td colspan="7" class="text-center">Loading...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -191,13 +190,6 @@ function renderProjects(data) {
             <td>${project.client_name}</td>
             <td>${project.city || '-'}</td>
             <td>${getStatusBadge(project.status)}</td>
-            <td>
-                <div class="progress" style="height: 20px;">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: ${project.progress_percentage || 0}%">
-                        ${project.progress_percentage || 0}%
-                    </div>
-                </div>
-            </td>
             <td>${SIMAN.formatCurrency(project.contract_value)}</td>
             <td>
                 <button type="button" class="btn btn-sm btn-info" onclick="openProjectDetail(${project.id})" aria-label="Lihat detail">
@@ -279,8 +271,6 @@ async function openProjectDetail(id) {
         const rows = [
             ['Kode Proyek', res.project_code],
             ['Nama Proyek', res.name],
-            ['Kategori', res.category?.name ?? res.category],
-            ['Priority', res.priority],
             ['Klien', res.client_name],
             ['Kontak Klien', res.client_contact],
             ['Telepon Klien', res.client_phone],
@@ -289,10 +279,8 @@ async function openProjectDetail(id) {
             ['Kota', res.city],
             ['Provinsi', res.province],
             ['Deskripsi', res.description],
-            ['Scope of Work', res.scope_of_work],
             ['Tanggal Mulai', res.start_date],
             ['Tanggal Selesai', res.end_date],
-            ['Due Date', res.due_date],
             ['Nilai Kontrak', res.contract_value != null ? SIMAN.formatCurrency(res.contract_value) : '-'],
             ['Status', res.status],
         ];

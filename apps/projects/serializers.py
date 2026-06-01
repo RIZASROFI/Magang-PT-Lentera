@@ -130,17 +130,12 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'project_code', 'name', 'category', 'client_name',
+            'name', 'category', 'client_name',
             'client_contact', 'client_phone', 'client_email',
             'address', 'city', 'province', 'description', 'scope_of_work',
             'status', 'priority', 'start_date', 'end_date', 'due_date',
             'contract_value', 'leader'
         ]
-    
-    def validate_project_code(self, value):
-        if Project.objects.filter(project_code=value).exists():
-            raise serializers.ValidationError('Kode proyek sudah ada!')
-        return value
 
 
 class ProjectUpdateSerializer(serializers.ModelSerializer):

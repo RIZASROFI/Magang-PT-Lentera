@@ -6,6 +6,7 @@ PT Lentera Anugerah Dimensi - Project Management Module
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+import uuid
 
 User = get_user_model()
 
@@ -48,7 +49,7 @@ class Project(models.Model):
         ('urgent', 'Mendesak'),
     ]
     
-    project_code = models.CharField(max_length=50, unique=True)
+    project_code = models.CharField(max_length=50, unique=True, default=None, null=True, blank=True)
     name = models.CharField(max_length=200)
     category = models.ForeignKey(ProjectCategory, on_delete=models.SET_NULL, null=True, related_name='projects')
     client_name = models.CharField(max_length=200)
@@ -94,6 +95,11 @@ class Project(models.Model):
     
     def __str__(self):
         return f"{self.project_code} - {self.name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.project_code:
+            self.project_code = f"PRJ-{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
     
     @property
     def progress_percentage(self):

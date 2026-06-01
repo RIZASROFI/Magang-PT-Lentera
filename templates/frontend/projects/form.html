@@ -4,218 +4,186 @@
 <div class="container-fluid py-4">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h2 id="pageTitle">Proyek Baru</h2>
+            <h2 id="pageTitle" class="display-6 fw-bold" style="background: linear-gradient(135deg, #1e3c72, #2a5298); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Proyek Baru</h2>
             <p class="text-muted mb-0">Kelola informasi proyek dengan tampilan yang rapi, modern, dan responsif.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="/projects/" class="btn btn-secondary" aria-label="Kembali">
-                <i class="fas fa-arrow-left"></i> Kembali
+            <a href="/projects/" class="btn btn-outline-secondary rounded-pill px-4" aria-label="Kembali">
+                <i class="fas fa-arrow-left me-2"></i> Kembali
             </a>
         </div>
     </div>
 
-
-    <div class="card project-form-card">
-        <div class="card-body">
+    <div class="card project-form-card border-0 shadow-lg">
+        <div class="card-body p-4 p-lg-5">
             <form id="projectForm" class="project-form-body">
                 <!-- Identitas Proyek -->
-                <div class="project-section mb-4">
-                    <div class="project-section__title">
-                        <span class="project-section__icon"><i class="fas fa-layer-group"></i></span>
-                        <h5 class="m-0">Identitas Proyek</h5>
+                <div class="project-section mb-5 animate__animated animate__fadeInUp">
+                    <div class="project-section__title mb-3">
+                        <div class="project-section__icon">
+                            <i class="fas fa-layer-group fa-fw"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold">Identitas Proyek</h5>
                     </div>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Kode Proyek <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="project_code" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-0">
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" placeholder="Nama Proyek" required>
                                 <label class="form-label">Nama Proyek <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="name" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Kategori</label>
-                                <select class="form-select" id="category">
-                                    <option value="">Pilih Kategori</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Priority</label>
-                                <select class="form-select" id="priority">
-                                    <option value="medium">Sedang</option>
-                                    <option value="high">Tinggi</option>
-                                    <option value="low">Rendah</option>
-                                    <option value="urgent">Mendesak</option>
-                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Informasi Klien -->
-                <div class="project-section mb-4">
-                    <div class="project-section__title">
-                        <span class="project-section__icon"><i class="fas fa-user-tie"></i></span>
-                        <h5 class="m-0">Informasi Klien</h5>
+                <div class="project-section mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="project-section__title mb-3">
+                        <div class="project-section__icon">
+                            <i class="fas fa-user-tie fa-fw"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold">Informasi Klien</h5>
                     </div>
 
-                    <div class="row g-3 mt-2">
+                    <div class="row g-4 mt-2">
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Nama Klien <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="client_name" required>
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="client_name" placeholder="Nama Klien" required>
+                                <label>Nama Klien <span class="text-danger">*</span></label>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Kontak Klien</label>
-                                <input type="text" class="form-control" id="client_contact">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="client_contact" placeholder="Kontak Klien">
+                                <label>Kontak Klien</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-1">
+                    <div class="row g-4 mt-1">
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Telepon Klien</label>
-                                <input type="text" class="form-control" id="client_phone">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="client_phone" placeholder="Telepon Klien">
+                                <label>Telepon Klien</label>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Email Klien</label>
-                                <input type="email" class="form-control" id="client_email">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="client_email" placeholder="Email Klien">
+                                <label>Email Klien</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Lokasi Proyek -->
-                <div class="project-section mb-4">
-                    <div class="project-section__title">
-                        <span class="project-section__icon"><i class="fas fa-map-marked-alt"></i></span>
-                        <h5 class="m-0">Lokasi Proyek</h5>
+                <div class="project-section mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                    <div class="project-section__title mb-3">
+                        <div class="project-section__icon">
+                            <i class="fas fa-map-marked-alt fa-fw"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold">Lokasi Proyek</h5>
                     </div>
 
-                    <div class="row g-3 mt-2">
+                    <div class="row g-4 mt-2">
                         <div class="col-12">
-                            <div class="mb-0">
-                                <label class="form-label">Alamat <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="address" required rows="3"></textarea>
+                            <div class="form-floating">
+                                <textarea class="form-control" id="address" placeholder="Alamat" required rows="3" style="height: 100px"></textarea>
+                                <label>Alamat <span class="text-danger">*</span></label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-1">
+                    <div class="row g-4 mt-1">
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Kota</label>
-                                <input type="text" class="form-control" id="city">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="city" placeholder="Kota">
+                                <label>Kota</label>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Provinsi</label>
-                                <input type="text" class="form-control" id="province">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="province" placeholder="Provinsi">
+                                <label>Provinsi</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Detail Proyek -->
-                <div class="project-section mb-4">
-                    <div class="project-section__title">
-                        <span class="project-section__icon"><i class="fas fa-clipboard-list"></i></span>
-                        <h5 class="m-0">Detail Proyek</h5>
-                    </div>
-
-                    <div class="row g-3 mt-2">
-                        <div class="col-12">
-                            <div class="mb-0">
-                                <label class="form-label">Deskripsi</label>
-                                <textarea class="form-control" id="description" rows="3"></textarea>
-                            </div>
+                <div class="project-section mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                    <div class="project-section__title mb-3">
+                        <div class="project-section__icon">
+                            <i class="fas fa-clipboard-list fa-fw"></i>
                         </div>
+                        <h5 class="m-0 fw-bold">Detail Proyek</h5>
                     </div>
 
-                    <div class="row g-3 mt-1">
+                    <div class="row g-4 mt-2">
                         <div class="col-12">
-                            <div class="mb-0">
-                                <label class="form-label">Scope of Work</label>
-                                <textarea class="form-control" id="scope_of_work" rows="3"></textarea>
+                            <div class="form-floating">
+                                <textarea class="form-control" id="description" placeholder="Deskripsi" rows="3" style="height: 100px"></textarea>
+                                <label>Deskripsi</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Jadwal & Nilai -->
-                <div class="project-section mb-4">
-                    <div class="project-section__title">
-                        <span class="project-section__icon"><i class="fas fa-calendar-check"></i></span>
-                        <h5 class="m-0">Jadwal & Nilai</h5>
+                <div class="project-section mb-5 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+                    <div class="project-section__title mb-3">
+                        <div class="project-section__icon">
+                            <i class="fas fa-calendar-check fa-fw"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold">Jadwal & Nilai</h5>
                     </div>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-4">
-                            <div class="mb-0">
-                                <label class="form-label">Tanggal Mulai <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="start_date" required>
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="start_date" placeholder="Tanggal Mulai" required>
+                                <label>Tanggal Mulai <span class="text-danger">*</span></label>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-0">
-                                <label class="form-label">Tanggal Selesai</label>
-                                <input type="date" class="form-control" id="end_date">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-0">
-                                <label class="form-label">Due Date</label>
-                                <input type="date" class="form-control" id="due_date">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="end_date" placeholder="Tanggal Selesai">
+                                <label>Tanggal Selesai</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-1">
+                    <div class="row g-4 mt-1">
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Nilai Kontrak</label>
-                                <input type="number" class="form-control" id="contract_value" step="0.01">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="contract_value" step="0.01" placeholder="Nilai Kontrak">
+                                <label>Nilai Kontrak (Rp)</label>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-0">
-                                <label class="form-label">Status</label>
+                            <div class="form-floating">
                                 <select class="form-select" id="status">
-                                    <option value="draft">Rencana</option>
-                                    <option value="survey">Survei</option>
-                                    <option value="progress">Sedang Berjalan</option>
-                                    <option value="pending">Menunggu</option>
-                                    <option value="testing">Testing</option>
-                                    <option value="completed">Selesai</option>
-                                    <option value="canceled">Dibatalkan</option>
+                                    <option value="draft">📋 Rencana</option>
+                                    <option value="survey">🔍 Survei</option>
+                                    <option value="progress">🚀 Sedang Berjalan</option>
+                                    <option value="pending">⏳ Menunggu</option>
+                                    <option value="testing">🧪 Testing</option>
+                                    <option value="completed">✅ Selesai</option>
+                                    <option value="canceled">❌ Dibatalkan</option>
                                 </select>
+                                <label>Status</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Actions -->
-                <div class="project-form-actions d-flex justify-content-end gap-2 pt-2">
-                    <a href="/projects/" class="btn btn-secondary project-form-btn">Batal</a>
-                    <button type="submit" class="btn btn-primary project-form-btn">
-                        <i class="fas fa-save"></i> Simpan
+                <div class="project-form-actions d-flex justify-content-end gap-3 pt-4 border-top">
+                    <a href="/projects/" class="btn btn-light rounded-pill px-4 py-2">
+                        <i class="fas fa-times me-2"></i> Batal
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                        <i class="fas fa-save me-2"></i> Simpan Proyek
                     </button>
                 </div>
             </form>
@@ -227,101 +195,342 @@
 
 {% block extra_css %}
 <style>
-    .project-section{
-        border: 1px solid rgba(77, 171, 247, 0.25);
-        border-radius: 18px;
-        background: rgba(255,255,255,0.75);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 10px 28px rgba(77, 171, 247, 0.08);
-        padding: 18px 18px 16px;
-    }
+:root {
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+    --shadow-xl: 0 20px 40px rgba(0,0,0,0.12);
+}
 
-    .project-section__title{
-        display:flex;
-        align-items:center;
-        gap: 10px;
-        margin-bottom: 2px;
-    }
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
 
-    .project-section__icon{
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        background: linear-gradient(135deg, rgba(77,171,247,0.18), rgba(28,126,214,0.06));
-        border: 1px solid rgba(77,171,247,0.25);
-        color: #1c7ed6;
-    }
+.project-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
 
-    .project-section__title h5{
-        font-weight: 800;
-        color: var(--text-dark);
-        letter-spacing: 0.2px;
-    }
+.project-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
 
-    .project-form-card{
-        border-radius: 22px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.75);
-    }
+.project-section:hover::before {
+    transform: scaleX(1);
+}
 
-    .project-section .form-label{
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
+.project-section:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
 
-    .project-section .form-control,
-    .project-section .form-select{
-        border-width: 2px;
-        border-color: rgba(77, 171, 247, 0.35);
-        box-shadow: 0 6px 18px rgba(77, 171, 247, 0.06);
-        background: rgba(255,255,255,0.98);
-    }
+.project-section__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
 
-    .project-section .form-control:focus,
-    .project-section .form-select:focus{
-        border-color: rgba(77, 171, 247, 0.55);
-        box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.18);
-    }
+.project-section__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
 
-    @media (max-width: 768px){
-        .project-section{padding: 14px;}
+.project-section:hover .project-section__icon {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: var(--shadow-lg);
+}
+
+.project-section__title h5 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.project-form-card {
+    border-radius: 32px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.project-form-card:hover {
+    box-shadow: var(--shadow-xl) !important;
+}
+
+.form-floating > .form-control,
+.form-floating > .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-floating > .form-control:hover,
+.form-floating > .form-select:hover {
+    border-color: #a0aec0;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Custom select styling */
+.form-select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-light {
+    background: white;
+    border: 2px solid #e2e8f0;
+    color: #4a5568;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-light:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-2px);
+}
+
+/* Floating animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__fadeInUp {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .project-section {
+        padding: 20px;
+    }
+    
+    .project-section__icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .project-section__title h5 {
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .btn {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* Loading animation for submit button */
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-primary:disabled::before {
+    display: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+/* Number input styling */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.5;
+}
+
+/* Date input styling */
+input[type="date"] {
+    position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Toast notification styling (if you have showToast function) */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.toast-custom {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid #667eea;
+    padding: 1rem;
+}
 </style>
+
+<!-- Add Animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 {% endblock %}
-
-
-
-
 
 {% block extra_js %}
 <script>
 let projectId = null;
 
-async function loadCategories() {
-    try {
-        const response = await SIMAN.apiRequest('/projects/categories/');
-        if (response) {
-            const select = document.getElementById('category');
-            const categories = response.results || response;
-            select.innerHTML = '<option value="">Pilih Kategori</option>' + 
-                categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-        }
-    } catch (error) {
-        console.error('Error loading categories:', error);
+// Add loading state to button
+function setButtonLoading(button, loading) {
+    if (loading) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+    } else {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Proyek';
     }
+}
+
+// Format currency input
+function formatCurrency(value) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(value);
 }
 
 async function loadProject(id) {
     try {
         const response = await SIMAN.apiRequest('/projects/' + id + '/');
         if (response) {
-            document.getElementById('pageTitle').textContent = 'Edit Proyek';
+            document.getElementById('pageTitle').innerHTML = '✏️ Edit Proyek';
+            document.getElementById('pageTitle').style.background = "linear-gradient(135deg, #f093fb, #f5576c)";
+            document.getElementById('pageTitle').style.webkitBackgroundClip = "text";
+            document.getElementById('pageTitle').style.webkitTextFillColor = "transparent";
             projectId = id;
             
-            document.getElementById('project_code').value = response.project_code || '';
+            // Fill form fields
             document.getElementById('name').value = response.name || '';
             document.getElementById('client_name').value = response.client_name || '';
             document.getElementById('client_contact').value = response.client_contact || '';
@@ -331,36 +540,35 @@ async function loadProject(id) {
             document.getElementById('city').value = response.city || '';
             document.getElementById('province').value = response.province || '';
             document.getElementById('description').value = response.description || '';
-            document.getElementById('scope_of_work').value = response.scope_of_work || '';
             document.getElementById('start_date').value = response.start_date || '';
             document.getElementById('end_date').value = response.end_date || '';
-            document.getElementById('due_date').value = response.due_date || '';
-            document.getElementById('contract_value').value = response.contract_value || 0;
             
-            if (response.priority) {
-                document.getElementById('priority').value = response.priority;
+            if (response.contract_value) {
+                document.getElementById('contract_value').value = response.contract_value;
             }
+            
             if (response.status) {
                 document.getElementById('status').value = response.status;
             }
-            if (response.category) {
-                document.getElementById('category').value = response.category;
-            }
             
-            document.getElementById('project_code').readOnly = true;
+            // Add visual feedback for loaded data
+            showToast('Data proyek berhasil dimuat', 'success');
         }
     } catch (error) {
         console.error('Error loading project:', error);
+        showToast('Gagal memuat data proyek', 'error');
     }
 }
 
 document.getElementById('projectForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    setButtonLoading(submitButton, true);
+    
+    // Get form data
     const data = {
-        project_code: document.getElementById('project_code').value,
         name: document.getElementById('name').value,
-        category: document.getElementById('category').value || null,
         client_name: document.getElementById('client_name').value,
         client_contact: document.getElementById('client_contact').value,
         client_phone: document.getElementById('client_phone').value,
@@ -369,15 +577,19 @@ document.getElementById('projectForm').addEventListener('submit', async (e) => {
         city: document.getElementById('city').value,
         province: document.getElementById('province').value,
         description: document.getElementById('description').value,
-        scope_of_work: document.getElementById('scope_of_work').value,
         start_date: document.getElementById('start_date').value,
         end_date: document.getElementById('end_date').value || null,
-        due_date: document.getElementById('due_date').value || null,
         contract_value: parseFloat(document.getElementById('contract_value').value) || 0,
-        priority: document.getElementById('priority').value,
         status: document.getElementById('status').value
     };
-
+    
+    // Validate required fields
+    if (!data.name || !data.client_name || !data.address || !data.start_date) {
+        showToast('Mohon lengkapi field yang wajib diisi (*)', 'error');
+        setButtonLoading(submitButton, false);
+        return;
+    }
+    
     try {
         let response;
         if (projectId) {
@@ -385,25 +597,107 @@ document.getElementById('projectForm').addEventListener('submit', async (e) => {
         } else {
             response = await SIMAN.apiRequest('/projects/', 'POST', data);
         }
-
+        
         if (response && !response.error) {
-            showToast('Proyek disimpan!', 'success');
-            window.location.href = '/projects/';
+            showToast(projectId ? 'Proyek berhasil diperbarui!' : 'Proyek berhasil disimpan!', 'success');
+            setTimeout(() => {
+                window.location.href = '/projects/';
+            }, 1000);
         } else {
             showToast(response?.error || 'Gagal menyimpan proyek', 'error');
+            setButtonLoading(submitButton, false);
         }
     } catch (error) {
         console.error('Error saving project:', error);
-        showToast('Gagal menyimpan proyek!', 'error');
+        showToast('Terjadi kesalahan saat menyimpan proyek', 'error');
+        setButtonLoading(submitButton, false);
     }
 });
+
+// Add input validation and visual feedback
+const inputs = document.querySelectorAll('.form-control, .form-select');
+inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+    });
+});
+
+// Auto-format number input for contract value
+const contractValueInput = document.getElementById('contract_value');
+if (contractValueInput) {
+    contractValueInput.addEventListener('blur', function() {
+        if (this.value) {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+            }
+        }
+    });
+}
 
 // Check if edit mode
 const pathParts = window.location.pathname.split('/');
 if (pathParts[pathParts.length - 2] === 'edit') {
     loadProject(pathParts[pathParts.length - 3]);
-} else {
-    loadCategories();
+}
+
+// Add smooth scroll to top of form when errors occur
+function showToast(message, type = 'success') {
+    // Create toast container if not exists
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast-custom animate__animated animate__slideInRight`;
+    toast.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} fa-2x" style="color: ${type === 'success' ? '#10b981' : '#ef4444'}"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <strong class="me-auto">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</strong>
+                <div class="text-muted small">${message}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toast.style.background = 'white';
+    toast.style.borderRadius = '12px';
+    toast.style.padding = '1rem';
+    toast.style.marginBottom = '0.5rem';
+    toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+    toast.style.borderLeft = `4px solid ${type === 'success' ? '#10b981' : '#ef4444'}`;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('animate__slideOutRight');
+        setTimeout(() => {
+            toast.remove();
+        }, 500);
+    }, 3000);
+    
+    // Add close button functionality
+    const closeBtn = toast.querySelector('.btn-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            toast.classList.add('animate__slideOutRight');
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        });
+    }
 }
 </script>
 {% endblock %}
