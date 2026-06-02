@@ -1,255 +1,774 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+:root {
+    --si-primary: #1a73e8;
+    --si-secondary: #667eea;
+    --si-accent: #764ba2;
+    --si-success: #10b981;
+    --si-danger: #ef4444;
+    --si-warning: #f59e0b;
+    --si-info: #06b6d4;
+    --si-gradient: linear-gradient(135deg, #1a73e8 0%, #667eea 50%, #764ba2 100%);
+    --si-shadow: 0 4px 24px rgba(26, 115, 232, 0.10);
+    --si-shadow-hover: 0 8px 32px rgba(26, 115, 232, 0.18);
+}
+
+.si-header { padding: 1.5rem 0 1rem; }
+.si-header__title {
+    font-size: 1.75rem; font-weight: 800;
+    background: var(--si-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.25rem;
+}
+.si-header__subtitle { color: #6c757d; font-size: 0.9rem; margin: 0; }
+.si-header__actions .btn {
+    font-weight: 600; padding: 0.6rem 1.25rem;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.si-header__actions .btn:hover { transform: translateY(-2px); }
+.btn-si-primary {
+    background: var(--si-gradient); color: #fff; border: none;
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+.btn-si-primary:hover { box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4); color: #fff; }
+.btn-si-outline {
+    background: #fff; color: var(--si-primary);
+    border: 2px solid rgba(26, 115, 232, 0.15);
+}
+.btn-si-outline:hover { background: rgba(26, 115, 232, 0.05); border-color: var(--si-primary); }
+
+/* Stats Cards */
+.si-stats { margin-bottom: 1.5rem; }
+.si-stat-card {
+    background: #fff; border-radius: 16px; padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(26, 115, 232, 0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%; position: relative; overflow: hidden;
+}
+.si-stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; transform: scaleX(0); transition: transform 0.3s ease;
+    transform-origin: left;
+}
+.si-stat-card:hover::before { transform: scaleX(1); }
+.si-stat-card:hover { transform: translateY(-3px); box-shadow: var(--si-shadow); }
+.si-stat-card--blue::before { background: var(--si-gradient); }
+.si-stat-card--green::before { background: linear-gradient(135deg, #10b981, #34d399); }
+.si-stat-card--orange::before { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.si-stat-card--red::before { background: linear-gradient(135deg, #ef4444, #f87171); }
+.si-stat-card--purple::before { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+
+.si-stat-card__icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 0.75rem;
+}
+.si-stat-card__icon--blue { background: rgba(26, 115, 232, 0.1); color: var(--si-primary); }
+.si-stat-card__icon--green { background: rgba(16, 185, 129, 0.1); color: var(--si-success); }
+.si-stat-card__icon--orange { background: rgba(245, 158, 11, 0.1); color: var(--si-warning); }
+.si-stat-card__icon--red { background: rgba(239, 68, 68, 0.1); color: var(--si-danger); }
+.si-stat-card__icon--purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+.si-stat-card__label {
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 0.25rem;
+}
+.si-stat-card__value {
+    font-size: 1.65rem; font-weight: 800; color: #1f2937;
+    margin: 0; line-height: 1.2;
+}
+
+/* Main Card */
+.si-main-card {
+    background: #fff; border-radius: 20px;
+    border: 1px solid rgba(26, 115, 232, 0.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04); overflow: hidden;
+}
+.si-main-card__header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem; border-bottom: 1px solid rgba(26, 115, 232, 0.08);
+    background: rgba(26, 115, 232, 0.02); flex-wrap: wrap; gap: 0.75rem;
+}
+.si-main-card__title {
+    font-size: 1rem; font-weight: 700; color: #374151;
+    margin: 0; display: flex; align-items: center; gap: 0.5rem;
+}
+.si-main-card__title i { color: var(--si-primary); }
+
+/* Table */
+.si-table { margin: 0; width: 100%; }
+.si-table thead th {
+    background: rgba(26, 115, 232, 0.03);
+    color: #6b7280; font-weight: 700; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    padding: 0.85rem 1rem;
+    border-bottom: 2px solid rgba(26, 115, 232, 0.1); white-space: nowrap;
+}
+.si-table tbody td {
+    padding: 0.8rem 1rem; vertical-align: middle;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    font-size: 0.9rem; color: #374151;
+}
+.si-table tbody tr { transition: all 0.2s ease; }
+.si-table tbody tr:hover { background: rgba(26, 115, 232, 0.03); }
+.si-table tbody tr:last-child td { border-bottom: none; }
+
+.si-trans-num { font-weight: 600; color: #1f2937; }
+.si-ref-num { font-size: 0.75rem; color: #9ca3af; }
+
+.si-source-badge {
+    display: inline-block;
+    background: rgba(26, 115, 232, 0.08);
+    color: var(--si-primary);
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem; font-weight: 500;
+}
+
+.si-date-text { font-size: 0.85rem; color: #6b7280; }
+
+.si-price {
+    font-weight: 700; color: #059669; font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.si-action-btn {
+    padding: 0.35rem 0.85rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.si-action-btn:hover { transform: translateY(-1px); }
+.si-action-btn--approve { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.si-action-btn--approve:hover { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
+.si-action-btn--complete { background: rgba(26, 115, 232, 0.12); color: var(--si-primary); }
+.si-action-btn--complete:hover { background: #1a73e8; color: #fff; box-shadow: 0 4px 12px rgba(26,115,232,0.35); }
+.si-action-btn--cancel { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+.si-action-btn--cancel:hover { background: #ef4444; color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
+.si-action-btn--detail { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+.si-action-btn--detail:hover { background: #6b7280; color: #fff; box-shadow: 0 4px 12px rgba(107,114,128,0.35); }
+
+/* Status Badge */
+.si-status-badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.25rem 0.75rem; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600;
+}
+.si-status-badge--draft { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+.si-status-badge--pending { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.si-status-badge--approved { background: rgba(26, 115, 232, 0.1); color: var(--si-primary); }
+.si-status-badge--completed { background: rgba(16, 185, 129, 0.1); color: #059669; }
+.si-status-badge--canceled { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+/* Empty & Loading */
+.si-empty {
+    text-align: center; padding: 3rem 1rem;
+}
+.si-empty__icon { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
+.si-empty__text { color: #9ca3af; font-size: 0.95rem; margin-bottom: 0.5rem; }
+.si-empty__hint { color: #d1d5db; font-size: 0.82rem; }
+
+/* Modal styling */
+.modal-content {
+    border-radius: 16px !important; border: none !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+}
+.modal-header {
+    border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+    padding: 1.25rem 1.5rem !important;
+}
+.modal-header .modal-title { font-weight: 700; color: #1f2937; }
+.modal-body { padding: 1.5rem !important; }
+.modal-footer {
+    border-top: 1px solid rgba(0,0,0,0.06) !important;
+    padding: 1rem 1.5rem !important;
+}
+
+/* Toast */
+.si-toast {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    background: #fff; border-radius: 14px; padding: 1rem 1.25rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    border-left: 4px solid var(--si-primary);
+    display: flex; align-items: center; gap: 0.75rem;
+    min-width: 280px; max-width: 420px;
+    animation: siSlideIn 0.3s ease-out;
+}
+.si-toast--success { border-left-color: var(--si-success); }
+.si-toast--error { border-left-color: var(--si-danger); }
+.si-toast--warning { border-left-color: var(--si-warning); }
+
+@keyframes siSlideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes siFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translateX(50px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .si-header__title { font-size: 1.35rem; }
+    .si-header__actions .btn { font-size: 0.85rem; padding: 0.5rem 1rem; }
+    .si-stat-card { padding: 1rem; }
+    .si-stat-card__value { font-size: 1.35rem; }
+    .si-main-card__header { flex-direction: column; align-items: stretch; }
+    .si-table thead th, .si-table tbody td { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+}
+</style>
+
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header -->
+    <div class="si-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <h2 class="mb-1">Barang Masuk (Stock In)</h2>
-            <div class="text-muted">Transaksi barang masuk untuk menambah stok</div>
+            <h1 class="si-header__title">
+                <i class="fas fa-arrow-down me-2" style="-webkit-text-fill-color: initial; color: #1a73e8;"></i>
+                Barang Masuk
+            </h1>
+            <p class="si-header__subtitle">Kelola transaksi penerimaan barang dan penambahan stok inventory</p>
         </div>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-primary" id="refreshBtn">
-                <i class="fas fa-redo"></i> Refresh
+        <div class="si-header__actions d-flex gap-2">
+            <button type="button" class="btn btn-si-outline" onclick="loadStockIns()" title="Refresh data">
+                <i class="fas fa-sync-alt me-1"></i> Refresh
+            </button>
+            <button type="button" class="btn btn-si-primary" onclick="showCreateModal()">
+                <i class="fas fa-plus me-1"></i> Barang Masuk Baru
             </button>
         </div>
     </div>
 
-
-
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Daftar Stock In</span>
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-outline-primary" id="addStockInBtn">
-                    <i class="fas fa-plus"></i> Tambah
-                </button>
-                <span class="text-muted small" id="metaText"></span>
+    <!-- Stats Cards -->
+    <div class="si-stats row g-3">
+        <div class="col-6 col-md-3">
+            <div class="si-stat-card si-stat-card--blue">
+                <div class="si-stat-card__icon si-stat-card__icon--blue"><i class="fas fa-exchange-alt"></i></div>
+                <div class="si-stat-card__label">Total Transaksi</div>
+                <h3 class="si-stat-card__value" id="statTotal">0</h3>
             </div>
         </div>
+        <div class="col-6 col-md-3">
+            <div class="si-stat-card si-stat-card--orange">
+                <div class="si-stat-card__icon si-stat-card__icon--orange"><i class="fas fa-clock"></i></div>
+                <div class="si-stat-card__label">Pending</div>
+                <h3 class="si-stat-card__value" id="statPending">0</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="si-stat-card si-stat-card--green">
+                <div class="si-stat-card__icon si-stat-card__icon--green"><i class="fas fa-check-circle"></i></div>
+                <div class="si-stat-card__label">Selesai</div>
+                <h3 class="si-stat-card__value" id="statCompleted">0</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="si-stat-card si-stat-card--purple">
+                <div class="si-stat-card__icon si-stat-card__icon--purple"><i class="fas fa-boxes"></i></div>
+                <div class="si-stat-card__label">Total Item Masuk</div>
+                <h3 class="si-stat-card__value" id="statTotalItems">0</h3>
+            </div>
+        </div>
+    </div>
 
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover" id="stockInTable">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Barang</th>
-                            <th>Supplier</th>
-                            <th>Transaksi</th>
-                            <th>Status</th>
-                            <th>Tanggal</th>
-                            <th>Total</th>
-                            <th style="min-width:180px;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stockInTbody">
-                        <tr><td colspan="8" class="text-center">Loading...</td></tr>
-                    </tbody>
-                </table>
+    <!-- Main Table Card -->
+    <div class="si-main-card">
+        <div class="si-main-card__header">
+            <h6 class="si-main-card__title">
+                <i class="fas fa-list"></i>
+                Daftar Transaksi Barang Masuk
+            </h6>
+            <span class="text-muted small">
+                <i class="fas fa-database me-1"></i>
+                <span id="dataCountLabel">0 transaksi</span>
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table si-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Transaksi</th>
+                        <th>Supplier</th>
+                        <th>Sumber</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Total</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="stockInTbody">
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="d-flex justify-content-center align-items-center gap-2 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                <span>Memuat data...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="stockInDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-receipt text-primary me-2"></i>Detail Barang Masuk
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="stockInDetailBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2 mb-0">Memuat detail...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Tutup
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal detail (basic) -->
-<div class="modal fade" id="stockInDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<!-- Create Modal -->
+<div class="modal fade" id="stockInCreateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detail Stock In</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle text-success me-2"></i>Tambah Barang Masuk
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div id="stockInDetailBody" class="text-muted">Memuat...</div>
+                <form id="stockInCreateForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Sumber <span class="text-danger">*</span></label>
+                            <select class="form-select" id="createSource" required>
+                                <option value="">-- Pilih Sumber --</option>
+                                <option value="purchase">Pembelian</option>
+                                <option value="return">Retur</option>
+                                <option value="adjustment">Penyesuaian</option>
+                                <option value="transfer">Transfer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Supplier</label>
+                            <select class="form-select" id="createSupplier">
+                                <option value="">-- Pilih Supplier --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">No. Referensi</label>
+                            <input type="text" class="form-control" id="createRefNumber" placeholder="No. PO / Faktur">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tanggal Transaksi <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="createTransDate" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Item Barang</label>
+                            <div id="createItemsContainer">
+                                <div class="row g-2 mb-2 item-row">
+                                    <div class="col-md-5">
+                                        <select class="form-select form-select-sm item-select" required>
+                                            <option value="">-- Pilih Item --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest('.item-row').remove()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="addItemRow()">
+                                <i class="fas fa-plus me-1"></i>Tambah Item
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Catatan</label>
+                            <textarea class="form-control" id="createNotes" rows="2" placeholder="Catatan tambahan..."></textarea>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-success rounded-pill px-4" id="btnSaveStockIn">
+                    <i class="fas fa-save me-2"></i>Simpan
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-(function(){
-    const tbody = document.getElementById('stockInTbody');
-    const metaText = document.getElementById('metaText');
+let allStockIns = [];
+let allItems = [];
+let allSuppliers = [];
 
-    const refreshBtn = document.getElementById('refreshBtn');
+// ============ UTILITY ============
+function siBadge(status) {
+    const cls = {
+        'draft': 'si-status-badge--draft',
+        'pending': 'si-status-badge--pending',
+        'approved': 'si-status-badge--approved',
+        'completed': 'si-status-badge--completed',
+        'canceled': 'si-status-badge--canceled'
+    };
+    const icons = {
+        'draft': 'fa-file',
+        'pending': 'fa-clock',
+        'approved': 'fa-thumbs-up',
+        'completed': 'fa-check-circle',
+        'canceled': 'fa-times-circle'
+    };
+    const labels = {
+        'draft': 'Draft',
+        'pending': 'Menunggu',
+        'approved': 'Disetujui',
+        'completed': 'Selesai',
+        'canceled': 'Dibatalkan'
+    };
+    const s = status || 'draft';
+    return `<span class="si-status-badge ${cls[s] || 'si-status-badge--draft'}"><i class="fas ${icons[s] || 'fa-file'}"></i> ${labels[s] || s}</span>`;
+}
 
+function siSourceBadge(source) {
+    const labels = {
+        'purchase': 'Pembelian',
+        'return': 'Retur',
+        'adjustment': 'Penyesuaian',
+        'transfer': 'Transfer'
+    };
+    const icons = {
+        'purchase': 'fa-shopping-cart',
+        'return': 'fa-undo',
+        'adjustment': 'fa-sliders-h',
+        'transfer': 'fa-exchange-alt'
+    };
+    const s = source || '-';
+    return `<span class="si-source-badge"><i class="fas ${icons[s] || 'fa-tag'} me-1" style="font-size:0.65rem;"></i>${labels[s] || s}</span>`;
+}
 
-    const detailModalEl = document.getElementById('stockInDetailModal');
-    const stockInDetailBody = document.getElementById('stockInDetailBody');
-    const detailModal = detailModalEl ? new bootstrap.Modal(detailModalEl) : null;
+function siToast(message, type) {
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+    const colors = { success: 'var(--si-success)', error: 'var(--si-danger)', warning: 'var(--si-warning)', info: 'var(--si-primary)' };
+    const toast = document.createElement('div');
+    toast.className = 'si-toast si-toast--' + type;
+    toast.innerHTML = '<i class="fas ' + (icons[type] || icons.info) + '" style="font-size:1.25rem;color:' + (colors[type] || colors.info) + ';"></i><span style="flex:1;font-size:0.9rem;font-weight:500;color:#374151;">' + message + '</span><button type="button" class="btn-close btn-close-sm" style="font-size:0.7rem;" onclick="this.parentElement.remove()"></button>';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.style.animation = 'siFadeOut 0.3s ease-out forwards'; setTimeout(function() { toast.remove(); }, 300); }, 3500);
+}
 
-    function buildQuery(){
-        return '';
+function updateStats(data) {
+    var total = data.length;
+    var pending = data.filter(function(x) { return x.status === 'pending'; }).length;
+    var completed = data.filter(function(x) { return x.status === 'completed'; }).length;
+    var totalItems = data.reduce(function(sum, x) { return sum + (parseInt(x.total_items) || 0); }, 0);
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statCompleted').textContent = completed;
+    document.getElementById('statTotalItems').textContent = totalItems;
+}
+
+// ============ LOAD DATA ============
+async function loadStockIns() {
+    document.getElementById('stockInTbody').innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="d-flex justify-content-center align-items-center gap-2 text-muted"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><span>Memuat data...</span></div></td></tr>';
+
+    try {
+        var res = await SIMAN.apiRequest('/inventory/stock-in/');
+        allStockIns = res && (res.results || res) || [];
+        renderStockIns(allStockIns);
+    } catch (e) {
+        console.error(e);
+        document.getElementById('stockInTbody').innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4"><i class="fas fa-exclamation-circle me-2"></i>Gagal memuat data</td></tr>';
+    }
+}
+
+function renderStockIns(data) {
+    var tbody = document.getElementById('stockInTbody');
+    var countLabel = document.getElementById('dataCountLabel');
+
+    updateStats(data);
+    countLabel.textContent = data.length + ' transaksi';
+
+    if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="8"><div class="si-empty"><div class="si-empty__icon"><i class="fas fa-inbox"></i></div><div class="si-empty__text">Belum ada transaksi barang masuk</div><div class="si-empty__hint">Klik "Barang Masuk Baru" untuk mencatat penerimaan barang pertama</div></div></td></tr>';
+        return;
     }
 
+    tbody.innerHTML = data.map(function(si, idx) {
+        var id = si.id;
+        var supplier = si.supplier_name || (si.supplier && si.supplier.name) || '-';
+        var status = si.status || '';
+        var source = si.source || '';
+        var date = si.transaction_date || si.created_at || '-';
+        var totalAmount = parseFloat(si.total_amount) || 0;
 
+        var approveBtn = (status === 'pending')
+            ? '<button class="si-action-btn si-action-btn--approve" data-action="approve" data-id="' + id + '"><i class="fas fa-check"></i> Approve</button>'
+            : '';
 
+        var completeBtn = (status === 'approved' && !si.is_completed)
+            ? '<button class="si-action-btn si-action-btn--complete" data-action="complete" data-id="' + id + '"><i class="fas fa-check-double"></i> Complete</button>'
+            : '';
 
+        var cancelBtn = (status !== 'canceled' && !si.is_completed)
+            ? '<button class="si-action-btn si-action-btn--cancel" data-action="cancel" data-id="' + id + '"><i class="fas fa-ban"></i> Cancel</button>'
+            : '';
 
-    function stockInBadge(status){
-        const s = status || '';
-        let cls = 'bg-secondary';
-        if(s === 'pending') cls = 'bg-warning text-dark';
-        else if(s === 'approved') cls = 'bg-primary';
-        else if(s === 'completed') cls = 'bg-success';
-        else if(s === 'canceled') cls = 'bg-danger';
-        return `<span class="badge rounded-pill ${cls}">${s || '-'}</span>`;
-    }
+        var detailBtn = '<button class="si-action-btn si-action-btn--detail" data-action="detail" data-id="' + id + '"><i class="fas fa-eye"></i> Detail</button>';
 
-    async function apiGet(url){
-        return SIMAN.apiRequest(url);
-    }
+        return '<tr>' +
+            '<td><span style="color:#9ca3af;font-weight:500;font-size:0.8rem;">' + (idx + 1) + '</span></td>' +
+            '<td><div class="si-trans-num">' + (si.transaction_number || '-') + '</div><div class="si-ref-num">Ref: ' + (si.reference_number || '-') + '</div></td>' +
+            '<td><span style="font-size:0.85rem;">' + supplier + '</span></td>' +
+            '<td>' + siSourceBadge(source) + '</td>' +
+            '<td>' + siBadge(status) + '</td>' +
+            '<td><span class="si-date-text">' + date + '</span></td>' +
+            '<td><span class="si-price">' + SIMAN.formatCurrency(totalAmount) + '</span></td>' +
+            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + cancelBtn + detailBtn + '</div></td>' +
+            '</tr>';
+    }).join('');
+}
 
-    async function loadStockIns(){
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center">Memuat data...</td></tr>';
+// ============ ACTIONS ============
+async function postAction(id, action) {
+    return await SIMAN.apiRequest('/inventory/stock-in/' + id + '/' + action + '/', 'POST', {});
+}
 
-        const qs = '';
-        const url = '/inventory/stock-in/' + (qs ? ('?' + qs) : '');
+async function loadDetail(id) {
+    var body = document.getElementById('stockInDetailBody');
+    body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="text-muted mt-2 mb-0">Memuat detail...</p></div>';
 
-        try{
-            const res = await apiGet(url);
-            const items = res?.results || res || [];
+    try {
+        var res = await SIMAN.apiRequest('/inventory/stock-in/' + id + '/');
+        var items = (res && (res.items || res.stock_in_items)) || [];
 
-            metaText.textContent = items.length ? `Menampilkan ${items.length} data` : 'Tidak ada data';
+        var infoHtml = '<div class="mb-4 p-3 rounded-3" style="background:rgba(26,115,232,0.04);border:1px solid rgba(26,115,232,0.1);">' +
+            '<div class="row g-3">' +
+            '<div class="col-md-6"><small class="text-muted d-block">No. Transaksi</small><strong>' + (res.transaction_number || '-') + '</strong></div>' +
+            '<div class="col-md-6"><small class="text-muted d-block">Supplier</small><strong>' + (res.supplier_name || (res.supplier && res.supplier.name) || '-') + '</strong></div>' +
+            '<div class="col-md-6"><small class="text-muted d-block">No. Referensi</small><strong>' + (res.reference_number || '-') + '</strong></div>' +
+            '<div class="col-md-6"><small class="text-muted d-block">Sumber</small><strong>' + (res.source || '-') + '</strong></div>' +
+            '<div class="col-md-6"><small class="text-muted d-block">Tanggal</small><strong>' + (res.transaction_date || '-') + '</strong></div>' +
+            '<div class="col-md-6"><small class="text-muted d-block">Status</small>' + siBadge(res.status) + '</div>' +
+            '</div></div>';
 
-            if(!items.length){
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center">Tidak ada data</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = items.map((si, idx) => {
-                const id = si.id;
-                const supplier = si.supplier?.name || '-';
-                const status = si.status || '';
-                const source = si.source || '-';
-                const date = si.transaction_date || si.created_at || '-';
-                const totalAmount = (si.total_amount ?? 0);
-
-                const approveBtn = (status === 'pending')
-                    ? `<button class="btn btn-sm btn-success" data-action="approve" data-id="${id}">Approve</button>`
-                    : '';
-
-                const completeBtn = (status === 'approved' && si.is_completed !== true)
-                    ? `<button class="btn btn-sm btn-primary" data-action="complete" data-id="${id}">Complete</button>`
-                    : '';
-
-                const cancelBtn = (status !== 'canceled' && si.is_completed !== true)
-                    ? `<button class="btn btn-sm btn-outline-danger" data-action="cancel" data-id="${id}">Cancel</button>`
-                    : '';
-
-                const detailBtn = `<button class="btn btn-sm btn-outline-primary" data-action="detail" data-id="${id}">Detail</button>`;
-
-                return `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td>
-                            <div class="fw-semibold">${si.transaction_number || '-'}</div>
-                            <div class="text-muted small">Ref: ${si.reference_number || '-'}</div>
-                        </td>
-                        <td>${supplier}</td>
-                        <td>${source}</td>
-                        <td>${stockInBadge(status)}</td>
-                        <td>${date}</td>
-                        <td>${SIMAN.formatCurrency(totalAmount)}</td>
-                        <td class="d-flex gap-2 flex-wrap">${approveBtn}${completeBtn}${cancelBtn}${detailBtn}</td>
-                    </tr>
-                `;
+        var itemsHtml = '';
+        if (Array.isArray(items) && items.length) {
+            itemsHtml = '<div class="table-responsive"><table class="table table-sm" style="font-size:0.85rem;"><thead style="background:rgba(26,115,232,0.04);"><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Harga</th><th class="text-end">Total</th></tr></thead><tbody>';
+            itemsHtml += items.map(function(it) {
+                var qty = it.quantity || 0;
+                var price = parseFloat(it.unit_price) || 0;
+                var total = parseFloat(it.total) || (qty * price);
+                return '<tr><td>' + (it.item_name || (it.item && it.item.name) || '-') + '</td><td class="text-end fw-bold">' + qty + '</td><td class="text-end">' + SIMAN.formatCurrency(price) + '</td><td class="text-end fw-bold">' + SIMAN.formatCurrency(total) + '</td></tr>';
             }).join('');
-
-        }catch(err){
-            console.error(err);
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data stock in</td></tr>';
-            metaText.textContent = '';
+            itemsHtml += '</tbody></table></div>';
+        } else {
+            itemsHtml = '<div class="text-center text-muted py-3"><i class="fas fa-box-open me-2"></i>Tidak ada item</div>';
         }
+
+        body.innerHTML = infoHtml + itemsHtml;
+
+        if (res.notes) {
+            body.innerHTML += '<div class="mt-3 p-3 rounded-3" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);"><small class="text-muted d-block mb-1"><i class="fas fa-sticky-note me-1"></i>Catatan</small><p class="mb-0" style="font-size:0.9rem;">' + res.notes + '</p></div>';
+        }
+
+    } catch (e) {
+        body.innerHTML = '<div class="text-center text-danger py-4"><i class="fas fa-exclamation-circle fa-2x mb-2"></i><p>Gagal memuat detail</p></div>';
+    }
+}
+
+// ============ EVENT DELEGATION ============
+document.getElementById('stockInTbody').addEventListener('click', async function(e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var action = btn.getAttribute('data-action');
+    var id = btn.getAttribute('data-id');
+    if (!action || !id) return;
+
+    if (action === 'detail') {
+        await loadDetail(id);
+        var detailModalEl = document.getElementById('stockInDetailModal');
+        var detailModal = bootstrap.Modal.getInstance(detailModalEl) || new bootstrap.Modal(detailModalEl);
+        detailModal.show();
+        return;
     }
 
-    async function postStockInAction(id, action){
-        const url = `/inventory/stock-in/${id}/${action}/`;
-        const res = await SIMAN.apiRequest(url, 'POST', {});
-        return res;
+    if (!confirm('Konfirmasi untuk melakukan aksi "' + action + '" pada transaksi ' + id + '?')) return;
+
+    try {
+        var res = await postAction(id, action);
+        siToast(res && res.message || 'Berhasil melakukan aksi', 'success');
+        await loadStockIns();
+    } catch (e) {
+        siToast('Gagal melakukan aksi', 'error');
     }
+});
 
-    async function loadDetail(id){
-        stockInDetailBody.innerHTML = 'Memuat detail...';
-        const res = await apiGet(`/inventory/stock-in/${id}/`);
-        // Pastikan struktur serializer sesuai backend; fallback jika key beda
-        const items = res?.items || res?.stock_in_items || res?.items_data || [];
-
-        const rows = Array.isArray(items) ? items.map((it) => {
-            return `
-                <tr>
-                    <td>${it.item?.name || it.item_name || '-'}</td>
-                    <td class="text-end">${it.quantity ?? 0}</td>
-                </tr>
-            `;
-        }).join('') : '';
-
-        stockInDetailBody.innerHTML = `
-            <div class="mb-3">
-                <div class="fw-semibold fs-6">${res.transaction_number || '-'}</div>
-                <div class="text-muted small">Supplier: ${res.supplier?.name || '-'}</div>
-                <div class="text-muted small">Reference: ${res.reference_number || '-'}</div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th class="text-end">Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows || '<tr><td colspan="2" class="text-center text-muted">Tidak ada item</td></tr>'}
-                    </tbody>
-                </table>
-            </div>
-        `;
+// ============ CREATE MODAL ============
+async function loadComboData() {
+    try {
+        var itemsRes = await SIMAN.apiRequest('/inventory/items/');
+        allItems = itemsRes && (itemsRes.results || itemsRes) || [];
+        var suppRes = await SIMAN.apiRequest('/inventory/suppliers/');
+        allSuppliers = suppRes && (suppRes.results || suppRes) || [];
+    } catch (e) {
+        console.error('Error loading combo data:', e);
     }
+}
 
-    tbody && tbody.addEventListener('click', async (e) => {
-        const btn = e.target.closest('button');
-        if(!btn) return;
-        const action = btn.getAttribute('data-action');
-        const id = btn.getAttribute('data-id');
-        if(!action || !id) return;
+function populateCombos() {
+    // Items dropdown
+    var itemSelects = document.querySelectorAll('#createItemsContainer .item-select');
+    itemSelects.forEach(function(sel) {
+        var currentVal = sel.value;
+        sel.innerHTML = '<option value="">-- Pilih Item --</option>' +
+            allItems.map(function(it) {
+                return '<option value="' + it.id + '">' + (it.sku || '') + ' - ' + it.name + '</option>';
+            }).join('');
+        if (currentVal) sel.value = currentVal;
+    });
 
-        try{
-            if(action === 'detail'){
-                await loadDetail(id);
-                detailModal && detailModal.show();
-                return;
-            }
+    // Supplier dropdown
+    var supplierSelect = document.getElementById('createSupplier');
+    supplierSelect.innerHTML = '<option value="">-- Pilih Supplier --</option>' +
+        allSuppliers.map(function(s) {
+            return '<option value="' + s.id + '">' + s.name + ' (' + s.code + ')</option>';
+        }).join('');
+}
 
-            if(!confirm(`Konfirmasi aksi: ${action} untuk transaksi ${id}?`)) return;
+function addItemRow() {
+    var container = document.getElementById('createItemsContainer');
+    var div = document.createElement('div');
+    div.className = 'row g-2 mb-2 item-row';
+    div.innerHTML =
+        '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
+        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div>';
+    container.appendChild(div);
 
-            const res = await postStockInAction(id, action);
-            showTemporaryAlert(res?.message || 'Berhasil melakukan aksi', 'success');
-            await loadStockIns();
+    // Populate items in the new row using existing function
+    populateCombos();
+}
 
-        }catch(err){
-            console.error(err);
-            showTemporaryAlert(err?.message || 'Gagal melakukan aksi', 'danger');
+async function showCreateModal() {
+    // Set today's date
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('createTransDate').value = today;
+
+    // Load combo data if needed
+    if (!allItems.length || !allSuppliers.length) {
+        await loadComboData();
+    }
+    populateCombos();
+
+    var modal = new bootstrap.Modal(document.getElementById('stockInCreateModal'));
+    modal.show();
+}
+
+document.getElementById('btnSaveStockIn').addEventListener('click', async function() {
+    var form = document.getElementById('stockInCreateForm');
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+
+    // Validate
+    var source = document.getElementById('createSource').value;
+    var transDate = document.getElementById('createTransDate').value;
+    var supplierVal = document.getElementById('createSupplier').value;
+    var supplier = supplierVal ? parseInt(supplierVal) : null;
+
+    if (!source) { siToast('Silakan pilih sumber transaksi', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
+    if (!transDate) { siToast('Silakan pilih tanggal transaksi', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
+
+    // Collect items
+    var itemRows = document.querySelectorAll('#createItemsContainer .item-row');
+    var items = [];
+    var valid = true;
+    itemRows.forEach(function(row) {
+        var itemId = row.querySelector('.item-select').value;
+        var qty = parseInt(row.querySelector('.item-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.item-price').value) || 0;
+        if (itemId && qty > 0) {
+            items.push({ item: parseInt(itemId), quantity: qty, unit_price: price, total: qty * price });
+        } else if (itemId) {
+            valid = false;
         }
     });
 
-    function showTemporaryAlert(message, type='info'){
-        const el = document.createElement('div');
-        el.className = `alert alert-${type} position-fixed top-0 end-0 m-3 shadow`;
-        el.style.zIndex = 1080;
-        el.textContent = message;
-        document.body.appendChild(el);
-        setTimeout(()=> el.classList.add('fade'), 10);
-        setTimeout(()=> el.remove(), 3000);
+    if (!items.length) { siToast('Tambahkan minimal 1 item barang', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
+    if (!valid) { siToast('Periksa quantity item (minimal 1)', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
+
+    var data = {
+        source: source,
+        transaction_date: transDate,
+        supplier: supplier,
+        reference_number: document.getElementById('createRefNumber').value || '',
+        notes: document.getElementById('createNotes').value || '',
+        items: items
+    };
+
+    try {
+        var res = await SIMAN.apiRequest('/inventory/stock-in/', 'POST', data);
+        if (res && !res.error) {
+            siToast('Transaksi barang masuk berhasil disimpan!', 'success');
+            var modal = bootstrap.Modal.getInstance(document.getElementById('stockInCreateModal'));
+            if (modal) modal.hide();
+            form.reset();
+            document.getElementById('createItemsContainer').innerHTML =
+                '<div class="row g-2 mb-2 item-row">' +
+                '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+                '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
+                '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+                '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+            await loadStockIns();
+        } else {
+            siToast(res && res.error || 'Gagal menyimpan transaksi', 'error');
+        }
+    } catch (e) {
+        siToast('Gagal menyimpan transaksi', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
     }
+});
 
-    refreshBtn && refreshBtn.addEventListener('click', loadStockIns);
-
-
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', function() {
     loadStockIns();
-})();
+    loadComboData();
+});
 </script>
 {% endblock %}
-

@@ -169,7 +169,16 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
             return null;
         }
 
-        const data_response = await response.json();
+        // Handle empty responses (e.g. 204 No Content from DELETE)
+        let data_response = {};
+        const content = await response.text();
+        if (content) {
+            try {
+                data_response = JSON.parse(content);
+            } catch (e) {
+                data_response = {};
+            }
+        }
         
         if (!response.ok && data_response.error) {
             showToast(data_response.error, 'error');

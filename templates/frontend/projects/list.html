@@ -141,16 +141,37 @@
     </div>
 </div>
 
-<!-- Modal Detail Proyek -->
+<!-- Modal Detail Proyek (Enhanced) -->
 <div class="modal fade" id="projectDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="projectDetailTitle">Detail Proyek</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 overflow-hidden">
+            <!-- Header with gradient background -->
+            <div class="modal-header border-0 position-relative" style="background: linear-gradient(135deg, #1a73e8 0%, #4dabf7 50%, #667eea 100%); padding: 1.75rem 1.75rem 1.25rem;">
+                <div class="pe-4">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge rounded-pill px-3 py-1.5 fs-7" id="detailStatusBadge" style="font-size:0.75rem; letter-spacing:0.3px;">-</span>
+                    </div>
+                    <h5 class="modal-title text-white fw-bold mb-0" id="projectDetailTitle" style="font-size:1.35rem;">Detail Proyek</h5>
+                    <p class="text-white-50 small mb-0 mt-1" id="detailProjectCode" style="opacity:0.85;">-</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 mt-3 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div id="projectDetailBody">Memuat detail...</div>
+
+            <div class="modal-body p-0">
+                <div id="projectDetailBody" class="p-4">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Memuat...</span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Memuat detail proyek...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 bg-light px-4 py-3">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Tutup
+                </button>
             </div>
         </div>
     </div>
@@ -258,6 +279,37 @@ function escapeHtml(text) {
         .replaceAll("'", '&#039;');
 }
 
+function getPriorityBadge(priority) {
+    const map = {
+        'low': '<span class="badge bg-success-subtle text-success-emphasis rounded-pill px-3 py-1.5"><i class="fas fa-arrow-down me-1"></i>Rendah</span>',
+        'medium': '<span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-3 py-1.5">Sedang</span>',
+        'high': '<span class="badge bg-danger-subtle text-danger-emphasis rounded-pill px-3 py-1.5"><i class="fas fa-arrow-up me-1"></i>Tinggi</span>',
+        'urgent': '<span class="badge bg-danger rounded-pill px-3 py-1.5 text-white"><i class="fas fa-exclamation-triangle me-1"></i>Mendesak</span>',
+    };
+    return map[priority] || '<span class="badge bg-secondary rounded-pill px-3">-</span>';
+}
+
+function getStatusDetailBadge(status) {
+    const map = {
+        'draft': '<span class="badge bg-secondary rounded-pill px-3 py-1.5"><i class="fas fa-file me-1"></i>Rencana</span>',
+        'survey': '<span class="badge bg-info rounded-pill px-3 py-1.5 text-white"><i class="fas fa-search me-1"></i>Survei</span>',
+        'progress': '<span class="badge bg-primary rounded-pill px-3 py-1.5"><i class="fas fa-spinner fa-spin me-1"></i>Berjalan</span>',
+        'pending': '<span class="badge bg-warning text-dark rounded-pill px-3 py-1.5"><i class="fas fa-clock me-1"></i>Menunggu</span>',
+        'testing': '<span class="badge bg-warning text-dark rounded-pill px-3 py-1.5"><i class="fas fa-flask me-1"></i>Testing</span>',
+        'completed': '<span class="badge bg-success rounded-pill px-3 py-1.5"><i class="fas fa-check-circle me-1"></i>Selesai</span>',
+        'canceled': '<span class="badge bg-danger rounded-pill px-3 py-1.5"><i class="fas fa-times-circle me-1"></i>Batal</span>',
+    };
+    return map[status] || '<span class="badge bg-secondary rounded-pill px-3">' + escapeHtml(status) + '</span>';
+}
+
+function formatDateNice(dateStr) {
+    if (!dateStr) return '<span class="text-muted fw-normal">-</span>';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return escapeHtml(dateStr);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return d.toLocaleDateString('id-ID', options);
+}
+
 async function openProjectDetail(id) {
     try {
         const res = await SIMAN.apiRequest('/projects/' + id + '/');
@@ -265,52 +317,124 @@ async function openProjectDetail(id) {
 
         const body = document.getElementById('projectDetailBody');
         const titleEl = document.getElementById('projectDetailTitle');
+        const codeEl = document.getElementById('detailProjectCode');
+        const statusBadgeEl = document.getElementById('detailStatusBadge');
 
-        titleEl.textContent = res.name ? ('Detail Proyek: ' + res.name) : 'Detail Proyek';
+        titleEl.textContent = res.name ? escapeHtml(res.name) : 'Detail Proyek';
+        codeEl.textContent = res.project_code ? 'Kode: ' + res.project_code : '';
+        statusBadgeEl.innerHTML = getStatusDetailBadge(res.status);
 
-        const rows = [
-            ['Kode Proyek', res.project_code],
-            ['Nama Proyek', res.name],
-            ['Klien', res.client_name],
-            ['Kontak Klien', res.client_contact],
-            ['Telepon Klien', res.client_phone],
-            ['Email Klien', res.client_email],
-            ['Alamat', res.address],
-            ['Kota', res.city],
-            ['Provinsi', res.province],
-            ['Deskripsi', res.description],
-            ['Tanggal Mulai', res.start_date],
-            ['Tanggal Selesai', res.end_date],
-            ['Nilai Kontrak', res.contract_value != null ? SIMAN.formatCurrency(res.contract_value) : '-'],
-            ['Status', res.status],
-        ];
+        var descHtml = '';
+        if (res.description) {
+            descHtml = '<div class="col-12"><div class="detail-card h-100"><div class="detail-card__header"><i class="fas fa-align-left text-primary"></i><span>Deskripsi</span></div><div class="detail-card__body"><p class="mb-0 text-dark" style="line-height:1.7;">' + escapeHtml(res.description) + '</p></div></div></div>';
+        }
 
-        body.innerHTML = `
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="alert alert-info mb-3 py-2" style="border-radius:14px">
-                        Menampilkan detail proyek dari API
-                    </div>
-                </div>
-                ${rows.map(([k,v]) => {
-                    const safeK = escapeHtml(k);
-                    let safeV = escapeHtml(v);
-                    if (typeof v === 'object' && v !== null) safeV = escapeHtml(JSON.stringify(v));
-                    return `
-                        <div class="col-md-6">
-                            <div class="p-3 border rounded" style="background: rgba(255,255,255,0.75)">
-                                <div class="text-muted small">${safeK}</div>
-                                <div class="fw-semibold">${safeV || '-'}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
+        body.innerHTML = '<style>' +
+            '.detail-section-title{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#6c757d;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:2px solid rgba(77,171,247,0.15);display:flex;align-items:center;gap:8px;}' +
+            '.detail-section-title i{color:var(--water-blue-3);}' +
+            '.detail-card{background:white;border:1px solid rgba(77,171,247,0.12);border-radius:14px;padding:1rem 1.25rem;transition:all 0.2s ease;height:100%;}' +
+            '.detail-card:hover{border-color:rgba(77,171,247,0.3);box-shadow:0 4px 16px rgba(77,171,247,0.08);}' +
+            '.detail-card__header{display:flex;align-items:center;gap:8px;font-size:0.8rem;font-weight:600;color:#6c757d;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem;}' +
+            '.detail-card__header i{font-size:0.9rem;width:20px;}' +
+            '.detail-card__body{padding-left:28px;}' +
+            '.detail-card__value{font-size:1rem;font-weight:600;color:#212529;word-break:break-word;}' +
+            '.detail-card__value.small-text{font-size:0.9rem;}' +
+            '.detail-label{font-size:0.75rem;color:#adb5bd;font-weight:500;text-transform:uppercase;letter-spacing:0.3px;}' +
+            '.contract-value-display{background:linear-gradient(135deg,rgba(26,115,232,0.08),rgba(102,126,234,0.12));border:1px solid rgba(26,115,232,0.18);border-radius:14px;padding:1rem 1.25rem;text-align:center;}' +
+            '.contract-value-display .amount{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#1a73e8,#667eea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}' +
+            '.modal-header .badge{backdrop-filter:blur(4px);background:rgba(255,255,255,0.2)!important;color:white!important;border:1px solid rgba(255,255,255,0.25);}' +
+            '@media(max-width:576px){.detail-card__body{padding-left:0;}.detail-card{padding:0.85rem 1rem;}}' +
+        '</style>' +
 
-        const modalEl = document.getElementById('projectDetailModal');
-        const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
-        modal && modal.show();
+        '<div class="detail-section-title mt-0"><i class="fas fa-info-circle"></i> Informasi Proyek</div>' +
+        '<div class="row g-3 mb-4">' +
+            '<div class="col-12">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-tag text-info"></i><span>Kode Proyek</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value">' + (escapeHtml(res.project_code) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+
+        '<div class="detail-section-title"><i class="fas fa-user-tie"></i> Informasi Klien</div>' +
+        '<div class="row g-3 mb-4">' +
+            '<div class="col-md-6">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-user text-success"></i><span>Nama Klien</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.client_name) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-phone text-warning"></i><span>Telepon</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.client_phone) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-envelope text-danger"></i><span>Email</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.client_email) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-address-book text-info"></i><span>Kontak</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.client_contact) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+
+        '<div class="detail-section-title"><i class="fas fa-map-marker-alt"></i> Lokasi & Waktu</div>' +
+        '<div class="row g-3 mb-4">' +
+            '<div class="col-md-4">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-city text-primary"></i><span>Kota</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.city) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-4">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-globe text-success"></i><span>Provinsi</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.province) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-4">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-map-pin text-warning"></i><span>Alamat</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + (escapeHtml(res.address) || '-') + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-calendar-alt text-info"></i><span>Tanggal Mulai</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + formatDateNice(res.start_date) + '</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="detail-card">' +
+                    '<div class="detail-card__header"><i class="fas fa-calendar-check text-danger"></i><span>Tanggal Selesai</span></div>' +
+                    '<div class="detail-card__body"><div class="detail-card__value small-text">' + formatDateNice(res.end_date) + '</div></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+
+        '<div class="detail-section-title"><i class="fas fa-coins"></i> Informasi Keuangan</div>' +
+        '<div class="row g-3 mb-3">' +
+            '<div class="col-12">' +
+                '<div class="contract-value-display">' +
+                    '<div class="detail-label mb-1">Nilai Kontrak</div>' +
+                    '<div class="amount">' + (res.contract_value != null ? SIMAN.formatCurrency(res.contract_value) : 'Rp 0') + '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+
+        descHtml;
+
+        var modalEl = document.getElementById('projectDetailModal');
+        var modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+        if (modal) {
+            modal.show();
+        }
     } catch (err) {
         console.error(err);
         showToast('Gagal memuat detail proyek', 'error');

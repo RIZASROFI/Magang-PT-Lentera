@@ -20,7 +20,7 @@
 
   <div class="data-card">
     <div class="card-header"><h5 class="m-0">Daftar Progress Proyek</h5></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>Proyek</th><th>Kategori</th><th>Nilai Kontrak</th><th>Progress</th><th>Status</th><th>Tenggat</th></tr></thead><tbody id="tableBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Proyek</th><th>Tanggal Mulai</th><th>Nilai Kontrak</th><th>Progress</th><th>Status</th><th>Tenggat</th></tr></thead><tbody id="tableBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
   </div>
 </div>
 {% endblock %}
@@ -59,8 +59,11 @@
           if(stat==='progress'||stat==='in_progress'||stat==='survey'||stat==='testing') stats.progress++;
           else if(stat==='completed') stats.completed++;
           else stats.pending++;
-          const progressVal=p.progress_percentage||0;
-          return `<tr><td><strong>${p.name||'-'}</strong></td><td>${p.category?.name||'-'}</td><td>Rp ${(p.contract_value||0).toLocaleString('id')}</td><td><div class="progress-bar-custom"><div class="progress-bar-fill" style="width:${progressVal}%"></div></div><small class="text-muted ms-2">${progressVal}%</small></td><td><span class="badge ${stat==='completed'?'bg-success':stat==='progress'||stat==='in_progress'?'bg-primary':stat==='pending'?'bg-warning text-dark':stat==='canceled'?'bg-danger':'bg-secondary'}">${stat||'-'}</span></td><td>${p.end_date||'-'}</td></tr>`;
+                    let calcPct=0;
+          if(stat==='completed') calcPct=100;
+          else if(stat==='progress'||stat==='in_progress') calcPct=50;
+          const startDate=p.start_date||'-';
+          return `<tr><td><strong>${p.name||'-'}</strong></td><td>${startDate}</td><td>Rp ${(p.contract_value||0).toLocaleString('id')}</td><td><div class="progress-bar-custom"><div class="progress-bar-fill" style="width:${calcPct}%"></div></div><small class="text-muted ms-2">${calcPct}%</small></td><td><span class="badge ${stat==='completed'?'bg-success':stat==='progress'||stat==='in_progress'?'bg-primary':stat==='pending'?'bg-warning text-dark':stat==='canceled'?'bg-danger':'bg-secondary'}">${stat||'-'}</span></td><td>${p.end_date||'-'}</td></tr>`;
         }).join('');
       }
       document.getElementById('totalProyek').textContent=stats.total;

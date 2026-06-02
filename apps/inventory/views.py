@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as filters
 from django.db.models import Sum, F
+from django.db.models import ProtectedError
 from datetime import datetime
 
 from .models import (
@@ -167,6 +168,18 @@ class ItemViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Hapus item dengan penanganan ProtectedError"""
+        instance = self.get_object()
+        try:
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProtectedError:
+            return Response(
+                {'error': 'Item tidak dapat dihapus karena masih memiliki riwayat transaksi stok (Barang Masuk/Keluar). Nonaktifkan item saja jika sudah tidak digunakan.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
     
     @action(detail=False, methods=['get'])
     def low_stock(self, request):

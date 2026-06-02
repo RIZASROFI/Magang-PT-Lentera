@@ -43,8 +43,9 @@ urlpatterns = [
     # HR Frontend
     path('hr/employees/', __import__('apps.hr.frontend_views', fromlist=['employees_page']).employees_page, name='hr_employees'),
 
-    # Stock In (Inventory UI)
+    # Stock In/Out (Inventory UI)
     path('inventory/stock-in/', __import__('apps.inventory.frontend_views', fromlist=['stock_in_page']).stock_in_page, name='inventory_stock_in'),
+    path('inventory/stock-out/', __import__('apps.inventory.frontend_views', fromlist=['stock_out_page']).stock_out_page, name='inventory_stock_out'),
 
     # Finance Frontend
     path('finance/accounts/', views.finance_accounts, name='finance_accounts'),
