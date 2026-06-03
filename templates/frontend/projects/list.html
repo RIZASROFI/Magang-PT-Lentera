@@ -198,6 +198,72 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-body text-center p-5">
+                <div class="delete-icon-wrapper mb-4" style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: linear-gradient(135deg, rgba(220,53,69,0.1), rgba(220,53,69,0.05)); display: flex; align-items: center; justify-content: center; animation: pulse-delete 2s ease-in-out infinite;">
+                    <i class="fas fa-trash-alt" style="font-size: 2rem; color: #dc3545;"></i>
+                </div>
+                <style>
+                    @keyframes pulse-delete {
+                        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220,53,69,0.15); }
+                        50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(220,53,69,0); }
+                    }
+                    #deleteConfirmModal .btn-delete-confirm {
+                        background: linear-gradient(135deg, #dc3545, #c82333);
+                        border: none;
+                        color: white;
+                        padding: 0.65rem 1.5rem;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 4px 12px rgba(220,53,69,0.25);
+                    }
+                    #deleteConfirmModal .btn-delete-confirm:hover {
+                        transform: translateY(-1px);
+                        box-shadow: 0 6px 20px rgba(220,53,69,0.35);
+                    }
+                    #deleteConfirmModal .btn-delete-cancel {
+                        border: 1px solid #dee2e6;
+                        color: #6c757d;
+                        padding: 0.65rem 1.5rem;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        transition: all 0.2s ease;
+                        background: white;
+                    }
+                    #deleteConfirmModal .btn-delete-cancel:hover {
+                        background: #f8f9fa;
+                        border-color: #adb5bd;
+                        color: #495057;
+                    }
+                </style>
+                <h5 class="fw-bold mb-2" style="color: #212529; font-size: 1.2rem;">Hapus Proyek?</h5>
+                <p class="text-muted mb-1" style="font-size: 0.9rem; line-height: 1.6;">
+                    Anda yakin ingin menghapus proyek ini? Proyek yang dihapus
+                    <span class="fw-semibold text-danger">tidak dapat dikembalikan</span>.
+                </p>
+                <div class="mt-2 mb-3 p-2 rounded-3" style="background: #fff3cd; border: 1px solid #ffeeba;">
+                    <small class="text-warning fw-semibold">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Semua data terkait proyek ini akan ikut terhapus.
+                    </small>
+                </div>
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <button type="button" class="btn btn-delete-cancel flex-fill" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-delete-confirm flex-fill" id="btnConfirmDelete">
+                        <i class="fas fa-trash me-2"></i>Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_css %}
@@ -453,14 +519,34 @@ function resetFilter() {
     bootstrap.Modal.getInstance(document.getElementById('filterModal')).hide();
 }
 
-async function deleteProject(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus proyek ini?')) {
-        const response = await SIMAN.apiRequest(`/projects/${id}/`, 'DELETE');
-        if (response === null || response !== false) {
-            showToast('Proyek dihapus!', 'success');
-            loadProjects();
+function deleteProject(id) {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    const btnConfirm = document.getElementById('btnConfirmDelete');
+
+    // Clone to remove old listeners
+    const newBtn = btnConfirm.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+
+    newBtn.addEventListener('click', async function() {
+        newBtn.disabled = true;
+        newBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menghapus...';
+        try {
+            const response = await SIMAN.apiRequest(`/projects/${id}/`, 'DELETE');
+            if (response === null || response !== false) {
+                deleteModal.hide();
+                showToast('Proyek berhasil dihapus!', 'success');
+                loadProjects();
+            } else {
+                showToast('Gagal menghapus proyek', 'error');
+            }
+        } catch (err) {
+            showToast('Gagal menghapus proyek', 'error');
         }
-    }
+        newBtn.disabled = false;
+        newBtn.innerHTML = '<i class="fas fa-trash me-2"></i>Hapus';
+    });
+
+    deleteModal.show();
 }
 
 function escapeHtml(text) {
