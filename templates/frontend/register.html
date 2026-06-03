@@ -1,29 +1,38 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="register-container">
+<div class="register-page">
+    <!-- Animated Background -->
+    <div class="register-bg">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
     <div class="register-wrapper">
-        <!-- Left Section - Brand -->
+        <!-- Left Brand Panel -->
         <div class="register-brand-section">
             <div class="brand-content">
                 <div class="brand-logo-wrapper">
                     {% load static %}
                     <img src="{% static 'images/logo lentera.png' %}" alt="Logo" class="login-register-logo" onerror="this.style.display='none'">
                 </div>
-
+                
                 <h1 class="brand-title">SIMAN</h1>
                 <p class="brand-subtitle">Sistem Informasi Manajemen</p>
                 <p class="brand-company">PT Lentera Anugerah Dimensi</p>
-
             </div>
         </div>
 
-        <!-- Right Section - Form -->
+        <!-- Right Form Panel -->
         <div class="register-form-section">
-            <div class="form-container">
+            <div class="form-card">
                 <div class="form-header">
+                    <div class="form-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
                     <h2 class="form-title">Buat Akun Baru</h2>
-                    <p class="form-subtitle">Bergabunglah dengan SIMAN hari ini</p>
                 </div>
 
                 {% if form.errors or messages %}
@@ -70,10 +79,13 @@
                         <label for="id_username" class="form-label">
                             <i class="fas fa-user"></i> Username
                         </label>
-                        <input type="text" name="username" id="id_username" 
-                               class="form-control" required autofocus
-                               placeholder="Pilih username Anda" 
-                               value="{{ form.username|default:'' }}">
+                        <div class="input-wrapper">
+                            <input type="text" name="username" id="id_username" 
+                                   class="form-control" required autofocus
+                                   placeholder="Pilih username Anda" 
+                                   value="{{ form.username|default:'' }}">
+                            <div class="input-focus-border"></div>
+                        </div>
                         <small class="form-text">Minimal 3 karakter, alphanumerik</small>
                     </div>
 
@@ -82,10 +94,13 @@
                         <label for="id_email" class="form-label">
                             <i class="fas fa-envelope"></i> Email
                         </label>
-                        <input type="email" name="email" id="id_email" 
-                               class="form-control" required
-                               placeholder="email@perusahaan.com" 
-                               value="{{ form.email|default:'' }}">
+                        <div class="input-wrapper">
+                            <input type="email" name="email" id="id_email" 
+                                   class="form-control" required
+                                   placeholder="email@perusahaan.com" 
+                                   value="{{ form.email|default:'' }}">
+                            <div class="input-focus-border"></div>
+                        </div>
                         <small class="form-text">Gunakan email yang valid</small>
                     </div>
 
@@ -95,20 +110,26 @@
                             <label for="id_first_name" class="form-label">
                                 <i class="fas fa-id-card"></i> Nama Depan
                             </label>
-                            <input type="text" name="first_name" id="id_first_name" 
-                                   class="form-control" required
-                                   placeholder="Nama depan Anda" 
-                                   value="{{ form.first_name|default:'' }}">
+                            <div class="input-wrapper">
+                                <input type="text" name="first_name" id="id_first_name" 
+                                       class="form-control" required
+                                       placeholder="Nama depan Anda" 
+                                       value="{{ form.first_name|default:'' }}">
+                                <div class="input-focus-border"></div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
                             <label for="id_last_name" class="form-label">
                                 <i class="fas fa-id-card"></i> Nama Belakang
                             </label>
-                            <input type="text" name="last_name" id="id_last_name" 
-                                   class="form-control" required
-                                   placeholder="Nama belakang Anda" 
-                                   value="{{ form.last_name|default:'' }}">
+                            <div class="input-wrapper">
+                                <input type="text" name="last_name" id="id_last_name" 
+                                       class="form-control" required
+                                       placeholder="Nama belakang Anda" 
+                                       value="{{ form.last_name|default:'' }}">
+                                <div class="input-focus-border"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -117,7 +138,7 @@
                         <label for="id_password" class="form-label">
                             <i class="fas fa-lock"></i> Password
                         </label>
-                        <div class="password-input-group">
+                        <div class="input-wrapper password-wrapper">
                             <input type="password" name="password" id="id_password" 
                                    class="form-control" required
                                    placeholder="Masukkan password yang kuat">
@@ -125,6 +146,7 @@
                                     onclick="togglePasswordVisibility('id_password')">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <div class="input-focus-border"></div>
                         </div>
                         <small class="form-text">Minimal 8 karakter dengan kombinasi huruf, angka, dan simbol</small>
                     </div>
@@ -134,7 +156,7 @@
                         <label for="id_password_confirm" class="form-label">
                             <i class="fas fa-lock"></i> Konfirmasi Password
                         </label>
-                        <div class="password-input-group">
+                        <div class="input-wrapper password-wrapper">
                             <input type="password" name="password_confirm" id="id_password_confirm" 
                                    class="form-control" required
                                    placeholder="Ulangi password Anda">
@@ -142,28 +164,38 @@
                                     onclick="togglePasswordVisibility('id_password_confirm')">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <div class="input-focus-border"></div>
                         </div>
                     </div>
 
                     <!-- Terms Agreement -->
-                    <div class="form-check terms-check">
-                        <input type="checkbox" class="form-check-input" id="terms" required>
-                        <label class="form-check-label" for="terms">
-                            Saya setuju dengan <a href="#" class="terms-link">Syarat & Ketentuan</a> 
-                            dan <a href="#" class="terms-link">Kebijakan Privasi</a>
+                    <div class="form-group terms-check">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <span>Saya setuju dengan <a href="#" class="terms-link">Syarat & Ketentuan</a> 
+                            dan <a href="#" class="terms-link">Kebijakan Privasi</a></span>
                         </label>
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-register btn-lg w-100">
-                        <i class="fas fa-user-plus"></i> Daftar Akun
+                    <button type="submit" class="btn btn-register">
+                        <span class="btn-text">
+                            <i class="fas fa-user-plus"></i> Daftar Akun
+                        </span>
+                        <span class="btn-loading">
+                            <i class="fas fa-spinner fa-spin"></i> Memproses...
+                        </span>
                     </button>
 
                     <!-- Login Link -->
+                    <div class="form-divider">
+                        <span>atau</span>
+                    </div>
+
                     <div class="register-footer">
                         <p>Sudah punya akun? 
                             <a href="{% url 'frontend:login' %}" class="login-link">
-                                <strong>Login di sini</strong>
+                                Masuk di sini
                             </a>
                         </p>
                     </div>
@@ -175,47 +207,266 @@
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
 <style>
+/* ==================== CSS VARIABLES ==================== */
 :root {
-    /* Register saja: hapus tema gelap/“hitam” agar senada dashboard */
-    --soft-black: #ffffff;
-    --soft-black-light: #f7fbff;
-    --soft-black-lighter: #eaf4ff;
-    --soft-blue: #63a4ff;
-    --soft-blue-light: #9acbff;
-    --text-light: #0b214f;
-    --text-muted: #495057;
-    --border-color: rgba(154, 203, 255, 0.28);
+    --primary-50: #eff6ff;
+    --primary-100: #dbeafe;
+    --primary-200: #bfdbfe;
+    --primary-300: #93c5fd;
+    --primary-400: #60a5fa;
+    --primary-500: #3b82f6;
+    --primary-600: #2563eb;
+    --primary-700: #1d4ed8;
+    --primary-800: #1e40af;
+    --primary-900: #1e3a8a;
+    
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
 
+/* ==================== RESET & BASE ==================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-
-/* Register Container */
-.register-container {
+/* ==================== REGISTER PAGE ==================== */
+.register-page {
     min-height: 100vh;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    background: linear-gradient(180deg, var(--soft-black) 0%, var(--soft-black-light) 100%);
-    padding: 30px 20px 40px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: var(--text-light);
+    padding: 20px;
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-50) 100%);
+    font-family: var(--font-family);
+    color: var(--gray-800);
+    position: relative;
+    overflow: hidden;
 }
 
+/* Animated Background */
+.register-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+}
+
+.bg-orb-1 {
+    width: 600px;
+    height: 600px;
+    background: linear-gradient(135deg, var(--primary-200) 0%, var(--primary-300) 100%);
+    top: -200px;
+    left: -200px;
+    animation: floatOrb1 20s ease-in-out infinite;
+}
+
+.bg-orb-2 {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
+    bottom: -150px;
+    right: -150px;
+    animation: floatOrb2 25s ease-in-out infinite;
+}
+
+.bg-orb-3 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: floatOrb3 30s ease-in-out infinite;
+}
+
+.bg-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+@keyframes floatOrb1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(50px, 50px) scale(1.1); }
+    66% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+@keyframes floatOrb2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-40px, -40px) scale(1.05); }
+    66% { transform: translate(30px, -20px) scale(0.98); }
+}
+
+@keyframes floatOrb3 {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.15); }
+}
+
+/* ==================== REGISTER WRAPPER ==================== */
 .register-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(154, 203, 255, 0.18);
+    box-shadow: var(--shadow-2xl);
     max-width: 1000px;
     width: 100%;
-    animation: slideIn 0.5s ease-out;
-    border: 1px solid var(--border-color);
+    min-height: 700px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    animation: slideUp 0.6s ease-out;
 }
 
-@keyframes slideIn {
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==================== BRAND SECTION ==================== */
+.register-brand-section {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+    color: white;
+    padding: 60px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-brand-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+.register-brand-section::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.brand-content {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.brand-logo-wrapper {
+    margin-bottom: 30px;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.brand-logo-wrapper .login-register-logo {
+    width: 200px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+.brand-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--primary-200) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.brand-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 5px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    animation: fadeInUp 0.8s ease-out 0.3s backwards;
+}
+
+.brand-company {
+    font-size: 0.95rem;
+    opacity: 0.75;
+    margin-bottom: 0;
+    font-weight: 400;
+    animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -226,96 +477,7 @@
     }
 }
 
-/* Brand Section */
-.register-brand-section {
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
-    color: var(--text-light);
-    padding: 60px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid var(--border-color);
-}
-
-.brand-logo-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.brand-logo-wrapper .login-register-logo {
-    width: 260px;
-
-    height: auto;
-    display: block;
-}
-
-
-.register-brand-section {
-    background: linear-gradient(180deg, var(--soft-black-light), var(--soft-black-lighter));
-    color: var(--text-light);
-    padding: 60px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid var(--border-color);
-}
-
-.brand-content {
-    text-align: center;
-}
-
-.brand-logo {
-    display: none;
-}
-
-
-
-.brand-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    letter-spacing: 2px;
-    color: var(--soft-blue);
-}
-
-.brand-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.95;
-    margin-bottom: 5px;
-    color: var(--text-muted);
-}
-
-.brand-company {
-    font-size: 0.95rem;
-    opacity: 0.85;
-    margin-bottom: 40px;
-    color: var(--text-muted);
-}
-
-.brand-features {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.feature-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.95rem;
-    animation: slideInLeft 0.6s ease-out backwards;
-}
-
-.feature-item:nth-child(1) { animation-delay: 0.1s; }
-.feature-item:nth-child(2) { animation-delay: 0.2s; }
-.feature-item:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes slideInLeft {
+@keyframes fadeInLeft {
     from {
         opacity: 0;
         transform: translateX(-20px);
@@ -326,84 +488,67 @@
     }
 }
 
-.feature-item i {
-    font-size: 1.2rem;
-    color: var(--soft-blue);
-}
-
-/* Form Section */
+/* ==================== FORM SECTION ==================== */
 .register-form-section {
-    padding: 60px 40px;
+    padding: 50px 45px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
+    background: white;
+    overflow-y: auto;
 }
 
-.form-container {
+.form-card {
     width: 100%;
+    max-width: 450px;
+    animation: fadeIn 0.8s ease-out 0.3s backwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .form-header {
-    margin-bottom: 30px;
     text-align: center;
+    margin-bottom: 32px;
+}
+
+.form-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    color: var(--primary-600);
+    border: 1px solid var(--primary-100);
+    transition: all 0.3s ease;
+}
+
+.form-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
 }
 
 .form-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 700;
-    color: var(--soft-blue);
+    color: var(--gray-900);
     margin-bottom: 8px;
+    letter-spacing: -0.5px;
 }
 
 .form-subtitle {
-    color: var(--text-muted);
+    color: var(--gray-500);
     font-size: 0.95rem;
+    font-weight: 400;
 }
 
-/* Alert Container */
-.alert-container {
-    margin-bottom: 25px;
-}
-
-.alert {
-    display: flex;
-    gap: 15px;
-    padding: 15px;
-    border-radius: 10px;
-    border: none;
-    align-items: flex-start;
-}
-
-.alert-icon {
-    font-size: 1.3rem;
-    min-width: 24px;
-    margin-top: 2px;
-}
-
-.alert-content {
-    flex: 1;
-    font-size: 0.95rem;
-}
-
-.alert-danger {
-    background-color: #3b0b0b;
-    color: #ffd6d6;
-}
-
-.alert-danger .alert-icon {
-    color: #ffb3b3;
-}
-
-.alert-success {
-    background-color: rgba(47,143,74,0.06);
-    color: #eaf4ff;
-}
-
-.alert-success .alert-icon {
-    color: var(--soft-blue);
-}
-
-/* Form Styles */
+/* ==================== FORM STYLES ==================== */
 .register-form {
     display: flex;
     flex-direction: column;
@@ -418,254 +563,550 @@
 
 .form-label {
     font-weight: 600;
-    color: var(--text-light);
-    font-size: 0.95rem;
+    color: var(--gray-700);
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .form-label i {
-    color: var(--soft-blue);
-    font-size: 1rem;
+    color: var(--primary-500);
+    font-size: 0.9rem;
+}
+
+.input-wrapper {
+    position: relative;
 }
 
 .form-control {
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
+    width: 100%;
+    padding: 13px 15px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
     font-size: 0.95rem;
+    font-family: var(--font-family);
     transition: all 0.25s ease;
-    background-color: var(--soft-black-light);
-    color: var(--text-light);
+    background: var(--gray-50);
+    color: var(--gray-800);
+}
+
+.form-control:hover {
+    border-color: var(--gray-300);
+    background: white;
 }
 
 .form-control:focus {
-    background-color: var(--soft-black);
-    border-color: rgba(47,143,74,0.6);
-    box-shadow: 0 0 0 6px rgba(47,143,74,0.06);
     outline: none;
+    border-color: var(--primary-500);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .form-control::placeholder {
-    color: #999;
+    color: var(--gray-400);
+}
+
+.input-focus-border {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+    border-radius: 0 0 12px 12px;
+}
+
+.form-control:focus ~ .input-focus-border {
+    width: 100%;
 }
 
 .form-text {
     font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 2px;
+    color: var(--gray-400);
+    margin-top: -4px;
+}
+
+/* Password Toggle */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .form-control {
+    padding-right: 50px;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-400);
+    font-size: 1rem;
+    padding: 8px;
+    transition: all 0.25s ease;
+    border-radius: 8px;
+}
+
+.btn-toggle-password:hover {
+    color: var(--primary-500);
+    background: var(--primary-50);
 }
 
 /* Form Row */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 16px;
 }
 
-/* Password Input Group */
-.password-input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.btn-toggle-password {
-    position: absolute;
-    right: 12px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #667eea;
-    font-size: 0.95rem;
-    padding: 0;
-    transition: color 0.3s ease;
-}
-
-.btn-toggle-password:hover {
-    color: var(--soft-blue);
-}
-
-/* Terms Check */
+/* ==================== TERMS CHECK ==================== */
 .terms-check {
-    margin: 15px 0;
+    margin-top: 4px;
+}
+
+.terms-check .form-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
     font-size: 0.9rem;
+    color: var(--gray-600);
+    font-weight: 400;
+    line-height: 1.5;
 }
 
-.form-check-input {
-    width: 20px;
-    height: 20px;
-    margin-top: 3px;
-    border: 2px solid #e0e0e0;
+.terms-check .form-check-input {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 2px solid var(--gray-300);
+    border-radius: 6px;
     cursor: pointer;
-    border-radius: 5px;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background: white;
+    margin-top: 2px;
 }
 
-.form-check-input:checked {
-    background-color: var(--soft-blue);
-    border-color: var(--soft-blue);
-}
-
-.form-check-input:focus {
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-check-label {
-    cursor: pointer;
-    margin-left: 8px;
+.terms-check .form-check-input:checked {
+    background: var(--primary-500);
+    border-color: var(--primary-500);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    background-size: 14px;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .terms-link {
-    color: var(--soft-blue-light);
+    color: var(--primary-500);
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.25s ease;
+    transition: all 0.25s ease;
 }
 
 .terms-link:hover {
-    color: var(--soft-blue);
+    color: var(--primary-600);
     text-decoration: underline;
 }
 
-/* Register Button */
+/* ==================== REGISTER BUTTON ==================== */
 .btn-register {
-    background: linear-gradient(90deg, var(--soft-blue-light), var(--soft-blue));
-    color: var(--soft-black);
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    color: white;
     border: none;
-    font-weight: 700;
-    padding: 14px 20px;
-    border-radius: 10px;
+    font-weight: 600;
+    padding: 15px 24px;
+    border-radius: 12px;
     font-size: 1rem;
+    font-family: var(--font-family);
     cursor: pointer;
-    transition: all 0.25s ease;
-    margin-top: 10px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.btn-register::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-register:hover::before {
+    left: 100%;
 }
 
 .btn-register:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(47,143,74,0.08);
-    color: var(--soft-black);
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
 }
 
 .btn-register:active {
     transform: translateY(0);
 }
 
-.btn-register i {
-    margin-right: 8px;
+.btn-register:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
 }
 
-/* Register Footer */
+.btn-loading {
+    display: none;
+}
+
+.btn-register.loading .btn-text {
+    display: none;
+}
+
+.btn-register.loading .btn-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ==================== DIVIDER ==================== */
+.form-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 4px 0;
+}
+
+.form-divider::before,
+.form-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.form-divider span {
+    padding: 0 16px;
+    color: var(--gray-400);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ==================== FOOTER ==================== */
 .register-footer {
     text-align: center;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
 }
 
 .register-footer p {
-    color: var(--text-muted);
+    color: var(--gray-500);
     font-size: 0.95rem;
     margin: 0;
 }
 
 .login-link {
-    color: var(--soft-blue-light);
+    color: var(--primary-500);
     text-decoration: none;
-    transition: color 0.25s ease;
+    font-weight: 600;
+    transition: all 0.25s ease;
 }
 
 .login-link:hover {
-    color: var(--soft-blue);
+    color: var(--primary-600);
+    text-decoration: underline;
 }
 
-/* Responsive Design */
+/* ==================== ALERTS ==================== */
+.alert-container {
+    margin-bottom: 4px;
+}
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.9rem;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.alert-icon {
+    font-size: 1.2rem;
+    min-width: 24px;
+    margin-top: 1px;
+}
+
+.alert-content {
+    flex: 1;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #991b1b;
+    border-left: 4px solid var(--error);
+}
+
+.alert-danger .alert-icon {
+    color: var(--error);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    color: #166534;
+    border-left: 4px solid var(--success);
+}
+
+.alert-success .alert-icon {
+    color: var(--success);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .register-wrapper {
+        max-width: 900px;
+    }
+    
+    .register-brand-section {
+        padding: 50px 40px;
+    }
+    
+    .register-form-section {
+        padding: 45px 40px;
+    }
+    
+    .brand-title {
+        font-size: 2.5rem;
+    }
+    
+    .brand-logo-wrapper .login-register-logo {
+        width: 180px;
+    }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
+    .register-page {
+        padding: 15px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+    
     .register-wrapper {
         grid-template-columns: 1fr;
+        min-height: auto;
+        border-radius: 20px;
     }
-
+    
     .register-brand-section {
-        padding: 40px 30px;
         display: none;
     }
-
+    
     .register-form-section {
-        padding: 40px 25px;
+        padding: 35px 28px;
     }
-
+    
+    .form-card {
+        max-width: 100%;
+    }
+    
+    .form-header {
+        margin-bottom: 28px;
+    }
+    
+    .form-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.75rem;
+        border-radius: 16px;
+    }
+    
+    .form-title {
+        font-size: 1.4rem;
+    }
+    
     .form-row {
         grid-template-columns: 1fr;
     }
-
-    .brand-title {
-        font-size: 2rem;
-    }
-
-    .form-title {
-        font-size: 1.5rem;
-    }
-
+    
     .btn-register {
-        padding: 12px 16px;
-        font-size: 0.95rem;
+        padding: 14px 20px;
     }
 }
 
+/* Small Mobile */
 @media (max-width: 480px) {
-    .register-container {
+    .register-page {
         padding: 10px;
     }
-
+    
     .register-form-section {
-        padding: 30px 20px;
+        padding: 28px 20px;
     }
-
-    .form-label {
-        font-size: 0.9rem;
-    }
-
-    .form-control {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-    }
-
+    
     .form-title {
         font-size: 1.3rem;
     }
-
-    .register-footer p {
+    
+    .form-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .form-label {
         font-size: 0.85rem;
     }
-}
-
-/* Input Animation */
-.form-control {
-    animation: fadeInUp 0.6s ease-out backwards;
-}
-
-.form-control:nth-of-type(1) { animation-delay: 0.1s; }
-.form-control:nth-of-type(2) { animation-delay: 0.15s; }
-.form-control:nth-of-type(3) { animation-delay: 0.2s; }
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    
+    .form-control {
+        padding: 12px 14px;
+        font-size: 0.9rem;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    .btn-register {
+        padding: 13px 18px;
+        font-size: 0.95rem;
+    }
+    
+    .register-footer p {
+        font-size: 0.9rem;
     }
 }
-    /* Glowing red list style (garis merah menyala) */
-    .glow-list { list-style: none; padding: 0; margin: 0; display:flex; flex-direction:column; gap:10px; }
-    .glow-list li { background: linear-gradient(180deg,#0b275d,#123e85); padding:12px 16px; border-radius:8px; border-left:4px solid #63a4ff; box-shadow: 0 2px 8px rgba(99,164,255,0.12), inset 0 0 12px rgba(99,164,255,0.04); color:#f6f9ff; }
-    .glow-list li:hover { box-shadow: 0 6px 20px rgba(99,164,255,0.18), 0 0 14px rgba(99,164,255,0.10); transform:translateY(-2px); }
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+    .register-wrapper {
+        max-width: 1100px;
+        min-height: 750px;
+    }
+    
+    .register-brand-section {
+        padding: 70px 60px;
+    }
+    
+    .register-form-section {
+        padding: 60px 55px;
+    }
+    
+    .brand-title {
+        font-size: 3.5rem;
+    }
+    
+    .brand-logo-wrapper .login-register-logo {
+        width: 220px;
+    }
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+*:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+@media (prefers-contrast: high) {
+    .form-control {
+        border-width: 3px;
+    }
+    
+    .btn-register {
+        border: 2px solid var(--gray-900);
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gray-50: #18181b;
+        --gray-100: #27272a;
+        --gray-200: #3f3f46;
+        --gray-300: #52525b;
+        --gray-400: #a1a1aa;
+        --gray-500: #d4d4d8;
+        --gray-600: #e4e4e7;
+        --gray-700: #f4f4f5;
+        --gray-800: #fafafa;
+        --gray-900: #ffffff;
+    }
+    
+    .register-page {
+        background: linear-gradient(135deg, #09090b 0%, #18181b 100%);
+    }
+    
+    .register-wrapper {
+        background: rgba(24, 24, 27, 0.95);
+        border-color: rgba(63, 63, 70, 0.5);
+    }
+    
+    .register-form-section {
+        background: #18181b;
+    }
+    
+    .form-control {
+        background: #27272a;
+        border-color: #3f3f46;
+        color: #fafafa;
+    }
+    
+    .form-control:hover {
+        border-color: #52525b;
+    }
+    
+    .form-control:focus {
+        background: #27272a;
+    }
+    
+    .form-check-input {
+        background: #27272a;
+        border-color: #3f3f46;
+    }
+    
+    .form-divider::before,
+    .form-divider::after {
+        border-color: #3f3f46;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+        color: #fecaca;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #052e16 0%, #14532d 100%);
+        color: #bbf7d0;
+    }
+}
 </style>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 function togglePasswordVisibility(fieldId) {
     const field = document.getElementById(fieldId);
@@ -679,5 +1120,23 @@ function togglePasswordVisibility(fieldId) {
         button.innerHTML = '<i class="fas fa-eye"></i>';
     }
 }
+
+// Add loading state to button
+document.querySelector('.register-form').addEventListener('submit', function(e) {
+    const btn = this.querySelector('.btn-register');
+    btn.classList.add('loading');
+    btn.disabled = true;
+});
+
+// Input focus animations
+document.querySelectorAll('.form-control').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+    });
+});
 </script>
 {% endblock %}

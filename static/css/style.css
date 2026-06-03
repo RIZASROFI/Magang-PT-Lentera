@@ -425,3 +425,134 @@ hr.solid-black {
 @media (max-width: 768px) {
     .modal-dialog { max-width: 95%; margin: 1.5rem; }
 }
+
+/* ==================== GLOBAL RESPONSIVE STYLES ==================== */
+/* Applied to all pages: Sales, Finance, HR, Projects */
+
+.page-container {
+    padding: 16px 0 30px;
+}
+
+.page-header h2 {
+    font-size: 1.4rem;
+}
+
+.page-header p {
+    font-size: 0.85rem;
+}
+
+.table {
+    font-size: 0.88rem;
+}
+
+.table thead th {
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    font-size: 0.85rem;
+    padding: 10px 12px;
+}
+
+@media (max-width: 992px) {
+    .page-header.d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+    .page-header.d-flex > div:last-child {
+        width: 100%;
+    }
+    .page-header.d-flex > div:last-child .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 12px 0 24px;
+    }
+    .page-header h2 {
+        font-size: 1.25rem;
+    }
+    .page-header p {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .search-box {
+        min-width: 0 !important;
+        width: 100%;
+    }
+    .toolbar select,
+    .toolbar .form-control {
+        min-width: 0 !important;
+        width: 100%;
+        max-width: 100% !important;
+    }
+    .data-card .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 8px;
+        padding: 14px 16px;
+    }
+    .table-responsive {
+        border-radius: 0 0 16px 16px;
+    }
+    .stat-card {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .stat-card h3 {
+        font-size: 1.2rem;
+    }
+    .stat-card h6 {
+        font-size: 0.75rem;
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+    .data-card {
+        border-radius: 14px;
+        box-shadow: 0 4px 16px rgba(39, 174, 96, 0.1);
+    }
+    .data-card .card-header {
+        border-radius: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-container {
+        padding: 8px 0 16px;
+    }
+    .page-header h2 {
+        font-size: 1.1rem;
+    }
+    .table {
+        font-size: 0.8rem;
+    }
+    .table thead th {
+        padding: 10px 10px;
+        font-size: 0.75rem;
+    }
+    .table tbody td {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+    .badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+    .btn {
+        font-size: 0.85rem;
+        padding: 8px 14px;
+    }
+}

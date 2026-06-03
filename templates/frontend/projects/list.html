@@ -16,7 +16,7 @@
 
     <!-- Stats Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h4 class="card-title">Total Proyek</h4>
@@ -24,7 +24,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h4 class="card-title">Sedang Berjalan</h4>
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h4 class="card-title">Selesai</h4>
@@ -40,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h4 class="card-title">Nilai Kontrak</h4>
@@ -48,9 +48,7 @@
                 </div>
             </div>
         </div>
-
     </div>
-
 
     <!-- Projects Table -->
     <div class="card">
@@ -94,48 +92,71 @@
 
 <!-- Filter Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1">
-
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Filter Proyek</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content projects-modal">
+            <div class="modal-header projects-modal__header">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="modal-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0">Filter Proyek</h5>
+                        <small class="text-muted">Tampilkan proyek berdasarkan status</small>
+                    </div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
-                    <select class="form-select" id="filterStatus">
-                        <option value="">Semua</option>
-                        <option value="draft">Rencana</option>
-                        <option value="survey">Survei</option>
-                        <option value="progress">Sedang Berjalan</option>
-                        <option value="pending">Menunggu</option>
-                        <option value="testing">Testing</option>
-                        <option value="completed">Selesai</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Priority</label>
-                    <select class="form-select" id="filterPriority">
-                        <option value="">Semua</option>
-                        <option value="low">Rendah</option>
-                        <option value="medium">Sedang</option>
-                        <option value="high">Tinggi</option>
-                        <option value="urgent">Mendesak</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Tanggal Mulai Dari</label>
-                    <input type="date" class="form-control" id="filterStartDateFrom">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Tanggal Mulai Sampai</label>
-                    <input type="date" class="form-control" id="filterStartDateTo">
+            <div class="modal-body projects-modal__body">
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <i class="fas fa-tag"></i> Status Proyek
+                    </label>
+                    <div class="status-options" id="statusOptions">
+                        <label class="status-option">
+                            <input type="radio" name="filterStatus" value="" checked>
+                            <span class="status-option__box status-option__box--all">
+                                <i class="fas fa-layer-group"></i>
+                                <span>Semua</span>
+                            </span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="filterStatus" value="draft">
+                            <span class="status-option__box status-option__box--draft">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Rencana</span>
+                            </span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="filterStatus" value="progress">
+                            <span class="status-option__box status-option__box--progress">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Berjalan</span>
+                            </span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="filterStatus" value="completed">
+                            <span class="status-option__box status-option__box--completed">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Selesai</span>
+                            </span>
+                        </label>
+                        <label class="status-option">
+                            <input type="radio" name="filterStatus" value="canceled">
+                            <span class="status-option__box status-option__box--canceled">
+                                <i class="fas fa-times-circle"></i>
+                                <span>Dibatalkan</span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" onclick="applyFilter()">Terapkan</button>
+            <div class="modal-footer projects-modal__footer">
+                <button type="button" class="btn btn-reset" onclick="resetFilter()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button type="button" class="btn btn-apply" onclick="applyFilter()">
+                    <i class="fas fa-check"></i> Terapkan
+                </button>
             </div>
         </div>
     </div>
@@ -179,10 +200,179 @@
 
 {% endblock %}
 
+{% block extra_css %}
+<style>
+/* ==================== FILTER MODAL ==================== */
+.projects-modal {
+    border-radius: 20px;
+    border: 1.5px solid rgba(77, 171, 247, 0.12);
+    box-shadow: 0 24px 60px rgba(20, 40, 80, 0.18);
+    overflow: hidden;
+}
+
+.projects-modal__header {
+    background: linear-gradient(135deg, rgba(77, 171, 247, 0.06), rgba(102, 126, 234, 0.04));
+    border-bottom: 1.5px solid rgba(77, 171, 247, 0.08);
+    padding: 20px 24px;
+}
+
+.modal-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--water-blue-1), var(--water-blue-4));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    box-shadow: 0 4px 14px rgba(77, 171, 247, 0.25);
+}
+
+.projects-modal__body {
+    background: #fafbfc;
+    padding: 24px;
+}
+
+.filter-section {
+    margin-bottom: 0;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-label i {
+    color: var(--water-blue-3);
+    font-size: 0.9rem;
+}
+
+.status-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.status-option {
+    cursor: pointer;
+}
+
+.status-option input[type="radio"] {
+    display: none;
+}
+
+.status-option__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 12px;
+    border: 1.5px solid rgba(77, 171, 247, 0.15);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.25s ease;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.status-option__box i {
+    font-size: 1.2rem;
+}
+
+.status-option input:checked + .status-option__box {
+    border-color: var(--water-blue-3);
+    background: rgba(77, 171, 247, 0.06);
+    color: var(--water-blue-4);
+    box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.1);
+}
+
+.status-option__box--all i { color: #6c757d; }
+.status-option__box--draft i { color: #6c757d; }
+.status-option__box--progress i { color: #228be6; }
+.status-option__box--completed i { color: #28a745; }
+.status-option__box--canceled i { color: #ff1133; }
+
+.status-option input:checked + .status-option__box--all { border-color: #6c757d; background: rgba(108, 117, 125, 0.08); color: #495057; }
+.status-option input:checked + .status-option__box--draft { border-color: #6c757d; background: rgba(108, 117, 125, 0.08); color: #495057; }
+.status-option input:checked + .status-option__box--progress { border-color: #228be6; background: rgba(34, 139, 230, 0.06); color: #1c7ed6; }
+.status-option input:checked + .status-option__box--completed { border-color: #28a745; background: rgba(40, 167, 69, 0.06); color: #2b8a3e; }
+.status-option input:checked + .status-option__box--canceled { border-color: #ff1133; background: rgba(255, 17, 51, 0.06); color: #c92a2a; }
+
+.projects-modal__footer {
+    background: white;
+    border-top: 1.5px solid rgba(77, 171, 247, 0.08);
+    padding: 16px 24px;
+}
+
+.btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border: 1.5px solid rgba(77, 171, 247, 0.18);
+    border-radius: 10px;
+    background: white;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.25s ease;
+}
+
+.btn-reset:hover {
+    border-color: rgba(255, 17, 51, 0.3);
+    color: #ff1133;
+    background: rgba(255, 17, 51, 0.04);
+}
+
+.btn-apply {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 22px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--water-blue-1), var(--water-blue-4));
+    color: white;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(77, 171, 247, 0.25);
+}
+
+.btn-apply:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(77, 171, 247, 0.35);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .status-options {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .status-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 let projects = [];
 let currentFilter = {};
+let activeStatusFilter = '';
 
 async function loadProjects() {
     try {
@@ -218,7 +408,6 @@ function renderProjects(data) {
                 </button>
                 <a href="/projects/${project.id}/edit/" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                 <button class="btn btn-sm btn-danger" onclick="deleteProject(${project.id})"><i class="fas fa-trash"></i></button>
-
             </td>
         </tr>
     `).join('');
@@ -247,16 +436,20 @@ function getStatusBadge(status) {
 }
 
 function applyFilter() {
-    const status = document.getElementById('filterStatus').value;
-    const priority = document.getElementById('filterPriority').value;
-    
-    currentFilter = { status, priority };
+    const selected = document.querySelector('input[name="filterStatus"]:checked');
+    activeStatusFilter = selected ? selected.value : '';
     
     let filtered = projects;
-    if (status) filtered = filtered.filter(p => p.status === status);
-    if (priority) filtered = filtered.filter(p => p.priority === priority);
+    if (activeStatusFilter) filtered = filtered.filter(p => p.status === activeStatusFilter);
     
     renderProjects(filtered);
+    bootstrap.Modal.getInstance(document.getElementById('filterModal')).hide();
+}
+
+function resetFilter() {
+    document.querySelector('input[name="filterStatus"][value=""]').checked = true;
+    activeStatusFilter = '';
+    renderProjects(projects);
     bootstrap.Modal.getInstance(document.getElementById('filterModal')).hide();
 }
 
@@ -273,9 +466,9 @@ async function deleteProject(id) {
 function escapeHtml(text) {
     return String(text ?? '')
         .replaceAll('&', '&amp;')
-        .replaceAll('<', '<')
-        .replaceAll('>', '>')
-        .replaceAll('"', '"')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
 }
 
@@ -443,11 +636,16 @@ async function openProjectDetail(id) {
 
 
 // Tab filtering
-document.getElementById('all-tab').addEventListener('click', () => renderProjects(projects));
+document.getElementById('all-tab').addEventListener('click', () => {
+    activeStatusFilter = '';
+    renderProjects(projects);
+});
 document.getElementById('progress-tab').addEventListener('click', () => {
+    activeStatusFilter = 'progress';
     renderProjects(projects.filter(p => p.status === 'progress'));
 });
 document.getElementById('completed-tab').addEventListener('click', () => {
+    activeStatusFilter = 'completed';
     renderProjects(projects.filter(p => p.status === 'completed'));
 });
 
