@@ -273,7 +273,7 @@ function renderItems(data) {
             <td>${item.min_stock || 0}</td>
             <td>${SIMAN.formatCurrency(item.cost_price)}</td>
             <td>
-                <a href="/inventory/${item.id}/edit/" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                <a href="/inventory/items/${item.id}/edit/" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                 <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button>
             </td>
             <td>${SIMAN.formatCurrency(item.sell_price)}</td>
@@ -380,9 +380,17 @@ async function saveCategory() {
 
 async function deleteItem(id) {
     if (confirm('Hapus item ini?')) {
-        await SIMAN.apiRequest('/inventory/' + id + '/', 'DELETE');
-        showToast('Item dihapus!', 'success');
-        loadItems();
+        const response = await SIMAN.apiRequest('/inventory/items/' + id + '/', 'DELETE');
+        if (response === null) {
+            // Connection error, handled by apiRequest
+            return;
+        }
+        // Success: DELETE 204 returns empty response, response will be {}
+        // Error: apiRequest already shows the toast with error message
+        if (!response.error) {
+            showToast('Item berhasil dihapus!', 'success');
+            loadItems();
+        }
     }
 }
 

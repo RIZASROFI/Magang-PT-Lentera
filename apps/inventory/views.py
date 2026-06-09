@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as filters
 from django.db.models import Sum, F
-from django.db.models import ProtectedError
 from datetime import datetime
 
 from .models import (
@@ -84,16 +83,36 @@ def item_edit_view(request: HttpRequest, id: int) -> HttpResponse:
     """Edit barang inventory (Django Form)."""
     item = get_object_or_404(Item, pk=id)
 
+    is_modal = request.GET.get('modal') == '1' or request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
     if request.method == 'POST':
         form = ItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
             form.save()
             messages.success(request, 'Barang berhasil diperbarui.')
+            if is_modal:
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'ok': True,
+                    'message': 'Barang berhasil diperbarui.',
+                    'item_id': item.id,
+                    'item_name': item.name
+                })
             return redirect('/inventory/items/')
+        else:
+            if is_modal:
+                from django.http import JsonResponse
+                error_msgs = []
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        error_msgs.append(f"{field}: {error}")
+                return JsonResponse({
+                    'ok': False,
+                    'message': ' | '.join(error_msgs) or 'Terjadi kesalahan pada form',
+                    'errors': form.errors
+                }, status=400)
     else:
-        form = ItemForm(instance=item)
-
-    is_modal = request.GET.get('modal') == '1' or request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        form = ItemForm(instance=item, initial={'stock': item.current_stock})
 
     template = 'inventory/item_create_popup_form.html' if is_modal else 'inventory/item_form.html'
 
@@ -154,12 +173,15 @@ class ItemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Item.objects.select_related('category', 'default_supplier')
         
+        # Default: hanya tampilkan item aktif
+        queryset = queryset.filter(is_active=True)
+        
         # Filter category
         category = self.request.query_params.get('category')
         if category:
             queryset = queryset.filter(category_id=category)
         
-        # Filter active
+        # Filter active (override jika ?is_active=false)
         is_active = self.request.query_params.get('is_active')
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == 'true')
@@ -170,16 +192,11 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
     
     def destroy(self, request, *args, **kwargs):
-        """Hapus item dengan penanganan ProtectedError"""
+        """Soft-delete: nonaktifkan item (is_active=False) daripada hapus permanen."""
         instance = self.get_object()
-        try:
-            instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except ProtectedError:
-            return Response(
-                {'error': 'Item tidak dapat dihapus karena masih memiliki riwayat transaksi stok (Barang Masuk/Keluar). Nonaktifkan item saja jika sudah tidak digunakan.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        instance.is_active = False
+        instance.save(update_fields=['is_active'])
+        return Response({'message': 'Item berhasil dinonaktifkan.'}, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['get'])
     def low_stock(self, request):

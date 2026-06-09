@@ -642,7 +642,7 @@ function updateStats(items) {
 }
 
 async function deleteItem(id, btn) {
-    if (!confirm('Hapus item ini dari inventory?')) return;
+    if (!confirm('Nonaktifkan item ini? Item tetap tersimpan di database tapi tidak akan muncul di daftar.')) return;
     
     if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
 
@@ -653,7 +653,7 @@ async function deleteItem(id, btn) {
     if (res && res.error) {
         return;
     }
-    showInvToast('Item berhasil dihapus!', 'success');
+    showInvToast('Item berhasil dinonaktifkan!', 'success');
     loadItems();
 }
 
@@ -699,7 +699,7 @@ async function showEditModal(id) {
         const html = await res.text();
         container.innerHTML = html;
 
-        const form = container.querySelector('#itemEditForm');
+        const form = container.querySelector('#itemCreateForm');
         if (!form) return;
 
         const clearFormErrors = (f) => {

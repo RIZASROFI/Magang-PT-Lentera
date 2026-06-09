@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils import timezone
 
-from .models import Item, Category, Supplier, StockIn, StockInItem
+from .models import Item, Category, Supplier, StockIn, StockInItem, StockOut, StockOutItem
 
 
 class ItemForm(forms.ModelForm):
@@ -26,7 +26,7 @@ class ItemForm(forms.ModelForm):
             'placeholder': '0',
             'step': '1',
         }),
-        help_text='Qty stok yang ditambahkan saat item dibuat.'
+        help_text='Jumlah stok. Saat create: stok awal. Saat edit: stok akan disesuaikan ke angka ini.'
     )
 
     # Untuk modal "Tambah Barang" yang tidak mengirim sell_price,
@@ -138,34 +138,75 @@ class ItemForm(forms.ModelForm):
 
 
     def save(self, commit=True):
-        # description/current_stock bukan field model Item saat ini
         instance = super().save(commit=False)
         stock_value = self.cleaned_data.get('stock') or 0
-
 
         if not instance.sku:
             instance.sku = self._generate_sku(instance.name, instance.category)
 
         if commit:
+            # Cek apakah ini item baru SEBELUM save (karena setelah save pk akan terisi)
+            is_new = instance.pk is None
             instance.save()
-            if stock_value > 0:
-                stock_in = StockIn.objects.create(
 
-                    source='adjustment',
-                    transaction_date=timezone.now().date(),
-                    status='completed',
-                    is_completed=True,
-                )
-                StockInItem.objects.create(
-                    stock_in=stock_in,
-                    item=instance,
-                    quantity=stock_value,
-                    unit_price=instance.cost_price or 0,
-                    discount=0,
-                )
-                stock_in.total_items = stock_value
-                stock_in.total_amount = stock_in.items.aggregate(total=Sum('total'))['total'] or 0
-                stock_in.save()
+            if stock_value > 0:
+                if is_new:
+                    # Create: buat StockIn untuk stok awal
+                    stock_in = StockIn.objects.create(
+                        source='adjustment',
+                        transaction_date=timezone.now().date(),
+                        status='completed',
+                        is_completed=True,
+                    )
+                    StockInItem.objects.create(
+                        stock_in=stock_in,
+                        item=instance,
+                        quantity=stock_value,
+                        unit_price=instance.cost_price or 0,
+                        discount=0,
+                    )
+                    stock_in.total_items = stock_value
+                    stock_in.total_amount = stock_in.items.aggregate(total=Sum('total'))['total'] or 0
+                    stock_in.save()
+                else:
+                    # Edit: hitung selisih, lalu adjustment
+                    current = instance.current_stock
+                    diff = stock_value - current
+                    if diff > 0:
+                        stock_in = StockIn.objects.create(
+                            source='adjustment',
+                            transaction_date=timezone.now().date(),
+                            status='completed',
+                            is_completed=True,
+                        )
+                        StockInItem.objects.create(
+                            stock_in=stock_in,
+                            item=instance,
+                            quantity=diff,
+                            unit_price=instance.cost_price or 0,
+                            discount=0,
+                        )
+                        stock_in.total_items = diff
+                        stock_in.total_amount = stock_in.items.aggregate(total=Sum('total'))['total'] or 0
+                        stock_in.save()
+                    elif diff < 0:
+                        stock_out = StockOut.objects.create(
+                            out_type='adjustment',
+                            transaction_date=timezone.now().date(),
+                            status='completed',
+                            is_completed=True,
+                        )
+                        StockOutItem.objects.create(
+                            stock_out=stock_out,
+                            item=instance,
+                            quantity=abs(diff),
+                            unit_price=instance.cost_price or 0,
+                        )
+                        stock_out.total_items = abs(diff)
+                        stock_out.total_amount = stock_out.items.aggregate(total=Sum('total'))['total'] or 0
+                        stock_out.save()
+                    # diff == 0: tidak ada perubahan stok
+
         return instance
 
     def _generate_sku(self, name, category=None):
