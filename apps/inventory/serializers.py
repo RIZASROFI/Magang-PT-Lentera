@@ -133,16 +133,31 @@ class StockInDetailSerializer(serializers.ModelSerializer):
 class StockInCreateSerializer(serializers.ModelSerializer):
     """Serializer untuk membuat stock in"""
     items = StockInItemSerializer(many=True)
+    supplier_name = serializers.CharField(write_only=True, required=False, allow_blank=True,
+        help_text='Nama supplier (input manual, bukan dropdown)')
     
     class Meta:
         model = StockIn
         fields = [
-            'source', 'supplier', 'reference_number', 'reference_date',
+            'source', 'supplier', 'supplier_name', 'reference_number', 'reference_date',
             'transaction_date', 'notes', 'items'
         ]
     
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        supplier_name = validated_data.pop('supplier_name', '')
+        
+        # Jika supplier_name diisi, cari atau buat supplier baru
+        if supplier_name:
+            supplier, _ = Supplier.objects.get_or_create(
+                name__iexact=supplier_name.strip(),
+                defaults={
+                    'name': supplier_name.strip(),
+                    'code': self._generate_supplier_code(),
+                }
+            )
+            validated_data['supplier'] = supplier
+        
         stock_in = StockIn.objects.create(**validated_data)
         
         total_items = 0
@@ -159,6 +174,11 @@ class StockInCreateSerializer(serializers.ModelSerializer):
         stock_in.save()
         
         return stock_in
+    
+    def _generate_supplier_code(self):
+        """Generate kode supplier otomatis: SUP-001, SUP-002, dll"""
+        count = Supplier.objects.count() + 1
+        return f'SUP-{count:03d}'
 
 
 class StockOutItemSerializer(serializers.ModelSerializer):

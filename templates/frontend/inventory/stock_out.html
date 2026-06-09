@@ -155,8 +155,12 @@
 .so-action-btn--approve:hover { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
 .so-action-btn--complete { background: rgba(26, 115, 232, 0.12); color: var(--so-primary); }
 .so-action-btn--complete:hover { background: #1a73e8; color: #fff; box-shadow: 0 4px 12px rgba(26,115,232,0.35); }
+.so-action-btn--edit { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.so-action-btn--edit:hover { background: #f59e0b; color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
 .so-action-btn--cancel { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
 .so-action-btn--cancel:hover { background: #ef4444; color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
+.so-action-btn--delete { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
+.so-action-btn--delete:hover { background: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,0.4); }
 .so-action-btn--detail { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
 .so-action-btn--detail:hover { background: #6b7280; color: #fff; box-shadow: 0 4px 12px rgba(107,114,128,0.35); }
 
@@ -438,6 +442,7 @@
 var allStockOuts = [];
 var allItems = [];
 var allProjects = [];
+var editingStockOutId = null;
 
 // ============ UTILITY ============
 function soBadge(status) {
@@ -520,9 +525,9 @@ function renderStockOuts(data) {
             ? '<button class="so-action-btn so-action-btn--complete" data-action="complete" data-id="' + id + '"><i class="fas fa-check-double"></i> Complete</button>'
             : '';
 
-        var cancelBtn = (status !== 'canceled' && !so.is_completed)
-            ? '<button class="so-action-btn so-action-btn--cancel" data-action="cancel" data-id="' + id + '"><i class="fas fa-ban"></i> Cancel</button>'
-            : '';
+        var editBtn = '<button class="so-action-btn so-action-btn--edit" data-action="edit" data-id="' + id + '" title="Edit transaksi"><i class="fas fa-pen"></i></button>';
+
+        var deleteBtn = '<button class="so-action-btn so-action-btn--delete" data-action="delete" data-id="' + id + '" title="Hapus permanen"><i class="fas fa-trash-alt"></i></button>';
 
         var detailBtn = '<button class="so-action-btn so-action-btn--detail" data-action="detail" data-id="' + id + '"><i class="fas fa-eye"></i> Detail</button>';
 
@@ -537,7 +542,7 @@ function renderStockOuts(data) {
             '<td>' + soBadge(status) + '</td>' +
             '<td><span class="so-date-text">' + date + '</span></td>' +
             '<td><span class="so-price">' + SIMAN.formatCurrency(totalAmount) + '</span></td>' +
-            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + cancelBtn + detailBtn + '</div></td>' +
+            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + editBtn + deleteBtn + detailBtn + '</div></td>' +
             '</tr>';
     }).join('');
 }
@@ -609,12 +614,72 @@ document.getElementById('stockOutTbody').addEventListener('click', async functio
         return;
     }
 
+    if (action === 'edit') {
+        try {
+            var res = await SIMAN.apiRequest('/inventory/stock-out/' + id + '/');
+            if (res && !res.error) {
+                // Pre-fill modal fields
+                document.getElementById('createOutType').value = res.out_type || '';
+                document.getElementById('createProject').value = res.project || '';
+                document.getElementById('createRefNumber').value = res.reference_number || '';
+                document.getElementById('createTransDate').value = res.transaction_date || '';
+                document.getElementById('createDeliveredTo').value = res.delivered_to || '';
+                document.getElementById('createNotes').value = res.notes || '';
+
+                // Show existing items as read-only
+                var itemsContainer = document.getElementById('createItemsContainer');
+                var existingItems = (res.items || res.stock_out_items) || [];
+                if (existingItems.length) {
+                    itemsContainer.innerHTML = existingItems.map(function(it) {
+                        var qty = it.quantity || 0;
+                        var price = parseFloat(it.unit_price) || 0;
+                        return '<div class="row g-2 mb-2"><div class="col-md-5"><input class="form-control form-control-sm" value="' + (it.item_name || '-') + '" disabled></div><div class="col-md-3"><input class="form-control form-control-sm" value="' + qty + '" disabled></div><div class="col-md-3"><input class="form-control form-control-sm" value="' + SIMAN.formatCurrency(price) + '" disabled></div><div class="col-md-1"></div></div>';
+                    }).join('');
+                } else {
+                    itemsContainer.innerHTML = '<div class="text-muted small py-2">Tidak ada item</div>';
+                }
+
+                document.querySelector('#stockOutCreateModal .modal-title').innerHTML = '<i class="fas fa-edit text-warning me-2"></i>Edit Barang Keluar';
+                document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-save me-2"></i>Simpan Perubahan';
+                editingStockOutId = id;
+
+                var editModal = new bootstrap.Modal(document.getElementById('stockOutCreateModal'));
+                editModal.show();
+            } else {
+                soToast('Gagal memuat data transaksi', 'error');
+            }
+        } catch (e) {
+            soToast('Gagal memuat data transaksi', 'error');
+        }
+        return;
+    }
+
+    if (action === 'delete') {
+        if (!confirm('Hapus permanen transaksi ini? Semua data item dalam transaksi ini akan ikut terhapus. Data tidak dapat dikembalikan.')) return;
+        try {
+            var res = await SIMAN.apiRequest('/inventory/stock-out/' + id + '/', 'DELETE');
+            if (res && res.error) {
+                soToast(res.error, 'error');
+            } else {
+                soToast('Transaksi berhasil dihapus permanen!', 'success');
+                await loadStockOuts();
+            }
+        } catch (e) {
+            soToast('Gagal menghapus transaksi', 'error');
+        }
+        return;
+    }
+
     if (!confirm('Konfirmasi untuk melakukan aksi "' + action + '" pada transaksi ' + id + '?')) return;
 
     try {
         var res = await postAction(id, action);
-        soToast(res && res.message || 'Berhasil melakukan aksi', 'success');
-        await loadStockOuts();
+        if (res && res.error) {
+            soToast(res.error, 'error');
+        } else {
+            soToast(res && res.message || 'Berhasil melakukan aksi', 'success');
+            await loadStockOuts();
+        }
     } catch (e) {
         soToast('Gagal melakukan aksi', 'error');
     }
@@ -673,9 +738,25 @@ async function showCreateModal() {
     }
     populateCombos();
 
+    editingStockOutId = null;
+    document.querySelector('#stockOutCreateModal .modal-title').innerHTML = '<i class="fas fa-plus-circle text-danger me-2"></i>Tambah Barang Keluar';
+    document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
     var modal = new bootstrap.Modal(document.getElementById('stockOutCreateModal'));
     modal.show();
 }
+
+document.getElementById('stockOutCreateModal').addEventListener('hidden.bs.modal', function() {
+    editingStockOutId = null;
+    document.querySelector('#stockOutCreateModal .modal-title').innerHTML = '<i class="fas fa-plus-circle text-danger me-2"></i>Tambah Barang Keluar';
+    document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+    document.getElementById('stockOutCreateForm').reset();
+    document.getElementById('createItemsContainer').innerHTML =
+        '<div class="row g-2 mb-2 item-row">' +
+        '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
+        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+});
 
 document.getElementById('btnSaveStockOut').addEventListener('click', async function() {
     var form = document.getElementById('stockOutCreateForm');
@@ -706,41 +787,46 @@ document.getElementById('btnSaveStockOut').addEventListener('click', async funct
     });
 
     if (!items.length) { soToast('Tambahkan minimal 1 item barang', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
-    if (!valid) { soToast('Periksa quantity item (minimal 1)', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
+    if (!valid) { soToast('Periksa quantity item (minimal 1)', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }        var data = {
+            out_type: outType,
+            transaction_date: transDate,
+            project: project,
+            reference_number: document.getElementById('createRefNumber').value || '',
+            delivered_to: document.getElementById('createDeliveredTo').value || '',
+            notes: document.getElementById('createNotes').value || '',
+        };
 
-    var data = {
-        out_type: outType,
-        transaction_date: transDate,
-        project: project,
-        reference_number: document.getElementById('createRefNumber').value || '',
-        delivered_to: document.getElementById('createDeliveredTo').value || '',
-        notes: document.getElementById('createNotes').value || '',
-        items: items
-    };
-
-    try {
-        var res = await SIMAN.apiRequest('/inventory/stock-out/', 'POST', data);
-        if (res && !res.error) {
-            soToast('Transaksi barang keluar berhasil disimpan!', 'success');
-            var modal = bootstrap.Modal.getInstance(document.getElementById('stockOutCreateModal'));
-            if (modal) modal.hide();
-            form.reset();
-            document.getElementById('createItemsContainer').innerHTML =
-                '<div class="row g-2 mb-2 item-row">' +
-                '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
-                '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
-                '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
-                '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
-            await loadStockOuts();
-        } else {
-            soToast(res && res.error || 'Gagal menyimpan transaksi', 'error');
+        if (!editingStockOutId) {
+            data.items = items;
         }
-    } catch (e) {
-        soToast('Gagal menyimpan transaksi', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-    }
+
+        try {
+            var url = editingStockOutId ? '/inventory/stock-out/' + editingStockOutId + '/' : '/inventory/stock-out/';
+            var method = editingStockOutId ? 'PATCH' : 'POST';
+            var res = await SIMAN.apiRequest(url, method, data);
+            if (res && !res.error) {
+                soToast(editingStockOutId ? 'Transaksi berhasil diperbarui!' : 'Transaksi barang keluar berhasil disimpan!', 'success');
+                var modal = bootstrap.Modal.getInstance(document.getElementById('stockOutCreateModal'));
+                if (modal) modal.hide();
+                editingStockOutId = null;
+                form.reset();
+                document.getElementById('createItemsContainer').innerHTML =
+                    '<div class="row g-2 mb-2 item-row">' +
+                    '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+                    '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
+                    '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+                    '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+                await loadStockOuts();
+            } else {
+                soToast(res && res.error || 'Gagal menyimpan transaksi', 'error');
+            }
+        } catch (e) {
+            soToast('Gagal menyimpan transaksi', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+            editingStockOutId = null;
+        }
 });
 
 // ============ INIT ============

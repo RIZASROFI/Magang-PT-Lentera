@@ -44,6 +44,13 @@ class ItemForm(forms.ModelForm):
         }),
     )
 
+    supplier_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ketik nama supplier...'
+        })
+    )
 
     class Meta:
         model = Item
@@ -137,26 +144,40 @@ class ItemForm(forms.ModelForm):
         return cleaned_data
 
 
+    def clean_supplier_name(self):
+        name = self.cleaned_data.get('supplier_name', '').strip()
+        return name or ''
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         stock_value = self.cleaned_data.get('stock') or 0
+        supplier_name = self.cleaned_data.get('supplier_name', '').strip()
+
+        # Cari atau buat supplier hanya saat save, bukan saat validasi
+        supplier = None
+        if supplier_name:
+            supplier = Supplier.objects.filter(name__iexact=supplier_name).first()
+            if not supplier:
+                count = Supplier.objects.count() + 1
+                code = f'SUP-{count:03d}'
+                supplier = Supplier.objects.create(name=supplier_name, code=code)
+            instance.default_supplier = supplier
 
         if not instance.sku:
             instance.sku = self._generate_sku(instance.name, instance.category)
 
         if commit:
-            # Cek apakah ini item baru SEBELUM save (karena setelah save pk akan terisi)
             is_new = instance.pk is None
             instance.save()
 
             if stock_value > 0:
                 if is_new:
-                    # Create: buat StockIn untuk stok awal
                     stock_in = StockIn.objects.create(
                         source='adjustment',
                         transaction_date=timezone.now().date(),
                         status='completed',
                         is_completed=True,
+                        supplier=supplier,
                     )
                     StockInItem.objects.create(
                         stock_in=stock_in,
@@ -169,7 +190,6 @@ class ItemForm(forms.ModelForm):
                     stock_in.total_amount = stock_in.items.aggregate(total=Sum('total'))['total'] or 0
                     stock_in.save()
                 else:
-                    # Edit: hitung selisih, lalu adjustment
                     current = instance.current_stock
                     diff = stock_value - current
                     if diff > 0:
@@ -178,6 +198,7 @@ class ItemForm(forms.ModelForm):
                             transaction_date=timezone.now().date(),
                             status='completed',
                             is_completed=True,
+                            supplier=supplier,
                         )
                         StockInItem.objects.create(
                             stock_in=stock_in,
@@ -205,7 +226,6 @@ class ItemForm(forms.ModelForm):
                         stock_out.total_items = abs(diff)
                         stock_out.total_amount = stock_out.items.aggregate(total=Sum('total'))['total'] or 0
                         stock_out.save()
-                    # diff == 0: tidak ada perubahan stok
 
         return instance
 

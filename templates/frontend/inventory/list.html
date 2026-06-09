@@ -379,16 +379,15 @@ async function saveCategory() {
 }
 
 async function deleteItem(id) {
-    if (confirm('Hapus item ini?')) {
+    if (confirm('Hapus item ini secara permanen? Data tidak dapat dikembalikan.')) {
         const response = await SIMAN.apiRequest('/inventory/items/' + id + '/', 'DELETE');
         if (response === null) {
-            // Connection error, handled by apiRequest
             return;
         }
-        // Success: DELETE 204 returns empty response, response will be {}
-        // Error: apiRequest already shows the toast with error message
-        if (!response.error) {
-            showToast('Item berhasil dihapus!', 'success');
+        if (response.error) {
+            showToast(response.error, 'error');
+        } else {
+            showToast('Item berhasil dihapus permanen!', 'success');
             loadItems();
         }
     }

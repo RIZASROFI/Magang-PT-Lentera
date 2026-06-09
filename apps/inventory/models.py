@@ -157,7 +157,7 @@ class StockIn(models.Model):
 class StockInItem(models.Model):
     """Item dalam Stock In"""
     stock_in = models.ForeignKey(StockIn, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(Item, on_delete=models.PROTECT, related_name='stock_in_items')
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True, related_name='stock_in_items')
     quantity = models.IntegerField(default=0)
     unit_price = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
@@ -170,7 +170,8 @@ class StockInItem(models.Model):
         db_table = 'stock_in_items'
     
     def __str__(self):
-        return f"{self.stock_in.transaction_number} - {self.item.name}"
+        item_name = self.item.name if self.item else '(item dihapus)'
+        return f"{self.stock_in.transaction_number} - {item_name}"
     
     def save(self, *args, **kwargs):
         self.total = (self.quantity * self.unit_price) - self.discount
@@ -233,7 +234,7 @@ class StockOut(models.Model):
 class StockOutItem(models.Model):
     """Item dalam Stock Out"""
     stock_out = models.ForeignKey(StockOut, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(Item, on_delete=models.PROTECT, related_name='stock_out_items')
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True, related_name='stock_out_items')
     quantity = models.IntegerField(default=0)
     unit_price = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=15, decimal_places=2, default=0)
@@ -243,7 +244,8 @@ class StockOutItem(models.Model):
         db_table = 'stock_out_items'
     
     def __str__(self):
-        return f"{self.stock_out.transaction_number} - {self.item.name}"
+        item_name = self.item.name if self.item else '(item dihapus)'
+        return f"{self.stock_out.transaction_number} - {item_name}"
     
     def save(self, *args, **kwargs):
         self.total = self.quantity * self.unit_price
@@ -292,7 +294,7 @@ class StockOpname(models.Model):
 class StockOpnameItem(models.Model):
     """Item dalam Stock Opname"""
     stock_opname = models.ForeignKey(StockOpname, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(Item, on_delete=models.PROTECT)
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     system_quantity = models.IntegerField(default=0)
     actual_quantity = models.IntegerField(default=0)
     difference = models.IntegerField(default=0)

@@ -333,14 +333,14 @@
     .inv-main-card__header { flex-direction: column; align-items: stretch; }
     .inv-main-card__header .btn { width: 100%; }
     .inv-table thead th, .inv-table tbody td { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
-    .inv-table thead th:nth-child(6),
-    .inv-table tbody td:nth-child(6) { display: none; }
+    .inv-table thead th:nth-child(7),
+    .inv-table tbody td:nth-child(7) { display: none; }
 }
 @media (max-width: 576px) {
     .inv-table thead th:nth-child(4),
     .inv-table tbody td:nth-child(4),
-    .inv-table thead th:nth-child(6),
-    .inv-table tbody td:nth-child(6) { display: none; }
+    .inv-table thead th:nth-child(7),
+    .inv-table tbody td:nth-child(7) { display: none; }
     .inv-stat-card__icon { width: 36px; height: 36px; font-size: 1rem; }
 }
 
@@ -478,6 +478,7 @@
                         <th>Nama Barang</th>
                         <th>Kategori</th>
                         <th>Brand</th>
+                        <th>Supplier</th>
                         <th>Stok</th>
                         <th>Harga Beli</th>
                         <th class="text-end">Aksi</th>
@@ -485,7 +486,7 @@
                 </thead>
                 <tbody id="companyItemsBody">
                     <tr>
-                        <td colspan="7" class="text-center py-5">
+                        <td colspan="8" class="text-center py-5">
                             <div class="d-flex justify-content-center align-items-center gap-2 text-muted">
                                 <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                                 <span>Memuat data...</span>
@@ -564,7 +565,7 @@ function renderItems(items) {
     if (!items || items.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7">
+                <td colspan="8">
                     <div class="inv-empty">
                         <div class="inv-empty__icon"><i class="fas fa-box-open"></i></div>
                         <div class="inv-empty__text">Belum ada barang inventory</div>
@@ -600,6 +601,9 @@ function renderItems(items) {
                 </td>
                 <td>
                     <span class="inv-brand">${it.brand || '-'}</span>
+                </td>
+                <td>
+                    <span class="inv-brand">${it.supplier_name || '-'}</span>
                 </td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
@@ -642,7 +646,7 @@ function updateStats(items) {
 }
 
 async function deleteItem(id, btn) {
-    if (!confirm('Nonaktifkan item ini? Item tetap tersimpan di database tapi tidak akan muncul di daftar.')) return;
+    if (!confirm('Hapus item ini secara permanen? Data tidak dapat dikembalikan.')) return;
     
     if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
 
@@ -651,9 +655,10 @@ async function deleteItem(id, btn) {
     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
 
     if (res && res.error) {
+        showInvToast(res.error, 'error');
         return;
     }
-    showInvToast('Item berhasil dinonaktifkan!', 'success');
+    showInvToast('Item berhasil dihapus permanen!', 'success');
     loadItems();
 }
 
@@ -661,7 +666,7 @@ async function loadItems() {
     const tbody = document.getElementById('companyItemsBody');
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="text-center py-4">
+            <td colspan="8" class="text-center py-4">
                 <div class="d-flex justify-content-center align-items-center gap-2 text-muted">
                     <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                     <span>Memuat data...</span>

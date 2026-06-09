@@ -99,13 +99,13 @@
     }
 
     async function deleteItem(id){
-        if(!confirm('Hapus item ini?')) return;
+        if(!confirm('Hapus item ini secara permanen? Data tidak dapat dikembalikan.')) return;
         const res = await SIMAN.apiRequest('/inventory/items/' + id + '/', 'DELETE');
         if(res && res.error){
             showToast(res.error, 'error');
             return;
         }
-        showToast('Item dihapus!', 'success');
+        showToast('Item berhasil dihapus permanen!', 'success');
         loadCompanyItems();
     }
 

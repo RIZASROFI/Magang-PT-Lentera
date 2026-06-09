@@ -155,8 +155,12 @@
 .si-action-btn--approve:hover { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
 .si-action-btn--complete { background: rgba(26, 115, 232, 0.12); color: var(--si-primary); }
 .si-action-btn--complete:hover { background: #1a73e8; color: #fff; box-shadow: 0 4px 12px rgba(26,115,232,0.35); }
+.si-action-btn--edit { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.si-action-btn--edit:hover { background: #f59e0b; color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
 .si-action-btn--cancel { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
 .si-action-btn--cancel:hover { background: #ef4444; color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
+.si-action-btn--delete { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
+.si-action-btn--delete:hover { background: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,0.4); }
 .si-action-btn--detail { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
 .si-action-btn--detail:hover { background: #6b7280; color: #fff; box-shadow: 0 4px 12px rgba(107,114,128,0.35); }
 
@@ -373,9 +377,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Supplier</label>
-                            <select class="form-select" id="createSupplier">
-                                <option value="">-- Pilih Supplier --</option>
-                            </select>
+                            <input type="text" class="form-control" id="createSupplier" placeholder="Ketik nama supplier...">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">No. Referensi</label>
@@ -433,7 +435,7 @@
 <script>
 let allStockIns = [];
 let allItems = [];
-let allSuppliers = [];
+let editingStockInId = null;
 
 // ============ UTILITY ============
 function siBadge(status) {
@@ -542,9 +544,9 @@ function renderStockIns(data) {
             ? '<button class="si-action-btn si-action-btn--complete" data-action="complete" data-id="' + id + '"><i class="fas fa-check-double"></i> Complete</button>'
             : '';
 
-        var cancelBtn = (status !== 'canceled' && !si.is_completed)
-            ? '<button class="si-action-btn si-action-btn--cancel" data-action="cancel" data-id="' + id + '"><i class="fas fa-ban"></i> Cancel</button>'
-            : '';
+        var editBtn = '<button class="si-action-btn si-action-btn--edit" data-action="edit" data-id="' + id + '" title="Edit transaksi"><i class="fas fa-pen"></i></button>';
+
+        var deleteBtn = '<button class="si-action-btn si-action-btn--delete" data-action="delete" data-id="' + id + '" title="Hapus permanen"><i class="fas fa-trash-alt"></i></button>';
 
         var detailBtn = '<button class="si-action-btn si-action-btn--detail" data-action="detail" data-id="' + id + '"><i class="fas fa-eye"></i> Detail</button>';
 
@@ -556,7 +558,7 @@ function renderStockIns(data) {
             '<td>' + siBadge(status) + '</td>' +
             '<td><span class="si-date-text">' + date + '</span></td>' +
             '<td><span class="si-price">' + SIMAN.formatCurrency(totalAmount) + '</span></td>' +
-            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + cancelBtn + detailBtn + '</div></td>' +
+            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + editBtn + deleteBtn + detailBtn + '</div></td>' +
             '</tr>';
     }).join('');
 }
@@ -625,12 +627,71 @@ document.getElementById('stockInTbody').addEventListener('click', async function
         return;
     }
 
+    if (action === 'edit') {
+        try {
+            var res = await SIMAN.apiRequest('/inventory/stock-in/' + id + '/');
+            if (res && !res.error) {
+                // Pre-fill modal fields
+                document.getElementById('createSource').value = res.source || '';
+                document.getElementById('createSupplier').value = res.supplier_name || '';
+                document.getElementById('createRefNumber').value = res.reference_number || '';
+                document.getElementById('createTransDate').value = res.transaction_date || '';
+                document.getElementById('createNotes').value = res.notes || '';
+
+                // Show existing items as read-only
+                var itemsContainer = document.getElementById('createItemsContainer');
+                var existingItems = (res.items || res.stock_in_items) || [];
+                if (existingItems.length) {
+                    itemsContainer.innerHTML = existingItems.map(function(it) {
+                        var qty = it.quantity || 0;
+                        var price = parseFloat(it.unit_price) || 0;
+                        return '<div class="row g-2 mb-2"><div class="col-md-5"><input class="form-control form-control-sm" value="' + (it.item_name || '-') + '" disabled></div><div class="col-md-3"><input class="form-control form-control-sm" value="' + qty + '" disabled></div><div class="col-md-3"><input class="form-control form-control-sm" value="' + SIMAN.formatCurrency(price) + '" disabled></div><div class="col-md-1"></div></div>';
+                    }).join('');
+                } else {
+                    itemsContainer.innerHTML = '<div class="text-muted small py-2">Tidak ada item</div>';
+                }
+
+                document.querySelector('#stockInCreateModal .modal-title').innerHTML = '<i class="fas fa-edit text-warning me-2"></i>Edit Barang Masuk';
+                document.getElementById('btnSaveStockIn').innerHTML = '<i class="fas fa-save me-2"></i>Simpan Perubahan';
+                editingStockInId = id;
+
+                var editModal = new bootstrap.Modal(document.getElementById('stockInCreateModal'));
+                editModal.show();
+            } else {
+                siToast('Gagal memuat data transaksi', 'error');
+            }
+        } catch (e) {
+            siToast('Gagal memuat data transaksi', 'error');
+        }
+        return;
+    }
+
+    if (action === 'delete') {
+        if (!confirm('Hapus permanen transaksi ini? Semua data item dalam transaksi ini akan ikut terhapus. Data tidak dapat dikembalikan.')) return;
+        try {
+            var res = await SIMAN.apiRequest('/inventory/stock-in/' + id + '/', 'DELETE');
+            if (res && res.error) {
+                siToast(res.error, 'error');
+            } else {
+                siToast('Transaksi berhasil dihapus permanen!', 'success');
+                await loadStockIns();
+            }
+        } catch (e) {
+            siToast('Gagal menghapus transaksi', 'error');
+        }
+        return;
+    }
+
     if (!confirm('Konfirmasi untuk melakukan aksi "' + action + '" pada transaksi ' + id + '?')) return;
 
     try {
         var res = await postAction(id, action);
-        siToast(res && res.message || 'Berhasil melakukan aksi', 'success');
-        await loadStockIns();
+        if (res && res.error) {
+            siToast(res.error, 'error');
+        } else {
+            siToast(res && res.message || 'Berhasil melakukan aksi', 'success');
+            await loadStockIns();
+        }
     } catch (e) {
         siToast('Gagal melakukan aksi', 'error');
     }
@@ -641,8 +702,6 @@ async function loadComboData() {
     try {
         var itemsRes = await SIMAN.apiRequest('/inventory/items/');
         allItems = itemsRes && (itemsRes.results || itemsRes) || [];
-        var suppRes = await SIMAN.apiRequest('/inventory/suppliers/');
-        allSuppliers = suppRes && (suppRes.results || suppRes) || [];
     } catch (e) {
         console.error('Error loading combo data:', e);
     }
@@ -660,12 +719,7 @@ function populateCombos() {
         if (currentVal) sel.value = currentVal;
     });
 
-    // Supplier dropdown
-    var supplierSelect = document.getElementById('createSupplier');
-    supplierSelect.innerHTML = '<option value="">-- Pilih Supplier --</option>' +
-        allSuppliers.map(function(s) {
-            return '<option value="' + s.id + '">' + s.name + ' (' + s.code + ')</option>';
-        }).join('');
+    // Supplier field is now manual text input — no need to populate
 }
 
 function addItemRow() {
@@ -689,14 +743,30 @@ async function showCreateModal() {
     document.getElementById('createTransDate').value = today;
 
     // Load combo data if needed
-    if (!allItems.length || !allSuppliers.length) {
+    if (!allItems.length) {
         await loadComboData();
     }
     populateCombos();
 
+    editingStockInId = null;
+    document.querySelector('#stockInCreateModal .modal-title').innerHTML = '<i class="fas fa-plus-circle text-success me-2"></i>Tambah Barang Masuk';
+    document.getElementById('btnSaveStockIn').innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
     var modal = new bootstrap.Modal(document.getElementById('stockInCreateModal'));
     modal.show();
 }
+
+document.getElementById('stockInCreateModal').addEventListener('hidden.bs.modal', function() {
+    editingStockInId = null;
+    document.querySelector('#stockInCreateModal .modal-title').innerHTML = '<i class="fas fa-plus-circle text-success me-2"></i>Tambah Barang Masuk';
+    document.getElementById('btnSaveStockIn').innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+    document.getElementById('stockInCreateForm').reset();
+    document.getElementById('createItemsContainer').innerHTML =
+        '<div class="row g-2 mb-2 item-row">' +
+        '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
+        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+});
 
 document.getElementById('btnSaveStockIn').addEventListener('click', async function() {
     var form = document.getElementById('stockInCreateForm');
@@ -707,8 +777,7 @@ document.getElementById('btnSaveStockIn').addEventListener('click', async functi
     // Validate
     var source = document.getElementById('createSource').value;
     var transDate = document.getElementById('createTransDate').value;
-    var supplierVal = document.getElementById('createSupplier').value;
-    var supplier = supplierVal ? parseInt(supplierVal) : null;
+    var supplierName = document.getElementById('createSupplier').value.trim();
 
     if (!source) { siToast('Silakan pilih sumber transaksi', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
     if (!transDate) { siToast('Silakan pilih tanggal transaksi', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
@@ -732,37 +801,44 @@ document.getElementById('btnSaveStockIn').addEventListener('click', async functi
     if (!valid) { siToast('Periksa quantity item (minimal 1)', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan'; return; }
 
     var data = {
-        source: source,
-        transaction_date: transDate,
-        supplier: supplier,
-        reference_number: document.getElementById('createRefNumber').value || '',
-        notes: document.getElementById('createNotes').value || '',
-        items: items
-    };
+            source: source,
+            transaction_date: transDate,
+            supplier_name: supplierName || '',
+            reference_number: document.getElementById('createRefNumber').value || '',
+            notes: document.getElementById('createNotes').value || '',
+        };
 
-    try {
-        var res = await SIMAN.apiRequest('/inventory/stock-in/', 'POST', data);
-        if (res && !res.error) {
-            siToast('Transaksi barang masuk berhasil disimpan!', 'success');
-            var modal = bootstrap.Modal.getInstance(document.getElementById('stockInCreateModal'));
-            if (modal) modal.hide();
-            form.reset();
-            document.getElementById('createItemsContainer').innerHTML =
-                '<div class="row g-2 mb-2 item-row">' +
-                '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
-                '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
-                '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
-                '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
-            await loadStockIns();
-        } else {
-            siToast(res && res.error || 'Gagal menyimpan transaksi', 'error');
+        if (!editingStockInId) {
+            data.items = items;
         }
-    } catch (e) {
-        siToast('Gagal menyimpan transaksi', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-    }
+
+        try {
+            var url = editingStockInId ? '/inventory/stock-in/' + editingStockInId + '/' : '/inventory/stock-in/';
+            var method = editingStockInId ? 'PATCH' : 'POST';
+            var res = await SIMAN.apiRequest(url, method, data);
+            if (res && !res.error) {
+                siToast(editingStockInId ? 'Transaksi berhasil diperbarui!' : 'Transaksi barang masuk berhasil disimpan!', 'success');
+                var modal = bootstrap.Modal.getInstance(document.getElementById('stockInCreateModal'));
+                if (modal) modal.hide();
+                editingStockInId = null;
+                form.reset();
+                document.getElementById('createItemsContainer').innerHTML =
+                    '<div class="row g-2 mb-2 item-row">' +
+                    '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+                    '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
+                    '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+                    '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+                await loadStockIns();
+            } else {
+                siToast(res && res.error || 'Gagal menyimpan transaksi', 'error');
+            }
+        } catch (e) {
+            siToast('Gagal menyimpan transaksi', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+            editingStockInId = null;
+        }
 });
 
 // ============ INIT ============

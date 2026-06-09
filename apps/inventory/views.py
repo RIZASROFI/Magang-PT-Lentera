@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as filters
 from django.db.models import Sum, F
+from django.db.models import ProtectedError
 from datetime import datetime
 
 from .models import (
@@ -192,11 +193,32 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
     
     def destroy(self, request, *args, **kwargs):
-        """Soft-delete: nonaktifkan item (is_active=False) daripada hapus permanen."""
+        """
+        Hapus item secara permanen.
+        Akan gagal (ProtectedError) jika item masih dirujuk oleh transaksi
+        Stock In, Stock Out, atau Stock Opname.
+        """
         instance = self.get_object()
-        instance.is_active = False
-        instance.save(update_fields=['is_active'])
-        return Response({'message': 'Item berhasil dinonaktifkan.'}, status=status.HTTP_200_OK)
+        try:
+            instance.delete()
+            return Response(
+                {'message': 'Item berhasil dihapus permanen.'},
+                status=status.HTTP_200_OK
+            )
+        except ProtectedError as e:
+            # Hitung jumlah referensi dari pesan error
+            protected_objects = e.protected_objects if hasattr(e, 'protected_objects') else []
+            return Response(
+                {
+                    'error': (
+                        'Item tidak dapat dihapus karena masih memiliki data transaksi terkait '
+                        f'({len(protected_objects)} referensi). '
+                        'Hapus atau arsipkan transaksi terkait terlebih dahulu.'
+                    ),
+                    'detail': f'Item ini masih dirujuk oleh {len(protected_objects)} data transaksi.'
+                },
+                status=status.HTTP_409_CONFLICT
+            )
     
     @action(detail=False, methods=['get'])
     def low_stock(self, request):
@@ -309,18 +331,22 @@ class StockInViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
-        """Cancel stock in"""
+        """Cancel stock in - batalkan transaksi termasuk yang sudah completed"""
         stock_in = self.get_object()
-        if stock_in.is_completed:
+        
+        # Cegah cancel yang sudah cancel
+        if stock_in.status == 'canceled':
             return Response(
-                {'error': 'Tidak bisa cancel stock in yang sudah completed!'},
+                {'error': 'Stock in sudah dibatalkan sebelumnya!'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         stock_in.status = 'canceled'
+        stock_in.is_completed = False
+        stock_in.received_date = None
         stock_in.save()
         
-        return Response({'message': 'Stock in dibatalkan!'})
+        return Response({'message': 'Stock in berhasil dibatalkan!'})
 
 
 class StockOutViewSet(viewsets.ModelViewSet):
@@ -400,18 +426,22 @@ class StockOutViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
-        """Cancel stock out"""
+        """Cancel stock out - batalkan transaksi termasuk yang sudah completed"""
         stock_out = self.get_object()
-        if stock_out.is_completed:
+        
+        # Cegah cancel yang sudah cancel
+        if stock_out.status == 'canceled':
             return Response(
-                {'error': 'Tidak bisa cancel stock out yang sudah completed!'},
+                {'error': 'Stock out sudah dibatalkan sebelumnya!'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         stock_out.status = 'canceled'
+        stock_out.is_completed = False
+        stock_out.delivered_date = None
         stock_out.save()
         
-        return Response({'message': 'Stock out dibatalkan!'})
+        return Response({'message': 'Stock out berhasil dibatalkan!'})
 
 
 class StockOpnameViewSet(viewsets.ModelViewSet):
