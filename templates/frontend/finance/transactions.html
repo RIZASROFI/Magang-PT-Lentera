@@ -70,7 +70,7 @@ function showTab(t){document.getElementById('incomesSection').style.display=t===
         const items=data.results||data;
         count.textContent=items.length;
         if(!items.length){body.innerHTML='<tr><td colspan="6" class="text-center text-muted">Tidak ada data</td></tr>';return;}
-        body.innerHTML=items.map(i=>`<tr><td>${i.income_number||i.expense_number||'-'}</td><td>${i.date||'-'}</td><td>${i.category?.name||'-'}</td><td>${(i.description||'').substring(0,50)}</td><td><strong>Rp ${(i.amount||0).toLocaleString('id')}</strong></td><td><span class="badge ${i.status==='completed'?'bg-success':i.status==='confirmed'?'bg-info':i.status==='pending'?'bg-warning':'bg-secondary'}">${i.status||'-'}</span></td></tr>`).join('');
+        body.innerHTML=items.map(i=>`<tr><td>${i.income_number||i.expense_number||'-'}</td><td>${i.date||'-'}</td><td>${i.category?.name||'-'}</td><td>${(i.description||'').substring(0,50)}</td><td><strong>Rp ${(i.amount||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></td><td><span class="badge ${i.status==='completed'?'bg-success':i.status==='confirmed'?'bg-info':i.status==='pending'?'bg-warning':'bg-secondary'}">${i.status||'-'}</span></td></tr>`).join('');
       }catch(e){console.error(e);body.innerHTML='<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';}
     }
     search.addEventListener('input',()=>{clearTimeout(window['__t'+endpoint]);window['__t'+endpoint]=setTimeout(load,300);});

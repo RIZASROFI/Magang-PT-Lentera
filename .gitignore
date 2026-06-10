@@ -41,3 +41,7 @@ staticfiles/
 # --- OS ---
 Thumbs.db
 Desktop.ini
+
+NUL
+*/NUL
+**/NUL

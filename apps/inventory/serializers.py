@@ -339,6 +339,31 @@ class StockOutCreateSerializer(serializers.ModelSerializer):
             'notes', 'delivered_to', 'items'
         ]
     
+    def validate_items(self, items):
+        """
+        Validasi: pastikan stok setiap item mencukupi untuk transaksi barang keluar.
+        """
+        if not items:
+            raise serializers.ValidationError('Minimal 1 item harus diisi.')
+        
+        errors = []
+        for i, item_data in enumerate(items):
+            item_obj = item_data.get('item')
+            quantity = item_data.get('quantity', 0)
+            
+            if item_obj and quantity > 0:
+                # Refresh item from DB to get latest stock
+                item_from_db = Item.objects.get(pk=item_obj.id)
+                if item_from_db.current_stock < quantity:
+                    errors.append(f"{item_from_db.name}: stok tersedia {item_from_db.current_stock}, diminta {quantity}")
+        
+        if errors:
+            raise serializers.ValidationError(
+                {'items': errors}
+            )
+        
+        return items
+    
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         stock_out = StockOut.objects.create(**validated_data)
@@ -351,12 +376,17 @@ class StockOutCreateSerializer(serializers.ModelSerializer):
             item = Item.objects.get(pk=item_data['item'].id)
             item_data['unit_price'] = item.cost_price
             stock_item = StockOutItem.objects.create(**item_data)
+            
+            # Kurangi stok barang secara otomatis
+            item.current_stock -= stock_item.quantity
+            item.save(update_fields=['current_stock'])
+            
             total_items += stock_item.quantity
             total_amount += stock_item.total
         
         stock_out.total_items = total_items
         stock_out.total_amount = total_amount
-        stock_out.save()
+        stock_out.save(update_fields=['total_items', 'total_amount'])
         
         return stock_out
 

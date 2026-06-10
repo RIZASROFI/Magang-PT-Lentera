@@ -20,7 +20,7 @@
 
   <div class="data-card">
     <div class="card-header"><h5 class="m-0">Daftar Progress Proyek</h5></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>Proyek</th><th>Tanggal Mulai</th><th>Nilai Kontrak</th><th>Progress</th><th>Status</th><th>Tenggat</th></tr></thead><tbody id="tableBody"><tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>No. Proyek</th><th>Proyek</th><th>Lokasi</th><th>Tanggal Mulai</th><th>Nilai Kontrak</th><th>Progress</th><th>Status</th><th>Tenggat</th></tr></thead><tbody id="tableBody"><tr><td colspan="8" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
   </div>
 </div>
 {% endblock %}
@@ -46,7 +46,7 @@
 (function(){
   const tbody=document.getElementById('tableBody');
   async function load(){
-    tbody.innerHTML='<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>';
+    tbody.innerHTML='<tr><td colspan="8" class="text-center text-muted">Memuat data...</td></tr>';
     try{
       const res=await fetch('/api/projects/',{credentials:'include'});
       if(!res.ok) throw new Error(res.status);
@@ -63,14 +63,15 @@
           if(stat==='completed') calcPct=100;
           else if(stat==='progress'||stat==='in_progress') calcPct=50;
           const startDate=p.start_date||'-';
-          return `<tr><td><strong>${p.name||'-'}</strong></td><td>${startDate}</td><td>Rp ${(p.contract_value||0).toLocaleString('id')}</td><td><div class="progress-bar-custom"><div class="progress-bar-fill" style="width:${calcPct}%"></div></div><small class="text-muted ms-2">${calcPct}%</small></td><td><span class="badge ${stat==='completed'?'bg-success':stat==='progress'||stat==='in_progress'?'bg-primary':stat==='pending'?'bg-warning text-dark':stat==='canceled'?'bg-danger':'bg-secondary'}">${stat||'-'}</span></td><td>${p.end_date||'-'}</td></tr>`;
+          const lokasi=p.city||p.address||'-';
+          return `<tr><td><span class="badge bg-dark">${p.project_code||'-'}</span></td><td><strong>${p.name||'-'}</strong></td><td><small>${lokasi}</small></td><td>${startDate}</td><td>${SIMAN.formatCurrency(p.contract_value||0)}</td><td><div class="progress-bar-custom"><div class="progress-bar-fill" style="width:${calcPct}%"></div></div><small class="text-muted ms-2">${calcPct}%</small></td><td><span class="badge ${stat==='completed'?'bg-success':stat==='progress'||stat==='in_progress'?'bg-primary':stat==='pending'?'bg-warning text-dark':stat==='canceled'?'bg-danger':'bg-secondary'}">${stat||'-'}</span></td><td>${p.end_date||'-'}</td></tr>`;
         }).join('');
       }
       document.getElementById('totalProyek').textContent=stats.total;
       document.getElementById('progressProyek').textContent=stats.progress;
       document.getElementById('selesaiProyek').textContent=stats.completed;
       document.getElementById('tertundaProyek').textContent=stats.pending;
-    }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';}
+    }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="8" class="text-center text-danger">Gagal memuat data</td></tr>';}
   }
   load();
 })();

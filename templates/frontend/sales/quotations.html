@@ -47,7 +47,7 @@
       const items=data.results||data;
       count.textContent=items.length;
       if(!items.length){tbody.innerHTML='<tr><td colspan="5" class="text-center text-muted">Tidak ada data</td></tr>';return;}
-      tbody.innerHTML=items.map(q=>`<tr><td>${q.quotation_number||'-'}</td><td>${q.date||'-'}</td><td>${q.customer?.name||'-'}</td><td><strong>Rp ${(q.total||0).toLocaleString('id')}</strong></td><td><span class="badge ${q.status==='accepted'?'bg-success':q.status==='sent'?'bg-info':q.status==='rejected'?'bg-danger':'bg-secondary'}">${q.status||'-'}</span></td></tr>`).join('');
+      tbody.innerHTML=items.map(q=>`<tr><td>${q.quotation_number||'-'}</td><td>${q.date||'-'}</td><td>${q.customer?.name||'-'}</td><td><strong>Rp ${(q.total||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></td><td><span class="badge ${q.status==='accepted'?'bg-success':q.status==='sent'?'bg-info':q.status==='rejected'?'bg-danger':'bg-secondary'}">${q.status||'-'}</span></td></tr>`).join('');
     }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>';}
   }
   search.addEventListener('input',()=>{clearTimeout(window.__t);window.__t=setTimeout(load,300);});

@@ -47,7 +47,7 @@
       const items=data.results||data;
       count.textContent=items.length;
       if(!items.length){tbody.innerHTML='<tr><td colspan="5" class="text-center text-muted">Tidak ada data</td></tr>';return;}
-      tbody.innerHTML=items.map(a=>`<tr><td>${a.code||'-'}</td><td><strong>${a.name||'-'}</strong></td><td><span class="badge bg-info">${a.account_type||'-'}</span></td><td>Rp ${(a.balance||0).toLocaleString('id')}</td><td>${a.is_active?'<span class="badge bg-success">Aktif</span>':'<span class="badge bg-secondary">Nonaktif</span>'}</td></tr>`).join('');
+      tbody.innerHTML=items.map(a=>`<tr><td>${a.code||'-'}</td><td><strong>${a.name||'-'}</strong></td><td><span class="badge bg-info">${a.account_type||'-'}</span></td><td>Rp ${(a.balance||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td>${a.is_active?'<span class="badge bg-success">Aktif</span>':'<span class="badge bg-secondary">Nonaktif</span>'}</td></tr>`).join('');
     }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>';}
   }
   search.addEventListener('input',()=>{clearTimeout(window.__t);window.__t=setTimeout(load,300);});

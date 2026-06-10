@@ -420,7 +420,7 @@
 
     <!-- Stats Cards -->
     <div class="inv-stats row g-3">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="inv-stat-card inv-stat-card--blue">
                 <div class="inv-stat-card__icon inv-stat-card__icon--blue">
                     <i class="fas fa-box"></i>
@@ -429,7 +429,7 @@
                 <h3 class="inv-stat-card__value" id="statTotalItems">0</h3>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="inv-stat-card inv-stat-card--green">
                 <div class="inv-stat-card__icon inv-stat-card__icon--green">
                     <i class="fas fa-check-circle"></i>
@@ -438,16 +438,7 @@
                 <h3 class="inv-stat-card__value" id="statActiveItems">0</h3>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="inv-stat-card inv-stat-card--orange">
-                <div class="inv-stat-card__icon inv-stat-card__icon--orange">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="inv-stat-card__label">Stok Rendah</div>
-                <h3 class="inv-stat-card__value" id="statLowStock">0</h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="inv-stat-card inv-stat-card--purple">
                 <div class="inv-stat-card__icon inv-stat-card__icon--purple">
                     <i class="fas fa-tags"></i>
@@ -634,14 +625,11 @@ function updateStats(items) {
     if (!items) return;
     const total = items.length;
     const active = items.filter(x => x.is_active !== false).length;
-    const lowStock = items.filter(x => (x.current_stock ?? 0) <= (x.min_stock || 0) && x.min_stock > 0).length;
-
     // Get unique categories
     const categories = new Set(items.map(x => x.category_name).filter(Boolean));
     
     document.getElementById('statTotalItems').textContent = total;
     document.getElementById('statActiveItems').textContent = active;
-    document.getElementById('statLowStock').textContent = lowStock;
     document.getElementById('statCategories').textContent = categories.size;
 }
 

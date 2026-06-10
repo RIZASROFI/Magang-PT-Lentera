@@ -58,6 +58,7 @@ class Item(models.Model):
     has_expiry = models.BooleanField(default=False)
     image = models.ImageField(upload_to='inventory/items/', blank=True, null=True)
     default_supplier = models.ForeignKey('inventory.Supplier', on_delete=models.SET_NULL, null=True, blank=True, related_name='default_items')
+    current_stock = models.IntegerField(default=0, help_text='Stok saat ini (dikelola langsung)')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_items')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -70,13 +71,6 @@ class Item(models.Model):
     
     def __str__(self):
         return f"{self.sku} - {self.name}"
-    
-    @property
-    def current_stock(self):
-        """Hitung stok saat ini"""
-        stock_in = StockIn.objects.filter(items__item=self, is_completed=True).aggregate(total=models.Sum('items__quantity'))['total'] or 0
-        stock_out = StockOut.objects.filter(items__item=self, is_completed=True).aggregate(total=models.Sum('items__quantity'))['total'] or 0
-        return stock_in - stock_out
 
 
 class Supplier(models.Model):

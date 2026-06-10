@@ -383,6 +383,18 @@ class StockOutViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
     
+    def perform_destroy(self, instance):
+        """
+        Hapus transaksi barang keluar dan kembalikan stok barang.
+        """
+        # Kembalikan stok untuk setiap item
+        for item in instance.items.all():
+            if item.item:
+                item.item.current_stock += item.quantity
+                item.item.save(update_fields=['current_stock'])
+        
+        instance.delete()
+    
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         """Approve stock out"""
@@ -401,7 +413,7 @@ class StockOutViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def complete(self, request, pk=None):
-        """Complete stock out - kurangi dari stok"""
+        """Complete stock out"""
         stock_out = self.get_object()
         if stock_out.status != 'approved':
             return Response(
@@ -409,24 +421,17 @@ class StockOutViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Validasi stok cukup
-        for item in stock_out.items.all():
-            if item.item.current_stock < item.quantity:
-                return Response(
-                    {'error': f'Stok {item.item.name} tidak cukup!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        
+        # Stok sudah dikurangi saat transaksi dibuat, jadi hanya update status
         stock_out.status = 'completed'
         stock_out.is_completed = True
         stock_out.delivered_date = datetime.now().date()
         stock_out.save()
         
-        return Response({'message': 'Stock out selesai, stok dikurangi!'})
+        return Response({'message': 'Stock out selesai!'})
     
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
-        """Cancel stock out - batalkan transaksi termasuk yang sudah completed"""
+        """Cancel stock out - batalkan transaksi dan kembalikan stok"""
         stock_out = self.get_object()
         
         # Cegah cancel yang sudah cancel
@@ -436,12 +441,18 @@ class StockOutViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Kembalikan stok untuk setiap item
+        for item in stock_out.items.all():
+            if item.item:
+                item.item.current_stock += item.quantity
+                item.item.save(update_fields=['current_stock'])
+        
         stock_out.status = 'canceled'
         stock_out.is_completed = False
         stock_out.delivered_date = None
         stock_out.save()
         
-        return Response({'message': 'Stock out berhasil dibatalkan!'})
+        return Response({'message': 'Stock out berhasil dibatalkan, stok dikembalikan!'})
 
 
 class StockOpnameViewSet(viewsets.ModelViewSet):

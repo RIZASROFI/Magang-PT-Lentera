@@ -55,12 +55,12 @@
       const res=await fetch('/api/finance/reports/summary/',{credentials:'include'});
       if(!res.ok) throw new Error(res.status);
       const d=await res.json();
-      document.getElementById('totalIncome').textContent='Rp '+(d.total_income||0).toLocaleString('id');
-      document.getElementById('totalExpense').textContent='Rp '+(d.total_expense||0).toLocaleString('id');
-      document.getElementById('netProfit').textContent='Rp '+(d.net_profit||0).toLocaleString('id');
+      document.getElementById('totalIncome').textContent='Rp '+(d.total_income||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('totalExpense').textContent='Rp '+(d.total_expense||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('netProfit').textContent='Rp '+(d.net_profit||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2});
       const np=document.getElementById('netProfit');
       np.style.color=(d.net_profit||0)>=0?'#28a745':'#dc3545';
-      document.getElementById('cashBalance').textContent='Rp '+(d.cash_balance||0).toLocaleString('id');
+      document.getElementById('cashBalance').textContent='Rp '+(d.cash_balance||0).toLocaleString('id',{minimumFractionDigits:2,maximumFractionDigits:2});
     }catch(e){console.error(e);}
   }
   async function loadCategories(){

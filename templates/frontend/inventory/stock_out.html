@@ -305,7 +305,7 @@
                         <th>Transaksi</th>
                         <th>Tipe</th>
                         <th>Proyek/Penerima</th>
-                        <th>Status</th>
+                        <th>Jumlah Barang</th>
                         <th>Tanggal</th>
                         <th>Total</th>
                         <th class="text-end">Aksi</th>
@@ -539,7 +539,7 @@ function renderStockOuts(data) {
             '<td><div class="so-trans-num">' + (so.transaction_number || '-') + '</div><div class="so-ref-num">Ref: ' + (so.reference_number || '-') + '</div></td>' +
             '<td>' + soTypeBadge(outType) + '</td>' +
             '<td><span style="font-size:0.85rem;">' + recipientHtml + '</span></td>' +
-            '<td>' + soBadge(status) + '</td>' +
+            '<td><span class="fw-bold" style="font-size:0.9rem;color:#e8481a;">' + (so.total_items || 0) + ' item</span></td>' +
             '<td><span class="so-date-text">' + date + '</span></td>' +
             '<td><span class="so-price">' + SIMAN.formatCurrency(totalAmount) + '</span></td>' +
             '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + editBtn + deleteBtn + detailBtn + '</div></td>' +
@@ -569,7 +569,6 @@ async function loadDetail(id) {
             '<div class="col-md-6"><small class="text-muted d-block">Proyek</small><strong>' + (res.project_name || (res.project && res.project.name) || '-') + '</strong></div>' +
             '<div class="col-md-6"><small class="text-muted d-block">No. Referensi</small><strong>' + (res.reference_number || '-') + '</strong></div>' +
             '<div class="col-md-6"><small class="text-muted d-block">Tanggal</small><strong>' + (res.transaction_date || '-') + '</strong></div>' +
-            '<div class="col-md-6"><small class="text-muted d-block">Status</small>' + soBadge(res.status) + '</div>' +
             (res.delivered_to ? '<div class="col-md-6"><small class="text-muted d-block">Diterima Oleh</small><strong>' + res.delivered_to + '</strong></div>' : '') +
             '</div></div>';
 
