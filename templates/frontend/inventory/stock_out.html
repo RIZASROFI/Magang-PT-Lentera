@@ -155,8 +155,6 @@
 .so-action-btn--approve:hover { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
 .so-action-btn--complete { background: rgba(26, 115, 232, 0.12); color: var(--so-primary); }
 .so-action-btn--complete:hover { background: #1a73e8; color: #fff; box-shadow: 0 4px 12px rgba(26,115,232,0.35); }
-.so-action-btn--edit { background: rgba(245, 158, 11, 0.12); color: #d97706; }
-.so-action-btn--edit:hover { background: #f59e0b; color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
 .so-action-btn--cancel { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
 .so-action-btn--cancel:hover { background: #ef4444; color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
 .so-action-btn--delete { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
@@ -244,9 +242,6 @@
             <p class="so-header__subtitle">Kelola transaksi pengeluaran barang untuk proyek, penjualan, dan lainnya</p>
         </div>
         <div class="so-header__actions d-flex gap-2">
-            <button type="button" class="btn btn-so-outline" onclick="loadStockOuts()" title="Refresh data">
-                <i class="fas fa-sync-alt me-1"></i> Refresh
-            </button>
             <button type="button" class="btn btn-so-primary" onclick="showCreateModal()">
                 <i class="fas fa-plus me-1"></i> Barang Keluar Baru
             </button>
@@ -255,28 +250,21 @@
 
     <!-- Stats Cards -->
     <div class="so-stats row g-3">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="so-stat-card so-stat-card--red">
                 <div class="so-stat-card__icon so-stat-card__icon--red"><i class="fas fa-sign-out-alt"></i></div>
                 <div class="so-stat-card__label">Total Transaksi</div>
                 <h3 class="so-stat-card__value" id="statTotal">0</h3>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="so-stat-card so-stat-card--orange">
-                <div class="so-stat-card__icon so-stat-card__icon--orange"><i class="fas fa-clock"></i></div>
-                <div class="so-stat-card__label">Pending</div>
-                <h3 class="so-stat-card__value" id="statPending">0</h3>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="so-stat-card so-stat-card--green">
                 <div class="so-stat-card__icon so-stat-card__icon--green"><i class="fas fa-check-circle"></i></div>
                 <div class="so-stat-card__label">Selesai</div>
                 <h3 class="so-stat-card__value" id="statCompleted">0</h3>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="so-stat-card so-stat-card--purple">
                 <div class="so-stat-card__icon so-stat-card__icon--purple"><i class="fas fa-boxes"></i></div>
                 <div class="so-stat-card__label">Total Item Keluar</div>
@@ -329,21 +317,26 @@
 <!-- Detail Modal -->
 <div class="modal fade" id="stockOutDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-receipt text-danger me-2"></i>Detail Barang Keluar
+        <div class="modal-content" style="border-radius: 20px !important; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, rgba(232,72,26,0.06), rgba(240,107,54,0.03)); border-bottom: 1px solid rgba(232,72,26,0.08); padding: 1.25rem 1.5rem !important;">
+                <h5 class="modal-title" style="font-weight: 700; color: #1e293b; font-size: 1.05rem;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, rgba(232,72,26,0.12), rgba(240,107,54,0.06)); margin-right: 10px;">
+                        <i class="fas fa-receipt" style="color: #e8481a; font-size: 0.85rem;"></i>
+                    </span>
+                    Detail Barang Keluar
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="stockOutDetailBody">
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="text-muted mt-2 mb-0">Memuat detail...</p>
+            <div class="modal-body" id="stockOutDetailBody" style="padding: 1.5rem !important; background: #fbfbfd;">
+                <div class="text-center py-5">
+                    <div style="width: 48px; height: 48px; margin: 0 auto 1rem; border-radius: 50%; background: linear-gradient(135deg, rgba(232,72,26,0.08), rgba(240,107,54,0.04)); display: flex; align-items: center; justify-content: center;">
+                        <div class="spinner-border" style="width: 24px; height: 24px; color: #e8481a; border-width: 2.5px;" role="status"></div>
+                    </div>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Memuat detail transaksi...</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+            <div class="modal-footer" style="border-top: 1px solid rgba(0,0,0,0.05) !important; padding: 1rem 1.5rem !important;">
+                <button type="button" class="btn-so-ghost" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Tutup
                 </button>
             </div>
@@ -351,87 +344,309 @@
     </div>
 </div>
 
+<!-- ===== MODAL FORM STYLING ===== -->
+<style>
+/* Create Modal - Modern Form Fields */
+#stockOutCreateModal .modal-content {
+    border-radius: 20px !important;
+    overflow: hidden;
+}
+#stockOutCreateModal .modal-header {
+    background: linear-gradient(135deg, rgba(232,72,26,0.06), rgba(240,107,54,0.03)) !important;
+    border-bottom: 1px solid rgba(232,72,26,0.08) !important;
+    padding: 1.25rem 1.5rem !important;
+}
+#stockOutCreateModal .modal-title {
+    font-weight: 700; color: #1e293b; font-size: 1.05rem;
+}
+#stockOutCreateModal .modal-body {
+    background: #fbfbfd; padding: 1.5rem !important;
+}
+#stockOutCreateModal .modal-footer {
+    border-top: 1px solid rgba(0,0,0,0.05) !important;
+    padding: 1rem 1.5rem !important; background: #fff;
+}
+
+.so-form-section {
+    margin-bottom: 1.5rem;
+}
+.so-form-section:last-child { margin-bottom: 0; }
+.so-form-section__header {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 1rem; padding-bottom: 0.6rem;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+.so-form-section__icon {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg, rgba(232,72,26,0.1), rgba(240,107,54,0.05));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: #e8481a; flex-shrink: 0;
+}
+.so-form-section__title {
+    font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 0;
+}
+.so-form-section__subtitle {
+    font-size: 0.68rem; color: #94a3b8; font-weight: 400; margin: 0;
+}
+
+.so-label {
+    display: flex; align-items: center; gap: 0.35rem;
+    font-size: 0.76rem; font-weight: 600; color: #334155;
+    margin-bottom: 0.35rem;
+}
+.so-label .required-star { color: #ef4444; }
+
+#stockOutCreateModal .form-control,
+#stockOutCreateModal .form-select {
+    background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 10px; padding: 0.55rem 0.85rem;
+    font-size: 0.84rem; font-weight: 500; color: #1e293b;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    min-height: 40px;
+}
+#stockOutCreateModal .form-control:focus,
+#stockOutCreateModal .form-select:focus {
+    background: #fff; border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.1), 0 2px 8px rgba(26,115,232,0.06);
+    outline: none;
+}
+#stockOutCreateModal .form-control::placeholder {
+    color: #94a3b8; font-weight: 400; font-size: 0.8rem;
+}
+#stockOutCreateModal .form-control:hover:not(:focus):not(:disabled) {
+    border-color: #cbd5e1; background: #f1f5f9;
+}
+
+.so-form-divider {
+    border: none; height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, #e2e8f0, #e2e8f0, transparent);
+    margin: 1.25rem 0;
+}
+
+/* Item rows */
+.so-item-row {
+    background: #fff; border: 1.5px solid #e2e8f0;
+    border-radius: 12px; padding: 0.75rem !important;
+    margin-bottom: 0.6rem; transition: all 0.2s ease;
+}
+.so-item-row:hover {
+    border-color: #cbd5e1; background: #fafcff;
+}
+.so-item-row .form-control,
+.so-item-row .form-select { min-height: 36px; font-size: 0.8rem; }
+.so-item-row .remove-item {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1.5px solid #fecaca;
+    background: rgba(239,68,68,0.05); color: #dc2626;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease; cursor: pointer;
+}
+.so-item-row .remove-item:hover {
+    background: #ef4444; color: #fff;
+    border-color: #ef4444;
+    box-shadow: 0 3px 10px rgba(239,68,68,0.25);
+}
+
+.so-add-item-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 1rem; border-radius: 9px;
+    border: 1.5px dashed #94a3b8; background: transparent;
+    color: #64748b; font-size: 0.8rem; font-weight: 600;
+    transition: all 0.2s ease; cursor: pointer;
+}
+.so-add-item-btn:hover {
+    border-color: #e8481a; color: #e8481a;
+    background: rgba(232,72,26,0.04);
+}
+
+/* Modal footer buttons */
+.btn-so-ghost {
+    display: inline-flex; align-items: center;
+    padding: 0.5rem 1.25rem; border-radius: 10px;
+    border: 1.5px solid #e2e8f0; background: #fff;
+    color: #475569; font-size: 0.82rem; font-weight: 600;
+    transition: all 0.2s ease; cursor: pointer;
+}
+.btn-so-ghost:hover {
+    background: #f1f5f9; border-color: #cbd5e1; color: #1e293b;
+}
+
+.btn-so-modal-primary {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.5rem 1.35rem; border-radius: 10px; border: none;
+    background: linear-gradient(135deg, #e8481a, #f06b36);
+    color: #fff; font-size: 0.82rem; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(232,72,26,0.25);
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1); cursor: pointer;
+}
+.btn-so-modal-primary:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 5px 18px rgba(232,72,26,0.35);
+}
+.btn-so-modal-primary:disabled {
+    opacity: 0.6; cursor: not-allowed; transform: none;
+}
+
+/* Detail Modal info cards */
+.so-detail-info {
+    background: #fff; border: 1.5px solid #e2e8f0;
+    border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem;
+}
+.so-detail-info:last-child { margin-bottom: 0; }
+.so-detail-info__header {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 1rem; padding-bottom: 0.6rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.82rem; font-weight: 700; color: #1e293b;
+}
+.so-detail-info__header i { color: #e8481a; }
+.so-detail-info__grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+}
+@media (max-width: 576px) {
+    .so-detail-info__grid { grid-template-columns: 1fr; }
+}
+.so-detail-info__label {
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    color: #94a3b8; margin-bottom: 0.15rem;
+}
+.so-detail-info__value {
+    font-size: 0.88rem; font-weight: 600; color: #1e293b;
+}
+
+.so-detail-table {
+    width: 100%; font-size: 0.84rem; border-collapse: collapse;
+}
+.so-detail-table thead th {
+    background: rgba(232,72,26,0.04); color: #64748b;
+    font-weight: 700; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 2px solid rgba(232,72,26,0.1);
+}
+.so-detail-table tbody td {
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid #f1f5f9; color: #334155;
+}
+.so-detail-table tbody tr:last-child td { border-bottom: none; }
+.so-detail-table tbody tr:hover { background: rgba(232,72,26,0.02); }
+</style>
+
 <!-- Create Modal -->
 <div class="modal fade" id="stockOutCreateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-plus-circle text-danger me-2"></i>Tambah Barang Keluar
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, rgba(232,72,26,0.12), rgba(240,107,54,0.06)); margin-right: 10px;">
+                        <i class="fas fa-plus-circle" style="color: #e8481a; font-size: 0.85rem;"></i>
+                    </span>
+                    Tambah Barang Keluar
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="stockOutCreateForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Tipe Pengeluaran <span class="text-danger">*</span></label>
-                            <select class="form-select" id="createOutType" required>
-                                <option value="">-- Pilih Tipe --</option>
-                                <option value="project">Proyek</option>
-                                <option value="sales">Penjualan</option>
-                                <option value="return">Retur Supplier</option>
-                                <option value="adjustment">Penyesuaian</option>
-                                <option value="damaged">Barang Rusak</option>
-                            </select>
+                    <!-- Section 1: Informasi Transaksi -->
+                    <div class="so-form-section">
+                        <div class="so-form-section__header">
+                            <div class="so-form-section__icon"><i class="fas fa-file-invoice"></i></div>
+                            <div>
+                                <div class="so-form-section__title">Informasi Transaksi</div>
+                                <div class="so-form-section__subtitle">Data utama pengeluaran barang</div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Proyek</label>
-                            <select class="form-select" id="createProject">
-                                <option value="">-- Pilih Proyek --</option>
-                            </select>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="so-label"><i class="fas fa-tag" style="font-size:0.65rem;color:#94a3b8;"></i> Tipe Pengeluaran <span class="required-star">*</span></label>
+                                <select class="form-select" id="createOutType" required>
+                                    <option value="">-- Pilih Tipe --</option>
+                                    <option value="project">🏗️ Proyek</option>
+                                    <option value="sales">🛒 Penjualan</option>
+                                    <option value="return">🔄 Retur Supplier</option>
+                                    <option value="adjustment">⚙️ Penyesuaian</option>
+                                    <option value="damaged">⚠️ Barang Rusak</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="so-label"><i class="fas fa-project-diagram" style="font-size:0.65rem;color:#94a3b8;"></i> Proyek</label>
+                                <select class="form-select" id="createProject">
+                                    <option value="">-- Pilih Proyek --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="so-label"><i class="fas fa-hashtag" style="font-size:0.65rem;color:#94a3b8;"></i> No. Referensi</label>
+                                <input type="text" class="form-control" id="createRefNumber" placeholder="No. referensi">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="so-label"><i class="fas fa-calendar" style="font-size:0.65rem;color:#94a3b8;"></i> Tanggal Transaksi <span class="required-star">*</span></label>
+                                <input type="date" class="form-control" id="createTransDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="so-label"><i class="fas fa-user-check" style="font-size:0.65rem;color:#94a3b8;"></i> Diterima Oleh</label>
+                                <input type="text" class="form-control" id="createDeliveredTo" placeholder="Nama penerima">
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">No. Referensi</label>
-                            <input type="text" class="form-control" id="createRefNumber" placeholder="No. referensi">
+                    </div>
+
+                    <hr class="so-form-divider">
+
+                    <!-- Section 2: Item Barang -->
+                    <div class="so-form-section">
+                        <div class="so-form-section__header">
+                            <div class="so-form-section__icon"><i class="fas fa-boxes"></i></div>
+                            <div>
+                                <div class="so-form-section__title">Item Barang</div>
+                                <div class="so-form-section__subtitle">Daftar item yang dikeluarkan</div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Tanggal Transaksi <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="createTransDate" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Diterima Oleh</label>
-                            <input type="text" class="form-control" id="createDeliveredTo" placeholder="Nama penerima">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">Item Barang</label>
-                            <div id="createItemsContainer">
-                                <div class="row g-2 mb-2 item-row">
-                                    <div class="col-md-5">
-                                        <select class="form-select form-select-sm item-select" required>
-                                            <option value="">-- Pilih Item --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01">
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest('.item-row').remove()">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
+                        <div id="createItemsContainer">
+                            <div class="row so-item-row item-row">
+                                <div class="col-md-5">
+                                    <select class="form-select form-select-sm item-select" required>
+                                        <option value="">-- Pilih Item --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="remove-item" onclick="this.closest('.item-row').remove()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="addItemRow()">
-                                <i class="fas fa-plus me-1"></i>Tambah Item
-                            </button>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">Catatan</label>
-                            <textarea class="form-control" id="createNotes" rows="2" placeholder="Catatan tambahan..."></textarea>
+                        <button type="button" class="so-add-item-btn mt-2" onclick="addItemRow()">
+                            <i class="fas fa-plus"></i> Tambah Item
+                        </button>
+                    </div>
+
+                    <hr class="so-form-divider">
+
+                    <!-- Section 3: Catatan -->
+                    <div class="so-form-section">
+                        <div class="so-form-section__header">
+                            <div class="so-form-section__icon"><i class="fas fa-sticky-note"></i></div>
+                            <div>
+                                <div class="so-form-section__title">Catatan</div>
+                                <div class="so-form-section__subtitle">Informasi tambahan (opsional)</div>
+                            </div>
                         </div>
+                        <textarea class="form-control" id="createNotes" rows="2" placeholder="Catatan tambahan..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                <button type="button" class="btn-so-ghost" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Batal
                 </button>
-                <button type="button" class="btn btn-danger rounded-pill px-4" id="btnSaveStockOut">
-                    <i class="fas fa-save me-2"></i>Simpan
+                <button type="button" class="btn-so-modal-primary" id="btnSaveStockOut">
+                    <i class="fas fa-check"></i> Simpan Transaksi
                 </button>
             </div>
         </div>
@@ -442,8 +657,6 @@
 var allStockOuts = [];
 var allItems = [];
 var allProjects = [];
-var editingStockOutId = null;
-
 // ============ UTILITY ============
 function soBadge(status) {
     var cls = { 'draft': 'so-status-badge--draft', 'pending': 'so-status-badge--pending', 'approved': 'so-status-badge--approved', 'completed': 'so-status-badge--completed', 'canceled': 'so-status-badge--canceled' };
@@ -473,11 +686,9 @@ function soToast(message, type) {
 
 function updateStats(data) {
     var total = data.length;
-    var pending = data.filter(function(x) { return x.status === 'pending'; }).length;
     var completed = data.filter(function(x) { return x.status === 'completed'; }).length;
     var totalItems = data.reduce(function(sum, x) { return sum + (parseInt(x.total_items) || 0); }, 0);
     document.getElementById('statTotal').textContent = total;
-    document.getElementById('statPending').textContent = pending;
     document.getElementById('statCompleted').textContent = completed;
     document.getElementById('statTotalItems').textContent = totalItems;
 }
@@ -525,8 +736,6 @@ function renderStockOuts(data) {
             ? '<button class="so-action-btn so-action-btn--complete" data-action="complete" data-id="' + id + '"><i class="fas fa-check-double"></i> Complete</button>'
             : '';
 
-        var editBtn = '<button class="so-action-btn so-action-btn--edit" data-action="edit" data-id="' + id + '" title="Edit transaksi"><i class="fas fa-pen"></i></button>';
-
         var deleteBtn = '<button class="so-action-btn so-action-btn--delete" data-action="delete" data-id="' + id + '" title="Hapus permanen"><i class="fas fa-trash-alt"></i></button>';
 
         var detailBtn = '<button class="so-action-btn so-action-btn--detail" data-action="detail" data-id="' + id + '"><i class="fas fa-eye"></i> Detail</button>';
@@ -542,7 +751,7 @@ function renderStockOuts(data) {
             '<td><span class="fw-bold" style="font-size:0.9rem;color:#e8481a;">' + (so.total_items || 0) + ' item</span></td>' +
             '<td><span class="so-date-text">' + date + '</span></td>' +
             '<td><span class="so-price">' + SIMAN.formatCurrency(totalAmount) + '</span></td>' +
-            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + editBtn + deleteBtn + detailBtn + '</div></td>' +
+            '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + deleteBtn + detailBtn + '</div></td>' +
             '</tr>';
     }).join('');
 }
@@ -554,7 +763,7 @@ async function postAction(id, action) {
 
 async function loadDetail(id) {
     var body = document.getElementById('stockOutDetailBody');
-    body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="text-muted mt-2 mb-0">Memuat detail...</p></div>';
+    body.innerHTML = '<div class="text-center py-5"><div style="width:48px;height:48px;margin:0 auto 1rem;border-radius:50%;background:linear-gradient(135deg,rgba(232,72,26,0.08),rgba(240,107,54,0.04));display:flex;align-items:center;justify-content:center;"><div class="spinner-border" style="width:24px;height:24px;color:#e8481a;border-width:2.5px;" role="status"></div></div><p class="text-muted mb-0" style="font-size:0.9rem;">Memuat detail transaksi...</p></div>';
 
     try {
         var res = await SIMAN.apiRequest('/inventory/stock-out/' + id + '/');
@@ -562,38 +771,44 @@ async function loadDetail(id) {
 
         var outTypeLabels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'adjustment': 'Penyesuaian', 'damaged': 'Barang Rusak' };
 
-        var infoHtml = '<div class="mb-4 p-3 rounded-3" style="background:rgba(232,72,26,0.04);border:1px solid rgba(232,72,26,0.1);">' +
-            '<div class="row g-3">' +
-            '<div class="col-md-6"><small class="text-muted d-block">No. Transaksi</small><strong>' + (res.transaction_number || '-') + '</strong></div>' +
-            '<div class="col-md-6"><small class="text-muted d-block">Tipe</small><strong>' + (outTypeLabels[res.out_type] || res.out_type || '-') + '</strong></div>' +
-            '<div class="col-md-6"><small class="text-muted d-block">Proyek</small><strong>' + (res.project_name || (res.project && res.project.name) || '-') + '</strong></div>' +
-            '<div class="col-md-6"><small class="text-muted d-block">No. Referensi</small><strong>' + (res.reference_number || '-') + '</strong></div>' +
-            '<div class="col-md-6"><small class="text-muted d-block">Tanggal</small><strong>' + (res.transaction_date || '-') + '</strong></div>' +
-            (res.delivered_to ? '<div class="col-md-6"><small class="text-muted d-block">Diterima Oleh</small><strong>' + res.delivered_to + '</strong></div>' : '') +
+        var infoHtml = '<div class="so-detail-info">' +
+            '<div class="so-detail-info__header"><i class="fas fa-info-circle"></i> Informasi Transaksi</div>' +
+            '<div class="so-detail-info__grid">' +
+            '<div class="so-detail-info__item"><div class="so-detail-info__label">No. Transaksi</div><div class="so-detail-info__value">' + (res.transaction_number || '-') + '</div></div>' +
+            '<div class="so-detail-info__item"><div class="so-detail-info__label">Tipe</div><div class="so-detail-info__value">' + (outTypeLabels[res.out_type] || res.out_type || '-') + '</div></div>' +
+            '<div class="so-detail-info__item"><div class="so-detail-info__label">Proyek</div><div class="so-detail-info__value">' + (res.project_name || (res.project && res.project.name) || '-') + '</div></div>' +
+            '<div class="so-detail-info__item"><div class="so-detail-info__label">No. Referensi</div><div class="so-detail-info__value">' + (res.reference_number || '-') + '</div></div>' +
+            '<div class="so-detail-info__item"><div class="so-detail-info__label">Tanggal</div><div class="so-detail-info__value">' + (res.transaction_date || '-') + '</div></div>' +
+            (res.delivered_to ? '<div class="so-detail-info__item"><div class="so-detail-info__label">Diterima Oleh</div><div class="so-detail-info__value">' + res.delivered_to + '</div></div>' : '') +
             '</div></div>';
 
         var itemsHtml = '';
         if (Array.isArray(items) && items.length) {
-            itemsHtml = '<div class="table-responsive"><table class="table table-sm" style="font-size:0.85rem;"><thead style="background:rgba(232,72,26,0.04);"><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Harga</th><th class="text-end">Total</th></tr></thead><tbody>';
+            itemsHtml = '<div class="so-detail-info">' +
+                '<div class="so-detail-info__header"><i class="fas fa-boxes"></i> Daftar Item</div>' +
+                '<div class="table-responsive"><table class="so-detail-table">' +
+                '<thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Harga</th><th class="text-end">Total</th></tr></thead><tbody>';
             itemsHtml += items.map(function(it) {
                 var qty = it.quantity || 0;
                 var price = parseFloat(it.unit_price) || 0;
                 var total = parseFloat(it.total) || (qty * price);
                 return '<tr><td>' + (it.item_name || (it.item && it.item.name) || '-') + '</td><td class="text-end fw-bold">' + qty + '</td><td class="text-end">' + SIMAN.formatCurrency(price) + '</td><td class="text-end fw-bold">' + SIMAN.formatCurrency(total) + '</td></tr>';
             }).join('');
-            itemsHtml += '</tbody></table></div>';
+            itemsHtml += '</tbody></table></div></div>';
         } else {
-            itemsHtml = '<div class="text-center text-muted py-3"><i class="fas fa-box-open me-2"></i>Tidak ada item</div>';
+            itemsHtml = '<div class="so-detail-info"><div class="text-center text-muted py-3"><i class="fas fa-box-open me-2"></i>Tidak ada item</div></div>';
         }
 
         body.innerHTML = infoHtml + itemsHtml;
 
         if (res.notes) {
-            body.innerHTML += '<div class="mt-3 p-3 rounded-3" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);"><small class="text-muted d-block mb-1"><i class="fas fa-sticky-note me-1"></i>Catatan</small><p class="mb-0" style="font-size:0.9rem;">' + res.notes + '</p></div>';
+            body.innerHTML += '<div class="so-detail-info">' +
+                '<div class="so-detail-info__header"><i class="fas fa-sticky-note" style="color:#d97706;"></i> Catatan</div>' +
+                '<p style="font-size:0.88rem;color:#334155;margin:0;">' + res.notes + '</p></div>';
         }
 
     } catch (e) {
-        body.innerHTML = '<div class="text-center text-danger py-4"><i class="fas fa-exclamation-circle fa-2x mb-2"></i><p>Gagal memuat detail</p></div>';
+        body.innerHTML = '<div class="text-center text-danger py-5"><div style="width:48px;height:48px;margin:0 auto 1rem;border-radius:50%;background:rgba(239,68,68,0.08);display:flex;align-items:center;justify-content:center;"><i class="fas fa-exclamation-circle" style="color:#ef4444;font-size:1.2rem;"></i></div><p style="font-size:0.9rem;color:#ef4444;font-weight:500;">Gagal memuat detail transaksi</p></div>';
     }
 }
 
@@ -610,46 +825,6 @@ document.getElementById('stockOutTbody').addEventListener('click', async functio
         var detailModalEl = document.getElementById('stockOutDetailModal');
         var detailModal = bootstrap.Modal.getInstance(detailModalEl) || new bootstrap.Modal(detailModalEl);
         detailModal.show();
-        return;
-    }
-
-    if (action === 'edit') {
-        try {
-            var res = await SIMAN.apiRequest('/inventory/stock-out/' + id + '/');
-            if (res && !res.error) {
-                // Pre-fill modal fields
-                document.getElementById('createOutType').value = res.out_type || '';
-                document.getElementById('createProject').value = res.project || '';
-                document.getElementById('createRefNumber').value = res.reference_number || '';
-                document.getElementById('createTransDate').value = res.transaction_date || '';
-                document.getElementById('createDeliveredTo').value = res.delivered_to || '';
-                document.getElementById('createNotes').value = res.notes || '';
-
-                // Show existing items as read-only
-                var itemsContainer = document.getElementById('createItemsContainer');
-                var existingItems = (res.items || res.stock_out_items) || [];
-                if (existingItems.length) {
-                    itemsContainer.innerHTML = existingItems.map(function(it) {
-                        var qty = it.quantity || 0;
-                        var price = parseFloat(it.unit_price) || 0;
-                        return '<div class="row g-2 mb-2"><div class="col-md-5"><input class="form-control form-control-sm" value="' + (it.item_name || '-') + '" disabled></div><div class="col-md-3"><input class="form-control form-control-sm" value="' + qty + '" disabled></div><div class="col-md-3"><input class="form-control form-control-sm" value="' + SIMAN.formatCurrency(price) + '" disabled></div><div class="col-md-1"></div></div>';
-                    }).join('');
-                } else {
-                    itemsContainer.innerHTML = '<div class="text-muted small py-2">Tidak ada item</div>';
-                }
-
-                document.querySelector('#stockOutCreateModal .modal-title').innerHTML = '<i class="fas fa-edit text-warning me-2"></i>Edit Barang Keluar';
-                document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-save me-2"></i>Simpan Perubahan';
-                editingStockOutId = id;
-
-                var editModal = new bootstrap.Modal(document.getElementById('stockOutCreateModal'));
-                editModal.show();
-            } else {
-                soToast('Gagal memuat data transaksi', 'error');
-            }
-        } catch (e) {
-            soToast('Gagal memuat data transaksi', 'error');
-        }
         return;
     }
 
@@ -718,12 +893,12 @@ function populateCombos() {
 function addItemRow() {
     var container = document.getElementById('createItemsContainer');
     var div = document.createElement('div');
-    div.className = 'row g-2 mb-2 item-row';
+    div.className = 'row so-item-row item-row';
     div.innerHTML =
         '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
         '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
         '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
-        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div>';
+        '<div class="col-md-1"><button type="button" class="remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div>';
     container.appendChild(div);
     populateCombos();
 }
@@ -737,24 +912,20 @@ async function showCreateModal() {
     }
     populateCombos();
 
-    editingStockOutId = null;
-    document.querySelector('#stockOutCreateModal .modal-title').innerHTML = '<i class="fas fa-plus-circle text-danger me-2"></i>Tambah Barang Keluar';
-    document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+    document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-check"></i> Simpan Transaksi';
     var modal = new bootstrap.Modal(document.getElementById('stockOutCreateModal'));
     modal.show();
 }
 
 document.getElementById('stockOutCreateModal').addEventListener('hidden.bs.modal', function() {
-    editingStockOutId = null;
-    document.querySelector('#stockOutCreateModal .modal-title').innerHTML = '<i class="fas fa-plus-circle text-danger me-2"></i>Tambah Barang Keluar';
-    document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+    document.getElementById('btnSaveStockOut').innerHTML = '<i class="fas fa-check"></i> Simpan Transaksi';
     document.getElementById('stockOutCreateForm').reset();
     document.getElementById('createItemsContainer').innerHTML =
-        '<div class="row g-2 mb-2 item-row">' +
+        '<div class="row so-item-row item-row">' +
         '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
         '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
         '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
-        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+        '<div class="col-md-1"><button type="button" class="remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
 });
 
 document.getElementById('btnSaveStockOut').addEventListener('click', async function() {
@@ -795,26 +966,21 @@ document.getElementById('btnSaveStockOut').addEventListener('click', async funct
             notes: document.getElementById('createNotes').value || '',
         };
 
-        if (!editingStockOutId) {
-            data.items = items;
-        }
-
         try {
-            var url = editingStockOutId ? '/inventory/stock-out/' + editingStockOutId + '/' : '/inventory/stock-out/';
-            var method = editingStockOutId ? 'PATCH' : 'POST';
-            var res = await SIMAN.apiRequest(url, method, data);
+            var dataToSend = data;
+            dataToSend.items = items;
+            var res = await SIMAN.apiRequest('/inventory/stock-out/', 'POST', dataToSend);
             if (res && !res.error) {
-                soToast(editingStockOutId ? 'Transaksi berhasil diperbarui!' : 'Transaksi barang keluar berhasil disimpan!', 'success');
+                soToast('Transaksi barang keluar berhasil disimpan!', 'success');
                 var modal = bootstrap.Modal.getInstance(document.getElementById('stockOutCreateModal'));
                 if (modal) modal.hide();
-                editingStockOutId = null;
                 form.reset();
                 document.getElementById('createItemsContainer').innerHTML =
-                    '<div class="row g-2 mb-2 item-row">' +
+                    '<div class="row so-item-row item-row">' +
                     '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
                     '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
                     '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
-                    '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
+                    '<div class="col-md-1"><button type="button" class="remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
                 await loadStockOuts();
             } else {
                 soToast(res && res.error || 'Gagal menyimpan transaksi', 'error');
@@ -823,8 +989,7 @@ document.getElementById('btnSaveStockOut').addEventListener('click', async funct
             soToast('Gagal menyimpan transaksi', 'error');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-            editingStockOutId = null;
+            btn.innerHTML = '<i class="fas fa-check"></i> Simpan Transaksi';
         }
 });
 

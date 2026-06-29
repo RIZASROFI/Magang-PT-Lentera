@@ -48,9 +48,9 @@ urlpatterns = [
     path('inventory/stock-out/', __import__('apps.inventory.frontend_views', fromlist=['stock_out_page']).stock_out_page, name='inventory_stock_out'),
 
     # Finance Frontend
-    path('finance/accounts/', views.finance_accounts, name='finance_accounts'),
     path('finance/transactions/', views.finance_transactions, name='finance_transactions'),
     path('finance/reports/', views.finance_reports, name='finance_reports'),
+    path('finance/buku-besar/', views.finance_buku_besar, name='finance_buku_besar'),
 
     # Sales Frontend
     path('sales/customers/', views.sales_customers, name='sales_customers'),

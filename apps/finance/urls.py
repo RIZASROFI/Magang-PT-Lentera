@@ -7,7 +7,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     AccountViewSet, JournalEntryViewSet, IncomeCategoryViewSet,
     IncomeViewSet, ExpenseCategoryViewSet, ExpenseViewSet,
-    InvoiceViewSet, PaymentViewSet, FinanceReportViewSet
+    InvoiceViewSet, PaymentViewSet, FinanceReportViewSet,
+    BukuBesarViewSet
 )
 
 router = DefaultRouter()
@@ -20,6 +21,7 @@ router.register(r'expenses', ExpenseViewSet, basename='expense')
 router.register(r'invoices', InvoiceViewSet, basename='invoice')
 router.register(r'payments', PaymentViewSet, basename='payment')
 router.register(r'reports', FinanceReportViewSet, basename='finance-report')
+router.register(r'buku-besar', BukuBesarViewSet, basename='buku-besar')
 
 urlpatterns = [
     path('', include(router.urls)),

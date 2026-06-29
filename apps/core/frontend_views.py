@@ -295,15 +295,6 @@ def projects_progress(request):
 # ===================== FINANCE VIEWS =====================
 
 @login_required(login_url='frontend:login')
-def finance_accounts(request):
-    """Daftar Akun Keuangan"""
-    context = {
-        'page_title': 'Akun Keuangan',
-    }
-    return render(request, 'frontend/finance/accounts.html', context)
-
-
-@login_required(login_url='frontend:login')
 def finance_transactions(request):
     """Transaksi Keuangan (Income & Expense)"""
     context = {
@@ -319,6 +310,15 @@ def finance_reports(request):
         'page_title': 'Laporan Keuangan',
     }
     return render(request, 'frontend/finance/reports.html', context)
+
+
+@login_required(login_url='frontend:login')
+def finance_buku_besar(request):
+    """Buku Besar (General Ledger)"""
+    context = {
+        'page_title': 'Buku Besar',
+    }
+    return render(request, 'frontend/finance/buku_besar.html', context)
 
 
 # ===================== SALES VIEWS =====================

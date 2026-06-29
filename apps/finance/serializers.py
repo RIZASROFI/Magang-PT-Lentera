@@ -61,6 +61,16 @@ class JournalEntryDetailSerializer(serializers.ModelSerializer):
             'total_credit', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'entry_number': {'required': False},
+        }
+    
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        journal_entry = JournalEntry.objects.create(**validated_data)
+        for item_data in items_data:
+            JournalEntryItem.objects.create(journal_entry=journal_entry, **item_data)
+        return journal_entry
 
 
 class IncomeCategorySerializer(serializers.ModelSerializer):

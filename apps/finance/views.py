@@ -8,7 +8,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as filters
 from django.db.models import Sum, Q
+from django.http import HttpResponse
 from datetime import datetime
+import csv
+import io
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 from .models import (
     Account, JournalEntry, JournalEntryItem, IncomeCategory, Income,
@@ -321,6 +326,330 @@ class PaymentViewSet(viewsets.ModelViewSet):
             payment.invoice.save()
         
         return Response({'message': 'Invoice lunas!'})
+
+
+class BukuBesarViewSet(viewsets.ViewSet):
+    """ViewSet untuk Buku Besar (General Ledger)"""
+    permission_classes = [IsAuthenticated]
+    
+    def _get_queryset(self, request):
+        """Get filtered journal entry items"""
+        items = JournalEntryItem.objects.select_related(
+            'journal_entry', 'account'
+        ).filter(journal_entry__status='posted')
+        
+        # Filter by account
+        account_id = request.query_params.get('account_id')
+        if account_id:
+            items = items.filter(account_id=account_id)
+        
+        # Filter by date range
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+        if from_date:
+            items = items.filter(journal_entry__date__gte=from_date)
+        if to_date:
+            items = items.filter(journal_entry__date__lte=to_date)
+        
+        return items.order_by('account__code', 'journal_entry__date', 'journal_entry__id')
+    
+    def list(self, request):
+        """
+        Mendapatkan data Buku Besar (General Ledger).
+        Data dikelompokkan per akun dengan detail transaksi.
+        """
+        items = self._get_queryset(request)
+        
+        # Kelompokkan per akun
+        accounts_data = {}
+        for item in items:
+            acc_id = item.account_id
+            if acc_id not in accounts_data:
+                accounts_data[acc_id] = {
+                    'account': {
+                        'id': item.account.id,
+                        'code': item.account.code,
+                        'name': item.account.name,
+                        'account_type': item.account.account_type,
+                    },
+                    'items': [],
+                    'total_debit': 0,
+                    'total_credit': 0,
+                }
+            accounts_data[acc_id]['items'].append({
+                'id': item.id,
+                'entry_number': item.journal_entry.entry_number,
+                'date': item.journal_entry.date,
+                'description': item.description or item.journal_entry.description,
+                'debit': float(item.debit),
+                'credit': float(item.credit),
+            })
+            accounts_data[acc_id]['total_debit'] += float(item.debit)
+            accounts_data[acc_id]['total_credit'] += float(item.credit)
+        
+        # Hitung saldo awal dan saldo berjalan
+        result = []
+        for acc_id, data in accounts_data.items():
+            running_balance = 0
+            is_debit_normal = data['account']['account_type'] in ['asset', 'expense']
+            
+            for i, entry in enumerate(data['items']):
+                if is_debit_normal:
+                    running_balance += entry['debit'] - entry['credit']
+                else:
+                    running_balance += entry['credit'] - entry['debit']
+                data['items'][i]['balance'] = round(running_balance, 2)
+            
+            data['saldo_akhir'] = round(running_balance, 2)
+            data['total_debit'] = round(data['total_debit'], 2)
+            data['total_credit'] = round(data['total_credit'], 2)
+            result.append(data)
+        
+        # Urutkan berdasarkan kode akun
+        result.sort(key=lambda x: x['account']['code'])
+        
+        return Response(result)
+    
+    @action(detail=False, methods=['get'])
+    def accounts(self, request):
+        """Dapatkan daftar akun untuk filter"""
+        accounts = Account.objects.filter(is_active=True).order_by('code')
+        return Response([{
+            'id': a.id,
+            'code': a.code,
+            'name': a.name,
+            'account_type': a.account_type,
+        } for a in accounts])
+    
+    @action(detail=False, methods=['get'])
+    def download(self, request):
+        """Download Buku Besar dalam format Excel (.xlsx)"""
+        file_format = request.query_params.get('format', 'xlsx')
+        account_id = request.query_params.get('account_id')
+        
+        items = self._get_queryset(request)
+        
+        # Dapatkan nama akun untuk filename
+        account_name = ''
+        if account_id:
+            try:
+                acc = Account.objects.get(id=account_id)
+                account_name = f" - {acc.code} {acc.name}"
+            except Account.DoesNotExist:
+                pass
+        
+        if file_format == 'csv':
+            return self._download_csv(items, account_name)
+        else:
+            return self._download_xlsx(items, account_name)
+    
+    def _download_csv(self, items, account_name):
+        """Download sebagai CSV"""
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Header
+        writer.writerow(['No', 'Tanggal', 'No Jurnal', 'Keterangan', 'Debit', 'Kredit', 'Saldo'])
+        
+        # Data
+        no = 1
+        running_balance = 0
+        prev_account = None
+        total_debit = 0
+        total_credit = 0
+        
+        for item in items:
+            is_debit_normal = item.account.account_type in ['asset', 'expense']
+            
+            # Group header per akun
+            if prev_account != item.account_id:
+                if prev_account is not None:
+                    writer.writerow([''])
+                    writer.writerow(['', '', 'TOTAL', '', round(total_debit, 2), round(total_credit, 2), ''])
+                    writer.writerow([''])
+                
+                writer.writerow([f'Akun: {item.account.code} - {item.account.name}'])
+                writer.writerow(['No', 'Tanggal', 'No Jurnal', 'Keterangan', 'Debit', 'Kredit', 'Saldo'])
+                
+                running_balance = 0
+                total_debit = 0
+                total_credit = 0
+                no = 1
+            
+            if is_debit_normal:
+                running_balance += float(item.debit) - float(item.credit)
+            else:
+                running_balance += float(item.credit) - float(item.debit)
+            
+            writer.writerow([
+                no,
+                item.journal_entry.date.isoformat(),
+                item.journal_entry.entry_number,
+                item.description or item.journal_entry.description,
+                round(float(item.debit), 2),
+                round(float(item.credit), 2),
+                round(running_balance, 2),
+            ])
+            
+            total_debit += float(item.debit)
+            total_credit += float(item.credit)
+            no += 1
+            prev_account = item.account_id
+        
+        # Last total
+        if prev_account is not None:
+            writer.writerow([''])
+            writer.writerow(['', '', 'TOTAL', '', round(total_debit, 2), round(total_credit, 2), ''])
+        
+        response = HttpResponse(output.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="buku_besar{account_name}.csv"'
+        return response
+    
+    def _download_xlsx(self, items, account_name):
+        """Download sebagai Excel (.xlsx)"""
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Buku Besar"
+        
+        # Style definitions
+        header_font = Font(name='Calibri', bold=True, size=11, color='FFFFFF')
+        header_fill = PatternFill(start_color='1B6EC2', end_color='1B6EC2', fill_type='solid')
+        account_font = Font(name='Calibri', bold=True, size=12, color='1B6EC2')
+        total_font = Font(name='Calibri', bold=True, size=11)
+        total_fill = PatternFill(start_color='E8F0FE', end_color='E8F0FE', fill_type='solid')
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin'),
+        )
+        
+        # Column widths
+        ws.column_dimensions['A'].width = 6
+        ws.column_dimensions['B'].width = 14
+        ws.column_dimensions['C'].width = 18
+        ws.column_dimensions['D'].width = 40
+        ws.column_dimensions['E'].width = 18
+        ws.column_dimensions['F'].width = 18
+        ws.column_dimensions['G'].width = 18
+        
+        # Title
+        ws.merge_cells('A1:G1')
+        title_cell = ws['A1']
+        title_cell.value = 'BUKU BESAR - PT LENTERA ANUGERAH DIMENSI'
+        title_cell.font = Font(name='Calibri', bold=True, size=14, color='1B6EC2')
+        title_cell.alignment = Alignment(horizontal='center')
+        ws.row_dimensions[1].height = 30
+        
+        row = 3
+        no = 1
+        running_balance = 0
+        prev_account = None
+        total_debit = 0
+        total_credit = 0
+        
+        for item in items:
+            is_debit_normal = item.account.account_type in ['asset', 'expense']
+            
+            # Group header per akun
+            if prev_account != item.account_id:
+                if prev_account is not None:
+                    # Total for previous account
+                    row += 1
+                    ws.cell(row=row, column=2, value='').border = thin_border
+                    ws.cell(row=row, column=3, value='TOTAL').font = total_font
+                    ws.cell(row=row, column=3).fill = total_fill
+                    ws.cell(row=row, column=3).border = thin_border
+                    ws.cell(row=row, column=3).alignment = Alignment(horizontal='right')
+                    ws.cell(row=row, column=5, value=total_debit).font = total_font
+                    ws.cell(row=row, column=5).fill = total_fill
+                    ws.cell(row=row, column=5).border = thin_border
+                    ws.cell(row=row, column=5).number_format = '#,##0'
+                    ws.cell(row=row, column=6, value=total_credit).font = total_font
+                    ws.cell(row=row, column=6).fill = total_fill
+                    ws.cell(row=row, column=6).border = thin_border
+                    ws.cell(row=row, column=6).number_format = '#,##0'
+                    row += 1
+                
+                row += 1
+                # Account header
+                ws.merge_cells(f'A{row}:G{row}')
+                ws.cell(row=row, column=1, value=f"{item.account.code} - {item.account.name}").font = account_font
+                row += 1
+                
+                # Column headers
+                headers = ['No', 'Tanggal', 'No Jurnal', 'Keterangan', 'Debit', 'Kredit', 'Saldo']
+                for col, h in enumerate(headers, 1):
+                    cell = ws.cell(row=row, column=col, value=h)
+                    cell.font = header_font
+                    cell.fill = header_fill
+                    cell.alignment = Alignment(horizontal='center')
+                    cell.border = thin_border
+                
+                running_balance = 0
+                total_debit = 0
+                total_credit = 0
+                no = 1
+            
+            if is_debit_normal:
+                running_balance += float(item.debit) - float(item.credit)
+            else:
+                running_balance += float(item.credit) - float(item.debit)
+            
+            row += 1
+            ws.cell(row=row, column=1, value=no).alignment = Alignment(horizontal='center')
+            ws.cell(row=row, column=1).border = thin_border
+            ws.cell(row=row, column=2, value=item.journal_entry.date.isoformat()).alignment = Alignment(horizontal='center')
+            ws.cell(row=row, column=2).border = thin_border
+            ws.cell(row=row, column=3, value=item.journal_entry.entry_number).alignment = Alignment(horizontal='center')
+            ws.cell(row=row, column=3).border = thin_border
+            ws.cell(row=row, column=4, value=item.description or item.journal_entry.description).border = thin_border
+            ws.cell(row=row, column=5, value=round(float(item.debit), 2))
+            ws.cell(row=row, column=5).number_format = '#,##0'
+            ws.cell(row=row, column=5).alignment = Alignment(horizontal='right')
+            ws.cell(row=row, column=5).border = thin_border
+            ws.cell(row=row, column=6, value=round(float(item.credit), 2))
+            ws.cell(row=row, column=6).number_format = '#,##0'
+            ws.cell(row=row, column=6).alignment = Alignment(horizontal='right')
+            ws.cell(row=row, column=6).border = thin_border
+            ws.cell(row=row, column=7, value=round(running_balance, 2))
+            ws.cell(row=row, column=7).number_format = '#,##0'
+            ws.cell(row=row, column=7).alignment = Alignment(horizontal='right')
+            ws.cell(row=row, column=7).border = thin_border
+            
+            total_debit += float(item.debit)
+            total_credit += float(item.credit)
+            no += 1
+            prev_account = item.account_id
+        
+        # Last total
+        if prev_account is not None:
+            row += 1
+            ws.cell(row=row, column=3, value='TOTAL').font = total_font
+            ws.cell(row=row, column=3).fill = total_fill
+            ws.cell(row=row, column=3).border = thin_border
+            ws.cell(row=row, column=3).alignment = Alignment(horizontal='right')
+            ws.cell(row=row, column=5, value=round(total_debit, 2)).font = total_font
+            ws.cell(row=row, column=5).fill = total_fill
+            ws.cell(row=row, column=5).border = thin_border
+            ws.cell(row=row, column=5).number_format = '#,##0'
+            ws.cell(row=row, column=6, value=round(total_credit, 2)).font = total_font
+            ws.cell(row=row, column=6).fill = total_fill
+            ws.cell(row=row, column=6).border = thin_border
+            ws.cell(row=row, column=6).number_format = '#,##0'
+        
+        # Save to response
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        filename = f"buku_besar{account_name}.xlsx"
+        response = HttpResponse(
+            output.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
 
 
 class FinanceReportViewSet(viewsets.ViewSet):

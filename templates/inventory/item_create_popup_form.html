@@ -1,71 +1,668 @@
-<div class="p-3">
-    <form method="post" enctype="multipart/form-data" id="itemCreateForm" class="row g-3 needs-validation" novalidate>
+<style>
+/* ===== MODERN FORM STYLING ===== */
+#itemCreateForm {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Progress Steps */
+.form-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 1.75rem;
+    padding: 0 0.5rem;
+}
+
+.form-progress__step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.form-progress__step.active {
+    color: #1a73e8;
+}
+
+.form-progress__step.completed {
+    color: #10b981;
+}
+
+.form-progress__dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.form-progress__step.active .form-progress__dot {
+    background: #1a73e8;
+    border-color: #1a73e8;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
+}
+
+.form-progress__step.completed .form-progress__dot {
+    background: #10b981;
+    border-color: #10b981;
+    color: #fff;
+}
+
+.form-progress__line {
+    width: 40px;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 8px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-progress__line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #1a73e8, #667eea);
+    transition: width 0.5s ease;
+    width: 0;
+}
+
+.form-progress__line.completed::after {
+    width: 100%;
+}
+
+/* Section Headers */
+.form-section {
+    margin-bottom: 1.5rem;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-section__header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+
+.form-section__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(26, 115, 232, 0.1), rgba(102, 126, 234, 0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: #1a73e8;
+    flex-shrink: 0;
+}
+
+.form-section__title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.form-section__subtitle {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-weight: 400;
+    margin: 0;
+}
+
+/* Field Groups */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.4rem;
+}
+
+.form-label-custom .label-icon {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    width: 16px;
+    text-align: center;
+}
+
+.form-label-custom .required-star {
+    color: #ef4444;
+    font-size: 0.7rem;
+}
+
+/* Custom Input Fields */
+.input-wrap {
+    position: relative;
+}
+
+#itemCreateForm .form-control,
+#itemCreateForm .form-select {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    height: auto;
+    min-height: 40px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+#itemCreateForm .form-control:focus,
+#itemCreateForm .form-select:focus {
+    background: #fff;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1), 0 2px 8px rgba(26, 115, 232, 0.06);
+    outline: none;
+}
+
+#itemCreateForm .form-control::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+    font-size: 0.82rem;
+}
+
+#itemCreateForm .form-control:hover:not(:focus):not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+#itemCreateForm .form-control.is-invalid,
+#itemCreateForm .form-select.is-invalid {
+    border-color: #ef4444;
+    background: #fef2f2;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+/* Price prefix styling - Rp badge outside input */
+.input-price-wrap {
+    display: flex;
+    align-items: stretch;
+}
+
+.input-price-wrap .price-currency {
+    display: flex;
+    align-items: center;
+    padding: 0 0.65rem;
+    background: #eef2f6;
+    border: 1.5px solid #e2e8f0;
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.input-price-wrap .form-control {
+    border-radius: 0 10px 10px 0;
+    border-left: none;
+}
+
+.input-price-wrap:focus-within .price-currency {
+    border-color: #1a73e8;
+}
+
+.input-price-wrap .form-control:focus {
+    border-left: none;
+}
+
+/* Help text */
+.help-text {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Toggle Switch */
+.toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #e2e8f0;
+    transition: 0.3s;
+    border-radius: 22px;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    bottom: 2px;
+    background: #fff;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #1a73e8, #667eea);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+}
+
+.toggle-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+/* Divider */
+.form-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, #e2e8f0, #e2e8f0, transparent);
+    margin: 1.25rem 0;
+}
+
+/* Action Buttons */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    padding-top: 1rem;
+    border-top: 1.5px solid #f1f5f9;
+    margin-top: 0.5rem;
+}
+
+.btn-form {
+    padding: 0.55rem 1.35rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: none;
+    cursor: pointer;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.btn-form:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: 2px;
+}
+
+.btn-form--primary {
+    background: linear-gradient(135deg, #1a73e8, #667eea);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(26, 115, 232, 0.25);
+}
+
+.btn-form--primary:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 5px 18px rgba(26, 115, 232, 0.35);
+}
+
+.btn-form--primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.2);
+}
+
+.btn-form--primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-form--secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn-form--secondary:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* Loading spinner inside button */
+.btn-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: btnSpin 0.6s linear infinite;
+}
+
+.btn-form--primary.loading .btn-spinner {
+    display: inline-block;
+}
+
+.btn-form--primary.loading .btn-text {
+    opacity: 0.9;
+}
+
+@keyframes btnSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .form-progress__step span:not(.form-progress__dot) {
+        display: none;
+    }
+    .form-progress__line {
+        width: 24px;
+    }
+}
+
+/* Subtle background pattern for the form */
+#itemCreateForm {
+    position: relative;
+}
+
+#itemCreateForm::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(26, 115, 232, 0.03) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+
+</style>
+
+<div class="p-2">
+    <form method="post" enctype="multipart/form-data" id="itemCreateForm" class="needs-validation" novalidate>
         {% csrf_token %}
-        <div class="col-md-12">
-            <label class="form-label fw-bold text-dark">Nama Barang <span class="text-danger">*</span></label>
-            {{ form.name }}
+
+        <!-- Progress Indicator -->
+        <div class="form-progress">
+            <div class="form-progress__step active" id="step1Indicator">
+                <span class="form-progress__dot"><i class="fas fa-info" style="font-size:0.6rem;"></i></span>
+                <span>Informasi</span>
+            </div>
+            <div class="form-progress__line" id="line1"></div>
+            <div class="form-progress__step" id="step2Indicator">
+                <span class="form-progress__dot"><i class="fas fa-tag" style="font-size:0.6rem;"></i></span>
+                <span>Harga & Stok</span>
+            </div>
+            <div class="form-progress__line" id="line2"></div>
+            <div class="form-progress__step" id="step3Indicator">
+                <span class="form-progress__dot"><i class="fas fa-truck" style="font-size:0.6rem;"></i></span>
+                <span>Supplier</span>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold text-dark">Kategori <span class="text-danger">*</span></label>
-            {{ form.category }}
+        <!-- Section 1: Informasi Barang -->
+        <div class="form-section">
+            <div class="form-section__header">
+                <div class="form-section__icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div>
+                    <div class="form-section__title">Informasi Barang</div>
+                    <div class="form-section__subtitle">Data dasar identitas barang</div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Nama Barang -->
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label-custom">
+                            <span class="label-icon"><i class="fas fa-cube"></i></span>
+                            Nama Barang <span class="required-star">*</span>
+                        </label>
+                        {{ form.name }}
+                    </div>
+                </div>
+
+                <!-- Kategori & Brand -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label-custom">
+                            <span class="label-icon"><i class="fas fa-tags"></i></span>
+                            Kategori <span class="required-star">*</span>
+                        </label>
+                        {{ form.category }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label-custom">
+                            <span class="label-icon"><i class="fas fa-copyright"></i></span>
+                            Brand / Merek
+                        </label>
+                        {{ form.brand }}
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold text-dark">Brand</label>
-            {{ form.brand }}
+        <!-- Divider -->
+        <hr class="form-divider">
+
+        <!-- Section 2: Harga & Stok -->
+        <div class="form-section">
+            <div class="form-section__header">
+                <div class="form-section__icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div>
+                    <div class="form-section__title">Harga & Stok</div>
+                    <div class="form-section__subtitle">Atur harga dan jumlah stok barang</div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Harga Beli -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label-custom">
+                            <span class="label-icon"><i class="fas fa-sack-dollar"></i></span>
+                            Harga Beli
+                        </label>
+                        <div class="input-price-wrap">
+                            <span class="price-currency">Rp</span>
+                            {{ form.cost_price }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stok -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label-custom">
+                            <span class="label-icon"><i class="fas fa-warehouse"></i></span>
+                            Stok Awal
+                        </label>
+                        {{ form.stock }}
+                        <div class="help-text">
+                            <i class="fas fa-info-circle"></i>
+                            Jumlah stok barang saat ini
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold text-dark">Harga Beli</label>
-            {{ form.cost_price }}
+        <!-- Divider -->
+        <hr class="form-divider">
+
+        <!-- Section 3: Supplier -->
+        <div class="form-section">
+            <div class="form-section__header">
+                <div class="form-section__icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <div class="form-section__title">Supplier</div>
+                    <div class="form-section__subtitle">Informasi pemasok barang</div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label-custom">
+                            <span class="label-icon"><i class="fas fa-building"></i></span>
+                            Nama Supplier
+                        </label>
+                        {{ form.supplier_name }}
+                        <div class="help-text">
+                            <i class="fas fa-lightbulb"></i>
+                            Ketik nama supplier, akan dibuat otomatis jika belum terdaftar
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <label class="form-label fw-bold text-dark">Stok</label>
-            {{ form.stock }}
-        </div>
-
-        <div class="col-md-12">
-            <label class="form-label fw-bold text-dark">Supplier</label>
-            {{ form.supplier_name }}
-        </div>
-
-        <div class="col-12 d-flex justify-content-end gap-2 mt-3">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="submit" class="btn btn-primary" id="submitItemCreate">Simpan Barang</button>
+        <!-- Footer Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn-form btn-form--secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times"></i>
+                Batal
+            </button>
+            <button type="submit" class="btn-form btn-form--primary">
+                <span class="btn-text">
+                    <i class="fas fa-check"></i>
+                    Simpan Barang
+                </span>
+            </button>
         </div>
     </form>
-
-    <style>
-        #itemCreateForm .form-control,
-        #itemCreateForm .form-select {
-            background-color: #ffffff;
-            border: 2px solid #1c7ed6;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        #itemCreateForm .form-control:focus,
-        #itemCreateForm .form-select:focus {
-            background-color: #f0f7ff;
-            border-color: #0b5ed7;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-
-        #itemCreateForm .form-control::placeholder {
-            color: #6c757d;
-            opacity: 0.7;
-        }
-
-        #itemCreateForm .form-label {
-            margin-bottom: 8px;
-            color: #0b214f;
-            font-size: 14px;
-        }
-    </style>
 </div>
 
+<script>
+// Auto-update progress steps on input
+(function() {
+    const form = document.getElementById('itemCreateForm');
+    if (!form) return;
 
+    const step1 = document.getElementById('step1Indicator');
+    const step2 = document.getElementById('step2Indicator');
+    const step3 = document.getElementById('step3Indicator');
+    const line1 = document.getElementById('line1');
+    const line2 = document.getElementById('line2');
+
+    const nameInput = form.querySelector('[name="name"]');
+    const categoryInput = form.querySelector('[name="category"]');
+    const costPriceInput = form.querySelector('[name="cost_price"]');
+    const stockInput = form.querySelector('[name="stock"]');
+    const supplierInput = form.querySelector('[name="supplier_name"]');
+
+    function updateProgress() {
+        const nameFilled = nameInput && nameInput.value.trim().length > 0;
+        const catFilled = categoryInput && categoryInput.value.trim().length > 0;
+        const priceFilled = costPriceInput && parseFloat(costPriceInput.value || 0) > 0;
+        const stockFilled = stockInput && parseInt(stockInput.value || 0) > 0;
+        const supplierFilled = supplierInput && supplierInput.value.trim().length > 0;
+
+        if (nameFilled && catFilled) {
+            step1.classList.remove('active');
+            step1.classList.add('completed');
+            step1.querySelector('.form-progress__dot').innerHTML = '<i class="fas fa-check" style="font-size:0.55rem;"></i>';
+            line1.classList.add('completed');
+        } else if (nameFilled || catFilled) {
+            step1.classList.add('active');
+            step1.classList.remove('completed');
+            line1.classList.remove('completed');
+        }
+
+        if (priceFilled && stockFilled) {
+            step2.classList.remove('active');
+            step2.classList.add('completed');
+            step2.querySelector('.form-progress__dot').innerHTML = '<i class="fas fa-check" style="font-size:0.55rem;"></i>';
+            line2.classList.add('completed');
+        } else if (priceFilled || stockFilled) {
+            step2.classList.add('active');
+            step2.classList.remove('completed');
+            line2.classList.remove('completed');
+        }
+
+        if (supplierFilled) {
+            step3.classList.remove('active');
+            step3.classList.add('completed');
+            step3.querySelector('.form-progress__dot').innerHTML = '<i class="fas fa-check" style="font-size:0.55rem;"></i>';
+        } else if (nameFilled && catFilled && (priceFilled || stockFilled)) {
+            step3.classList.add('active');
+            step3.classList.remove('completed');
+        }
+    }
+
+    // Live input tracking for progress only (no validation classes to avoid conflict)
+    form.querySelectorAll('.form-control, .form-select').forEach(function(input) {
+        input.addEventListener('input', function() {
+            updateProgress();
+        });
+        input.addEventListener('change', function() {
+            updateProgress();
+        });
+    });
+})();
+</script>
