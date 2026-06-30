@@ -6,7 +6,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CategoryViewSet, ItemViewSet, SupplierViewSet, 
-    StockInViewSet, StockOutViewSet, StockOpnameViewSet,
+    StockOutViewSet, StockOpnameViewSet,
     StockAlertViewSet, InventoryReportViewSet,
     item_create_view, item_edit_view
 )
@@ -21,7 +21,6 @@ router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'items', ItemViewSet, basename='item')
 router.register(r'suppliers', SupplierViewSet, basename='supplier')
-router.register(r'stock-in', StockInViewSet, basename='stock-in')
 router.register(r'stock-out', StockOutViewSet, basename='stock-out')
 router.register(r'stock-opname', StockOpnameViewSet, basename='stock-opname')
 router.register(r'alerts', StockAlertViewSet, basename='alert')

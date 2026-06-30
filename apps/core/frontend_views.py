@@ -202,7 +202,7 @@ def profile(request):
     
     context = {
         'page_title': 'Profile',
-        'username': request.user.get_full_name() if hasattr(request.user, 'get_full_name') else request.user.username,
+        'username': request.user.get_full_name if hasattr(request.user, 'get_full_name') else request.user.username,
         'profile': profile_data,
         'recent_activities': recent_activities,
     }

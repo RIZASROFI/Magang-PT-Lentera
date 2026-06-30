@@ -5,9 +5,6 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Daftar Inventory</h2>
         <div>
-            <button class="btn btn-info" onclick="showStockInModal()">
-                <i class="fas fa-arrow-down"></i> Barang Masuk
-            </button>
             <button class="btn btn-warning" onclick="showStockOutModal()">
                 <i class="fas fa-arrow-up"></i> Barang Keluar
             </button>
@@ -19,7 +16,7 @@
 
     <!-- Stock Summary Cards -->
     <div class="row mb-4">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Item</h5>
@@ -27,15 +24,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Stock Masuk Bulan Ini</h5>
-                    <h2 id="stock-in-month">0</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="card bg-danger text-white">
                 <div class="card-body">
                     <h5 class="card-title">Stock Keluar Bulan Ini</h5>
@@ -43,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4">
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h5 class="card-title">Alert Stok Rendah</h5>
@@ -59,9 +48,6 @@
             <ul class="nav nav-tabs" id="inventoryTabs" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#items">Items</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#stock-in">Barang Masuk</button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#stock-out">Barang Keluar</button>
@@ -92,28 +78,6 @@
                             </thead>
                             <tbody id="itemsTableBody">
                                 <tr><td colspan="9" class="text-center">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Stock In Tab -->
-                <div class="tab-pane fade" id="stock-in">
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="stockInTable">
-                            <thead>
-                                <tr>
-                                    <th>No. Transaksi</th>
-                                    <th>Sumber</th>
-                                    <th>Supplier</th>
-                                    <th>Tanggal</th>
-                                    <th>Total Items</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stockInTableBody">
-                                <tr><td colspan="7" class="text-center">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -202,7 +166,6 @@
 {% block extra_js %}
 <script>
 let items = [];
-let stockIns = [];
 let stockOuts = [];
 let categories = [];
 
@@ -216,18 +179,6 @@ async function loadItems() {
         }
     } catch (error) {
         console.error('Error loading items:', error);
-    }
-}
-
-async function loadStockIns() {
-    try {
-        const response = await SIMAN.apiRequest('/inventory/stock-in/');
-        if (response) {
-            stockIns = response.results || response;
-            renderStockIns(stockIns);
-        }
-    } catch (error) {
-        console.error('Error loading stock ins:', error);
     }
 }
 
@@ -277,27 +228,6 @@ function renderItems(data) {
                 <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button>
             </td>
             <td>${SIMAN.formatCurrency(item.sell_price)}</td>
-        </tr>
-    `).join('');
-}
-
-function renderStockIns(data) {
-    const tbody = document.getElementById('stockInTableBody');
-    if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada transaksi</td></tr>';
-        return;
-    }
-    tbody.innerHTML = data.map(si => `
-        <tr>
-            <td><strong>${si.transaction_number}</strong></td>
-            <td>${si.get_source_display || si.source}</td>
-            <td>${si.supplier_name || '-'}</td>
-            <td>${si.transaction_date}</td>
-            <td>${si.total_items || 0}</td>
-            <td>${getStatusBadge(si.status)}</td>
-            <td>
-                <a href="/stock-in/${si.id}/" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
-            </td>
         </tr>
     `).join('');
 }
@@ -401,17 +331,12 @@ async function deleteCategory(id) {
     }
 }
 
-function showStockInModal() {
-    window.location.href = '/inventory/stock-in/create/';
-}
-
 function showStockOutModal() {
     window.location.href = '/inventory/stock-out/create/';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     loadItems();
-    loadStockIns();
     loadStockOuts();
     loadCategories();
 });

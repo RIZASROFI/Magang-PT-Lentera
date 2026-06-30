@@ -4,18 +4,21 @@ PT Lentera Anugerah Dimensi - HR Module
 Complete CRUD Serializers
 """
 
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import (
     Department, Position, Employee, Attendance, 
     Leave, Salary, Overtime
 )
 
+User = get_user_model()
+
 
 # ==================== DEPARTMENT ====================
 
 class DepartmentSerializer(serializers.ModelSerializer):
     """Serializer untuk Department - CRUD"""
-    head_name = serializers.ReadOnlyField(source='head.get_full_name')
+    head_name = serializers.SerializerMethodField()
     employee_count = serializers.SerializerMethodField()
     
     class Meta:
@@ -23,6 +26,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'code', 'description', 'head', 'head_name', 
                   'employee_count', 'is_active', 'created_at']
         read_only_fields = ['id', 'created_at']
+    
+    def get_head_name(self, obj):
+        if obj.head:
+            return obj.head.get_full_name or obj.head.email or '-'
+        return '-'
     
     def get_employee_count(self, obj):
         return obj.employees.filter(status__in=['permanent', 'contract', 'probation']).count()
@@ -45,8 +53,8 @@ class PositionSerializer(serializers.ModelSerializer):
 
 class EmployeeListSerializer(serializers.ModelSerializer):
     """Serializer untuk list karyawan"""
-    user_name = serializers.ReadOnlyField(source='user.get_full_name')
-    user_email = serializers.ReadOnlyField(source='user.email')
+    user_name = serializers.SerializerMethodField()
+    user_email = serializers.SerializerMethodField()
     department_name = serializers.ReadOnlyField(source='department.name')
     position_name = serializers.ReadOnlyField(source='position.name')
     
@@ -55,20 +63,46 @@ class EmployeeListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'employee_id', 'nip', 'user', 'user_name', 'user_email',
             'department', 'department_name', 'position', 'position_name',
-            'status', 'join_date', 'phone', 'photo', 'is_active', 'created_at'
+            'status', 'join_date', 'phone', 'photo', 'created_at'
         ]
         read_only_fields = ['id', 'employee_id', 'created_at']
+    
+    def get_user_name(self, obj):
+        if obj.user:
+            return obj.user.get_full_name or obj.user.email or str(obj.user)
+        return '-'
+    
+    def get_user_email(self, obj):
+        if obj.user:
+            return obj.user.email or ''
+        return ''
 
 
 class EmployeeDetailSerializer(serializers.ModelSerializer):
-    """Serializer untuk detail karyawan"""
+    """Serializer untuk detail karyawan — support create via frontend (name, department code, position name)"""
     user_name = serializers.ReadOnlyField(source='user.get_full_name')
     user_email = serializers.ReadOnlyField(source='user.email')
     department_name = serializers.ReadOnlyField(source='department.name')
     position_name = serializers.ReadOnlyField(source='position.name')
-    created_by_name = serializers.ReadOnlyField(source='created_by.get_full_name')
     created_by_name = serializers.ReadOnlyField(source='created_by.email')
-    
+
+    # Field bantuan dari frontend (write-only, di-resolve di create)
+    name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    department_code = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    position_input = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    # Buat department & position bisa null (karena kita resolve dari code/name)
+    department = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(),
+        required=False,
+        allow_null=True
+    )
+    position = serializers.PrimaryKeyRelatedField(
+        queryset=Position.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Employee
         fields = [
@@ -76,11 +110,62 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
             'department', 'department_name', 'position', 'position_name',
             'status', 'join_date', 'resign_date', 'birth_date', 'birth_place',
             'gender', 'marital_status', 'religion', 'phone', 'emergency_contact',
-            'emergency_phone', 'address', 'city', 'id_card', 'npwp', 
+            'emergency_phone', 'address', 'city', 'id_card', 'npwp',
             'bpjs_ketenagakerjaan', 'bpjs_kesehatan', 'photo', 'notes',
-            'created_by', 'created_by_name', 'created_at', 'updated_at'
+            'created_by', 'created_by_name', 'created_at', 'updated_at',
+            'name', 'department_code', 'position_input',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'employee_id', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        name = validated_data.pop('name', '')
+        dept_code = validated_data.pop('department_code', '')
+        pos_name = validated_data.pop('position_input', '')
+
+        # 1) Resolve department dari code
+        if not validated_data.get('department') and dept_code:
+            try:
+                dept = Department.objects.get(code=dept_code)
+                validated_data['department'] = dept
+            except Department.DoesNotExist:
+                raise serializers.ValidationError({'department': f'Departemen dengan code "{dept_code}" tidak ditemukan'})
+
+        # 2) Resolve position dari nama (create if not exists)
+        if not validated_data.get('position') and pos_name:
+            dept = validated_data.get('department')
+            if not dept:
+                raise serializers.ValidationError({'position': 'Pilih departemen terlebih dahulu sebelum mengisi jabatan'})
+            obj, _ = Position.objects.get_or_create(
+                name__iexact=pos_name,
+                defaults={
+                    'name': pos_name,
+                    'code': pos_name.upper().replace(' ', '_'),
+                    'department': dept,
+                }
+            )
+            validated_data['position'] = obj
+
+        # 3) Jika user tidak dikirim, buat dari name
+        if not validated_data.get('user'):
+            if name:
+                email_part = name.lower().replace(' ', '.')
+                user, _ = User.objects.get_or_create(
+                    username=email_part,
+                    defaults={
+                        'email': f'{email_part}@placeholder.com',
+                        'first_name': name,
+                    }
+                )
+                validated_data['user'] = user
+
+        if not validated_data.get('department'):
+            raise serializers.ValidationError({'department': 'Departemen harus diisi'})
+        if not validated_data.get('position'):
+            raise serializers.ValidationError({'position': 'Jabatan harus diisi'})
+        if not validated_data.get('user'):
+            raise serializers.ValidationError({'name': 'Nama karyawan harus diisi'})
+
+        return super().create(validated_data)
 
 
 class AttendanceSerializer(serializers.ModelSerializer):

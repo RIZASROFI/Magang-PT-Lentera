@@ -12,13 +12,12 @@ from django.db.models import ProtectedError
 from datetime import datetime
 
 from .models import (
-    Category, Item, Supplier, StockIn, StockInItem,
+    Category, Item, Supplier, StockIn,
     StockOut, StockOutItem, StockOpname, StockOpnameItem, StockAlert
 )
 from .serializers import (
     CategorySerializer, ItemListSerializer, ItemDetailSerializer, ItemCreateSerializer,
-    SupplierSerializer, StockInListSerializer, StockInDetailSerializer,
-    StockInCreateSerializer, StockOutListSerializer, StockOutDetailSerializer,
+    SupplierSerializer, StockOutListSerializer, StockOutDetailSerializer,
     StockOutCreateSerializer, StockOpnameSerializer, StockAlertSerializer
 )
 
@@ -262,91 +261,6 @@ class SupplierViewSet(viewsets.ModelViewSet):
         })
 
 
-class StockInViewSet(viewsets.ModelViewSet):
-    """ViewSet untuk Stock In (Barang Masuk)"""
-    queryset = StockIn.objects.all()
-    permission_classes = [IsAuthenticated]
-    filterset_fields = ['source', 'status', 'supplier']
-    search_fields = ['transaction_number', 'reference_number']
-    ordering_fields = ['transaction_date', 'created_at']
-    ordering = ['-created_at']
-    
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return StockInListSerializer
-        elif self.action == 'create':
-            return StockInCreateSerializer
-        return StockInDetailSerializer
-    
-    def get_queryset(self):
-        queryset = StockIn.objects.select_related('supplier', 'created_by', 'approved_by')
-        
-        # Filter status
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
-        
-        # Filter source
-        source = self.request.query_params.get('source')
-        if source:
-            queryset = queryset.filter(source=source)
-        
-        return queryset
-    
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-    
-    @action(detail=True, methods=['post'])
-    def approve(self, request, pk=None):
-        """Approve stock in"""
-        stock_in = self.get_object()
-        if stock_in.status != 'pending':
-            return Response(
-                {'error': 'Hanya status pending yang bisa diapprove!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        stock_in.status = 'approved'
-        stock_in.approved_by = request.user
-        stock_in.save()
-        
-        return Response({'message': 'Stock in disetujui!'})
-    
-    @action(detail=True, methods=['post'])
-    def complete(self, request, pk=None):
-        """Complete stock in - tambahkan ke stok"""
-        stock_in = self.get_object()
-        if stock_in.status != 'approved':
-            return Response(
-                {'error': 'Hanya status approved yang bisa diselesaikan!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        stock_in.status = 'completed'
-        stock_in.is_completed = True
-        stock_in.received_date = datetime.now().date()
-        stock_in.save()
-        
-        return Response({'message': 'Stock in selesai, stok ditambahkan!'})
-    
-    @action(detail=True, methods=['post'])
-    def cancel(self, request, pk=None):
-        """Cancel stock in - batalkan transaksi termasuk yang sudah completed"""
-        stock_in = self.get_object()
-        
-        # Cegah cancel yang sudah cancel
-        if stock_in.status == 'canceled':
-            return Response(
-                {'error': 'Stock in sudah dibatalkan sebelumnya!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        stock_in.status = 'canceled'
-        stock_in.is_completed = False
-        stock_in.received_date = None
-        stock_in.save()
-        
-        return Response({'message': 'Stock in berhasil dibatalkan!'})
 
 
 class StockOutViewSet(viewsets.ModelViewSet):

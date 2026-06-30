@@ -74,8 +74,8 @@ class Employee(models.Model):
         ('fired', 'PHK'),
     ]
     
-    # User reference
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee')
+    # User reference (optional — bisa diisi nanti)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee', null=True, blank=True)
     
     # Personal Info
     employee_id = models.CharField(max_length=50, unique=True)
@@ -131,7 +131,8 @@ class Employee(models.Model):
         ordering = ['employee_id']
     
     def __str__(self):
-        return f"{self.employee_id} - {self.user.get_full_name}"
+        user_name = self.user.get_full_name if self.user else '(tanpa akun)'
+        return f"{self.employee_id} - {user_name}"
     
     def save(self, *args, **kwargs):
         if not self.employee_id:

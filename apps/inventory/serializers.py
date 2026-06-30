@@ -4,7 +4,7 @@ Inventory Serializers
 
 from rest_framework import serializers
 from .models import (
-    Category, Item, Supplier, StockIn, StockInItem, 
+    Category, Item, Supplier, 
     StockOut, StockOutItem, StockOpname, StockOpnameItem, StockAlert
 )
 
@@ -85,100 +85,6 @@ class SupplierSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
-class StockInItemSerializer(serializers.ModelSerializer):
-    item_name = serializers.ReadOnlyField(source='item.name')
-    item_sku = serializers.ReadOnlyField(source='item.sku')
-    
-    class Meta:
-        model = StockInItem
-        fields = [
-            'id', 'item', 'item_name', 'item_sku', 'quantity', 
-            'unit_price', 'discount', 'total', 'batch_number', 'expiry_date', 'notes'
-        ]
-
-
-class StockInListSerializer(serializers.ModelSerializer):
-    """Serializer untuk list stock in"""
-    supplier_name = serializers.ReadOnlyField(source='supplier.name')
-    created_by_name = serializers.ReadOnlyField(source='created_by.email')
-    
-    class Meta:
-        model = StockIn
-        fields = [
-            'id', 'transaction_number', 'source', 'supplier', 'supplier_name',
-            'reference_number', 'transaction_date', 'status', 'total_items',
-            'total_amount', 'created_by_name', 'created_at'
-        ]
-
-
-class StockInDetailSerializer(serializers.ModelSerializer):
-    """Serializer untuk detail stock in"""
-    supplier_name = serializers.ReadOnlyField(source='supplier.name')
-    created_by_name = serializers.ReadOnlyField(source='created_by.email')
-    approved_by_name = serializers.ReadOnlyField(source='approved_by.email')
-    items = StockInItemSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = StockIn
-        fields = [
-            'id', 'transaction_number', 'source', 'supplier', 'supplier_name',
-            'reference_number', 'reference_date', 'transaction_date', 'received_date',
-            'status', 'notes', 'total_items', 'total_amount', 'created_by', 
-            'created_by_name', 'approved_by', 'approved_by_name', 'is_completed',
-            'items', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-
-class StockInCreateSerializer(serializers.ModelSerializer):
-    """Serializer untuk membuat stock in"""
-    items = StockInItemSerializer(many=True)
-    supplier_name = serializers.CharField(write_only=True, required=False, allow_blank=True,
-        help_text='Nama supplier (input manual, bukan dropdown)')
-    
-    class Meta:
-        model = StockIn
-        fields = [
-            'source', 'supplier', 'supplier_name', 'reference_number', 'reference_date',
-            'transaction_date', 'notes', 'items'
-        ]
-    
-    def create(self, validated_data):
-        items_data = validated_data.pop('items')
-        supplier_name = validated_data.pop('supplier_name', '')
-        
-        # Jika supplier_name diisi, cari atau buat supplier baru
-        if supplier_name:
-            supplier, _ = Supplier.objects.get_or_create(
-                name__iexact=supplier_name.strip(),
-                defaults={
-                    'name': supplier_name.strip(),
-                    'code': self._generate_supplier_code(),
-                }
-            )
-            validated_data['supplier'] = supplier
-        
-        stock_in = StockIn.objects.create(**validated_data)
-        
-        total_items = 0
-        total_amount = 0
-        
-        for item_data in items_data:
-            item_data['stock_in'] = stock_in
-            stock_item = StockInItem.objects.create(**item_data)
-            total_items += stock_item.quantity
-            total_amount += stock_item.total
-        
-        stock_in.total_items = total_items
-        stock_in.total_amount = total_amount
-        stock_in.save()
-        
-        return stock_in
-    
-    def _generate_supplier_code(self):
-        """Generate kode supplier otomatis: SUP-001, SUP-002, dll"""
-        count = Supplier.objects.count() + 1
-        return f'SUP-{count:03d}'
 
 
 class StockOutItemSerializer(serializers.ModelSerializer):

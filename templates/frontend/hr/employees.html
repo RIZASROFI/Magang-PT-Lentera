@@ -58,9 +58,6 @@
                   <label class="form-label">Departemen</label>
                   <select class="form-select" name="department" id="departmentSelect" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
                     <option value="">Pilih departemen...</option>
-                    <option value="teknisi_cctv">Departemen Teknisi CCTV</option>
-                    <option value="teknisi_videotron">Departemen Teknisi Videotron</option>
-                    <option value="administrasi">Departemen Administrasi</option>
                   </select>
                 </div>
 
@@ -185,12 +182,32 @@
     return res.json();
   }
 
-  // Catatan: UI tambah karyawan sekarang menggunakan input nama manual (bukan dropdown user).
-  // Fungsi loadUsersIntoSelect sengaja tidak dipakai.
-  async function loadUsersIntoSelect(){}
+  // Load departemen dari API untuk dropdown form & filter
+  async function loadDepartments(){
+    try{
+      const data = await apiFetch('/api/hr/departments/');
+      const depts = data.results || data;
+      const formSelect = document.getElementById('departmentSelect');
+      const filterSelect = document.getElementById('departmentFilter');
+      
+      depts.forEach(d => {
+        const opt1 = document.createElement('option');
+        opt1.value = d.code;
+        opt1.textContent = d.name;
+        formSelect?.appendChild(opt1);
 
-  // muat user dropdown saat halaman ready (tidak dipakai) 
-  loadUsersIntoSelect();
+        // Filter pakai ID (integer) karena EmployeeFilter expect NumberFilter
+        const opt2 = document.createElement('option');
+        opt2.value = d.id;
+        opt2.textContent = d.name;
+        filterSelect?.appendChild(opt2);
+      });
+    }catch(e){
+      console.error('Gagal load departemen:', e);
+    }
+  }
+
+  loadDepartments();
 
   function renderRows(items){
     if(!items || items.length===0){
@@ -271,11 +288,9 @@
       // Karena saat ini belum ada UI untuk memilih department/position/user_id,
       // payload yang dikirim disesuaikan dengan field yang tersedia.
       const payload = {
-        // Backend saat ini biasanya butuh user (PK FK).
-        // Karena UI sudah jadi input nama manual, payload minimal dikirim sebagai `name`.
         name: fd.get('name'),
-        department: fd.get('department') || undefined,
-        position: fd.get('position') || undefined,
+        department_code: fd.get('department') || undefined,
+        position_input: fd.get('position') || undefined,
         status: fd.get('status'),
         join_date: fd.get('join_date')
       };
@@ -299,8 +314,24 @@
 
       if(!res.ok){
         const err = await res.json().catch(()=>null);
-        const msg = err?.detail || err || ('Gagal menyimpan ('+res.status+')');
-        throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        let msg = '';
+        if(err?.detail) {
+          msg = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
+        } else if(err && typeof err === 'object') {
+          // Field-level errors: tampilkan dalam format yang mudah dibaca
+          const lines = [];
+          for(const [field, errors] of Object.entries(err)) {
+            if(Array.isArray(errors)) {
+              lines.push(`${field}: ${errors.join(', ')}`);
+            } else {
+              lines.push(`${field}: ${errors}`);
+            }
+          }
+          msg = lines.join('\n') || ('Gagal menyimpan ('+res.status+')');
+        } else {
+          msg = err || ('Gagal menyimpan ('+res.status+')');
+        }
+        throw new Error(msg);
       }
 
       modal?.hide();
