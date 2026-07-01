@@ -74,6 +74,7 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status']
     search_fields = ['entry_number', 'description', 'reference_number']
     ordering = ['-date', '-entry_number']
+    pagination_class = None  # Non-paginated, frontend handles all data
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -81,11 +82,22 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
         return JournalEntryDetailSerializer
     
     def get_queryset(self):
-        queryset = JournalEntry.objects.select_related('created_by', 'approved_by')
+        queryset = JournalEntry.objects.select_related('created_by', 'approved_by').prefetch_related('items')
         
+        # Filter by status
         status_filter = self.request.query_params.get('status')
         if status_filter:
             queryset = queryset.filter(status=status_filter)
+        
+        # Filter by year
+        year = self.request.query_params.get('year')
+        if year:
+            queryset = queryset.filter(date__year=year)
+        
+        # Filter by month
+        month = self.request.query_params.get('month')
+        if month:
+            queryset = queryset.filter(date__month=month)
         
         return queryset
     

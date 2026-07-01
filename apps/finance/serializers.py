@@ -3,6 +3,7 @@ Finance Serializers
 """
 
 from rest_framework import serializers
+from django.db.models import Sum
 from .models import (
     Account, JournalEntry, JournalEntryItem, IncomeCategory, Income,
     ExpenseCategory, Expense, Invoice, InvoiceItem, Payment
@@ -36,13 +37,21 @@ class JournalEntryItemSerializer(serializers.ModelSerializer):
 
 class JournalEntryListSerializer(serializers.ModelSerializer):
     created_by_name = serializers.ReadOnlyField(source='created_by.email')
+    total_debit = serializers.SerializerMethodField()
+    total_credit = serializers.SerializerMethodField()
     
     class Meta:
         model = JournalEntry
         fields = [
             'id', 'entry_number', 'date', 'description', 'reference_number',
-            'status', 'created_by_name', 'created_at'
+            'status', 'created_by_name', 'created_at', 'total_debit', 'total_credit'
         ]
+    
+    def get_total_debit(self, obj):
+        return obj.items.aggregate(total=Sum('debit'))['total'] or 0
+    
+    def get_total_credit(self, obj):
+        return obj.items.aggregate(total=Sum('credit'))['total'] or 0
 
 
 class JournalEntryDetailSerializer(serializers.ModelSerializer):
@@ -71,6 +80,22 @@ class JournalEntryDetailSerializer(serializers.ModelSerializer):
         for item_data in items_data:
             JournalEntryItem.objects.create(journal_entry=journal_entry, **item_data)
         return journal_entry
+
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop('items', None)
+
+        # Update field biasa
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Ganti items: hapus lama, buat baru
+        if items_data is not None:
+            instance.items.all().delete()
+            for item_data in items_data:
+                JournalEntryItem.objects.create(journal_entry=instance, **item_data)
+
+        return instance
 
 
 class IncomeCategorySerializer(serializers.ModelSerializer):

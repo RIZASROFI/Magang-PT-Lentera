@@ -167,6 +167,44 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        name = validated_data.pop('name', '')
+        dept_code = validated_data.pop('department_code', '')
+        pos_name = validated_data.pop('position_input', '')
+
+        # 1) Update nama user jika ada
+        if name and instance.user:
+            parts = name.split(' ', 1)
+            instance.user.first_name = parts[0]
+            if len(parts) > 1:
+                instance.user.last_name = parts[1]
+            else:
+                instance.user.last_name = ''
+            instance.user.save()
+
+        # 2) Resolve department dari code
+        if dept_code:
+            try:
+                dept = Department.objects.get(code=dept_code)
+                validated_data['department'] = dept
+            except Department.DoesNotExist:
+                raise serializers.ValidationError({'department': f'Departemen dengan code "{dept_code}" tidak ditemukan'})
+
+        # 3) Resolve position dari nama (create if not exists)
+        if pos_name:
+            dept = validated_data.get('department') or instance.department
+            obj, _ = Position.objects.get_or_create(
+                name__iexact=pos_name,
+                defaults={
+                    'name': pos_name,
+                    'code': pos_name.upper().replace(' ', '_'),
+                    'department': dept,
+                }
+            )
+            validated_data['position'] = obj
+
+        return super().update(instance, validated_data)
+
 
 class AttendanceSerializer(serializers.ModelSerializer):
     employee_name = serializers.ReadOnlyField(source='employee.user.get_full_name')

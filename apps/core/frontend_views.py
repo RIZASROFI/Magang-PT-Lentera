@@ -295,30 +295,21 @@ def projects_progress(request):
 # ===================== FINANCE VIEWS =====================
 
 @login_required(login_url='frontend:login')
-def finance_transactions(request):
-    """Transaksi Keuangan (Income & Expense)"""
+def finance_jurnal(request):
+    """Jurnal Umum"""
     context = {
-        'page_title': 'Transaksi Keuangan',
+        'page_title': 'Jurnal Umum',
     }
-    return render(request, 'frontend/finance/transactions.html', context)
+    return render(request, 'frontend/finance/jurnal.html', context)
 
 
 @login_required(login_url='frontend:login')
-def finance_reports(request):
-    """Laporan Keuangan"""
+def finance_ringkasan(request):
+    """Ringkasan Bulanan"""
     context = {
-        'page_title': 'Laporan Keuangan',
+        'page_title': 'Ringkasan Bulanan',
     }
-    return render(request, 'frontend/finance/reports.html', context)
-
-
-@login_required(login_url='frontend:login')
-def finance_buku_besar(request):
-    """Buku Besar (General Ledger)"""
-    context = {
-        'page_title': 'Buku Besar',
-    }
-    return render(request, 'frontend/finance/buku_besar.html', context)
+    return render(request, 'frontend/finance/ringkasan.html', context)
 
 
 # ===================== SALES VIEWS =====================

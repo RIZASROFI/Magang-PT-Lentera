@@ -18,9 +18,9 @@
       </select>
       <select id="statusFilter">
         <option value="">Semua Status</option>
-        <option value="permanent">Permanent</option>
-        <option value="contract">Contract</option>
-        <option value="probation">Probation</option>
+        <option value="permanent">Permanen</option>
+        <option value="contract">Kontrak</option>
+        <option value="probation">Magang</option>
       </select>
     </div>
   </div>
@@ -38,60 +38,175 @@
       </div>
     </div>
 
-    <!-- Modal Tambah Karyawan (popup saja) -->
+    <!-- Modal Tambah / Edit Karyawan -->
     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:16px; overflow:hidden; background:#ffffff;">
-          <div class="modal-header" style="background:linear-gradient(135deg, rgba(77,171,247,0.18), rgba(77,171,247,0.05)); background-color:#ffffff;">
-            <h5 class="modal-title" style="font-weight:800; color:#0b214f;">Tambah Karyawan</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-dialog modal-dialog-centered employee-modal__dialog">
+        <div class="modal-content employee-modal">
+          <!-- Header dengan icon user -->
+          <div class="modal-header employee-modal__header">
+            <div class="d-flex align-items-center gap-3">
+              <div class="employee-modal__icon">
+                <i class="fas fa-user-plus" id="employeeModalIcon"></i>
+              </div>
+              <div>
+                <h5 class="modal-title fw-bold mb-0" id="employeeModalTitle">Tambah Karyawan</h5>
+                <small class="text-white-50" id="employeeModalSubtitle" style="opacity:0.8;">Lengkapi data karyawan baru</small>
+              </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+
+          <div class="modal-body employee-modal__body">
             <form id="addEmployeeForm" autocomplete="off">
+              <!-- Alert untuk error -->
+              <div id="addEmployeeAlert" class="alert alert-danger d-none"></div>
+
+              <!-- Field: Nama (full width) -->
+              <div class="employee-field">
+                <label class="employee-field__label">
+                  <i class="fas fa-user"></i> Nama Karyawan
+                </label>
+                <div class="employee-field__input-wrapper">
+                  <i class="fas fa-user employee-field__icon"></i>
+                  <input type="text" class="form-control employee-field__input" name="name" placeholder="Masukkan nama lengkap" required>
+                </div>
+              </div>
+
+              <!-- Row: Departemen + Jabatan -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="employee-field">
+                    <label class="employee-field__label">
+                      <i class="fas fa-building"></i> Departemen
+                    </label>
+                    <div class="employee-field__input-wrapper">
+                      <i class="fas fa-building employee-field__icon"></i>
+                      <select class="form-select employee-field__input" name="department" id="departmentSelect" required>
+                        <option value="">Pilih departemen...</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="employee-field">
+                    <label class="employee-field__label">
+                      <i class="fas fa-briefcase"></i> Jabatan
+                    </label>
+                    <div class="employee-field__input-wrapper">
+                      <i class="fas fa-briefcase employee-field__icon"></i>
+                      <input type="text" class="form-control employee-field__input" name="position" placeholder="Contoh: Manager" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row: Status + Tanggal Join -->
               <div class="row g-3">
-                <div class="col-md-12">
-                  <label class="form-label">Nama</label>
-                  <input type="text" class="form-control" name="name" placeholder="Masukkan nama" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
-                </div>
-
                 <div class="col-md-6">
-                  <label class="form-label">Departemen</label>
-                  <select class="form-select" name="department" id="departmentSelect" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
-                    <option value="">Pilih departemen...</option>
-                  </select>
+                  <div class="employee-field">
+                    <label class="employee-field__label">
+                      <i class="fas fa-tag"></i> Status
+                    </label>
+                    <div class="employee-field__input-wrapper">
+                      <i class="fas fa-tag employee-field__icon"></i>
+                      <select class="form-select employee-field__input" name="status" required>
+                        <option value="permanent">Permanen</option>
+                        <option value="contract">Kontrak</option>
+                        <option value="probation">Magang</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-
                 <div class="col-md-6">
-                  <label class="form-label">Jabatan</label>
-                  <input type="text" class="form-control" name="position" placeholder="Contoh: Manager" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Status</label>
-                  <select class="form-select" name="status" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
-                    <option value="permanent">permanent</option>
-                    <option value="contract">contract</option>
-                    <option value="probation">probation</option>
-                  </select>
-                </div>
-
-                <div class="col-md-12">
-                  <label class="form-label">Tanggal Join</label>
-                  <input type="date" class="form-control" name="join_date" required style="background:#ffffff; color:#0b214f; border-color:#2f7bdc;">
-                </div>
-
-                <div class="col-12">
-                  <div id="addEmployeeAlert" class="alert alert-danger" style="display:none;"></div>
+                  <div class="employee-field">
+                    <label class="employee-field__label">
+                      <i class="fas fa-calendar-alt"></i> Tanggal Join
+                    </label>
+                    <div class="employee-field__input-wrapper">
+                      <i class="fas fa-calendar-alt employee-field__icon"></i>
+                      <input type="date" class="form-control employee-field__input" name="join_date" required>
+                    </div>
+                  </div>
                 </div>
               </div>
             </form>
           </div>
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-primary" id="saveEmployeeBtn">
-              <i class="fas fa-save"></i> Simpan
+          <!-- Footer -->
+          <div class="modal-footer employee-modal__footer">
+            <button type="button" class="btn btn-employee-cancel" data-bs-dismiss="modal">
+              <i class="fas fa-times me-1"></i> Batal
             </button>
+            <button type="button" class="btn btn-employee-save" id="saveEmployeeBtn">
+              <i class="fas fa-save me-1"></i> <span id="saveBtnText">Simpan</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+          <div class="modal-body text-center p-5">
+            <div class="delete-icon-wrapper mb-4" style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: linear-gradient(135deg, rgba(220,53,69,0.1), rgba(220,53,69,0.05)); display: flex; align-items: center; justify-content: center; animation: pulse-delete 2s ease-in-out infinite;">
+              <i class="fas fa-trash-alt" style="font-size: 2rem; color: #dc3545;"></i>
+            </div>
+            <style>
+              @keyframes pulse-delete {
+                0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220,53,69,0.15); }
+                50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(220,53,69,0); }
+              }
+              #deleteConfirmModal .btn-delete-confirm {
+                background: linear-gradient(135deg, #dc3545, #c82333);
+                border: none;
+                color: white;
+                padding: 0.65rem 1.5rem;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                box-shadow: 0 4px 12px rgba(220,53,69,0.25);
+              }
+              #deleteConfirmModal .btn-delete-confirm:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(220,53,69,0.35);
+              }
+              #deleteConfirmModal .btn-delete-cancel {
+                border: 1px solid #dee2e6;
+                color: #6c757d;
+                padding: 0.65rem 1.5rem;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                background: white;
+              }
+              #deleteConfirmModal .btn-delete-cancel:hover {
+                background: #f8f9fa;
+                border-color: #adb5bd;
+                color: #495057;
+              }
+            </style>
+            <h5 class="fw-bold mb-2" style="color: #212529; font-size: 1.2rem;">Hapus Karyawan?</h5>
+            <p class="text-muted mb-1" style="font-size: 0.9rem; line-height: 1.6;">
+              Anda yakin ingin menghapus karyawan ini? Data yang dihapus
+              <span class="fw-semibold text-danger">tidak dapat dikembalikan</span>.
+            </p>
+            <div class="mt-2 mb-3 p-2 rounded-3" style="background: #fff3cd; border: 1px solid #ffeeba;">
+              <small class="text-warning fw-semibold">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Semua data terkait karyawan ini akan ikut terhapus.
+              </small>
+            </div>
+            <div id="deleteEmployeeName" class="mb-3 fw-semibold text-danger" style="font-size: 1.1rem;"></div>
+            <div class="d-flex gap-3 justify-content-center mt-4">
+              <button type="button" class="btn btn-delete-cancel flex-fill" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Batal
+              </button>
+              <button type="button" class="btn btn-delete-confirm flex-fill" id="btnConfirmDelete">
+                <i class="fas fa-trash me-2"></i>Hapus
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -106,10 +221,12 @@
             <th style="min-width: 180px;">Departemen</th>
             <th style="min-width: 180px;">Jabatan</th>
             <th>Status</th>
+            <th style="min-width: 130px;">Tanggal Join</th>
+            <th style="min-width: 100px;">Aksi</th>
           </tr>
         </thead>
         <tbody id="employeeTbody">
-          <tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>
+          <tr><td colspan="7" class="text-center text-muted">Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
@@ -140,6 +257,202 @@
   .hr-table thead th{background:#27ae60;border-bottom:2px solid #229954;color:#ffffff;font-weight:700;}
   .hr-table tbody td{vertical-align:middle;}
 
+  .btn-action {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    padding: 0;
+  }
+  .btn-action-edit { background: #ffc107; color: #212529; }
+  .btn-action-edit:hover { background: #ffb300; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(255,193,7,0.3); }
+  .btn-action-delete { background: #dc3545; color: white; }
+  .btn-action-delete:hover { background: #c82333; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(220,53,69,0.3); }
+
+  /* ==================== MODAL KARYAWAN ==================== */
+  .employee-modal__dialog {
+    max-width: 560px;
+  }
+
+  .employee-modal {
+    border: none;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px rgba(20,40,80,0.2);
+    overflow: hidden;
+  }
+
+  .employee-modal__header {
+    background: linear-gradient(135deg, #1a73e8 0%, #4dabf7 50%, #667eea 100%);
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .employee-modal__icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+
+  .employee-modal__body {
+    background: #f8fafc;
+    padding: 1.5rem 1.5rem 0.75rem;
+  }
+
+  .employee-modal__footer {
+    background: white;
+    border-top: 1px solid rgba(77,171,247,0.08);
+    padding: 1rem 1.5rem;
+  }
+
+  /* Form Fields */
+  .employee-field {
+    margin-bottom: 1rem;
+  }
+
+  .employee-field__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  .employee-field__label i {
+    color: var(--water-blue-3);
+    font-size: 0.78rem;
+    width: 16px;
+  }
+
+  .employee-field__input-wrapper {
+    position: relative;
+  }
+
+  .employee-field__icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: 0.88rem;
+    z-index: 4;
+    pointer-events: none;
+    transition: color 0.2s;
+  }
+
+  .employee-field__input-wrapper:focus-within .employee-field__icon {
+    color: var(--water-blue-3);
+  }
+
+  .employee-field__input {
+    border: 1.5px solid rgba(77,171,247,0.18);
+    border-radius: 12px;
+    padding: 0.6rem 0.9rem 0.6rem 2.5rem;
+    font-size: 0.9rem;
+    background: white;
+    color: var(--text-dark);
+    transition: all 0.25s ease;
+    height: auto;
+  }
+
+  .employee-field__input:focus {
+    border-color: var(--water-blue-3);
+    box-shadow: 0 0 0 3px rgba(77,171,247,0.12);
+    outline: none;
+  }
+
+  .employee-field__input::placeholder {
+    color: #adb5bd;
+    font-size: 0.85rem;
+  }
+
+  select.employee-field__input {
+    padding-left: 2.3rem;
+    appearance: auto;
+  }
+
+  /* Buttons */
+  .btn-employee-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.55rem 1.4rem;
+    border: 1.5px solid rgba(77,171,247,0.18);
+    border-radius: 10px;
+    background: white;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.25s ease;
+  }
+
+  .btn-employee-cancel:hover {
+    border-color: rgba(77,171,247,0.3);
+    color: var(--text-dark);
+    background: #f8f9fa;
+  }
+
+  .btn-employee-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.55rem 1.6rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--water-blue-1), var(--water-blue-4));
+    color: white;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(77,171,247,0.25);
+  }
+
+  .btn-employee-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(77,171,247,0.35);
+  }
+
+  .btn-employee-save:disabled {
+    opacity: 0.7;
+    transform: none;
+    cursor: not-allowed;
+  }
+
+  /* Alert */
+  .employee-modal__body .alert {
+    border-radius: 12px;
+    border-left: 4px solid #dc3545;
+    font-size: 0.85rem;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Modal title in edit mode */
+  #employeeModalIcon.fa-user-edit {
+    animation: iconPulse 0.5s ease;
+  }
+
+  @keyframes iconPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
   @media (max-width:768px){
     .filters select{min-width: 160px;}
   }
@@ -160,43 +473,61 @@
   const saveBtn = document.getElementById('saveEmployeeBtn');
   const formEl = document.getElementById('addEmployeeForm');
   const alertEl = document.getElementById('addEmployeeAlert');
+  const modalTitleEl = document.getElementById('employeeModalTitle');
+  const modalSubtitleEl = document.getElementById('employeeModalSubtitle');
+  const modalIconEl = document.getElementById('employeeModalIcon');
+
+  // Delete modal elements
+  const deleteModalEl = document.getElementById('deleteConfirmModal');
+  const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+  const deleteEmployeeNameEl = document.getElementById('deleteEmployeeName');
+
+  let editingEmployeeId = null;
+  let departments = [];
+  let deleteTargetId = null;
 
   function showAlert(msg){
     if(!alertEl) return;
+    alertEl.classList.remove('d-none');
     alertEl.style.display = 'block';
     alertEl.textContent = msg;
   }
 
   function hideAlert(){
     if(!alertEl) return;
-    alertEl.style.display = 'none';
+    alertEl.classList.add('d-none');
+    alertEl.style.display = '';
     alertEl.textContent = '';
   }
 
   const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+  const deleteModal = deleteModalEl ? new bootstrap.Modal(deleteModalEl) : null;
 
   async function apiFetch(url){
-    // Menggunakan session auth DRF (cookie-based). Sesuaikan bila perlu.
     const res = await fetch(url, {credentials:'include'});
     if(!res.ok) throw new Error('Failed: ' + res.status);
     return res.json();
+  }
+
+  function getCsrfToken(){
+    const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : '';
   }
 
   // Load departemen dari API untuk dropdown form & filter
   async function loadDepartments(){
     try{
       const data = await apiFetch('/api/hr/departments/');
-      const depts = data.results || data;
+      departments = data.results || data;
       const formSelect = document.getElementById('departmentSelect');
       const filterSelect = document.getElementById('departmentFilter');
-      
-      depts.forEach(d => {
+
+      departments.forEach(d => {
         const opt1 = document.createElement('option');
         opt1.value = d.code;
         opt1.textContent = d.name;
         formSelect?.appendChild(opt1);
 
-        // Filter pakai ID (integer) karena EmployeeFilter expect NumberFilter
         const opt2 = document.createElement('option');
         opt2.value = d.id;
         opt2.textContent = d.name;
@@ -211,21 +542,32 @@
 
   function renderRows(items){
     if(!items || items.length===0){
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada data</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Tidak ada data</td></tr>';
       return;
     }
-    tbody.innerHTML = items.map(emp=>{
-      const name = emp.user?.first_name ? (emp.user.first_name + ' ' + (emp.user.last_name||'')) : (emp.user?.email || '-');
-      const dept = emp.department?.name || '-';
-      const pos = emp.position?.name || '-';
+    tbody.innerHTML = items.map((emp, idx)=>{
+      const number = idx + 1;
+      const name = emp.user_name || '-';
+      const dept = emp.department_name || '-';
+      const pos = emp.position_name || '-';
       const status = emp.status || '-';
+      const joinDate = emp.join_date ? new Date(emp.join_date + 'T00:00:00').toLocaleDateString('id-ID', {year:'numeric',month:'short',day:'numeric'}) : '-';
       return `
         <tr>
-          <td>${emp.employee_id ?? '-'}</td>
+          <td>${number}</td>
           <td>${name}</td>
           <td>${dept}</td>
           <td>${pos}</td>
           <td><span class="badge badge-success" style="background:linear-gradient(135deg,#28a745,#20c997)">${status}</span></td>
+          <td>${joinDate}</td>
+          <td>
+            <button class="btn-action btn-action-edit" onclick="handleEditEmployee(${emp.id})" title="Edit">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn-action btn-action-delete" onclick="handleDeleteEmployee(${emp.id})" title="Hapus">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
         </tr>
       `;
     }).join('');
@@ -242,20 +584,17 @@
     return params.toString();
   }
 
-  async function loadEmployees(){
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>';
+  async function loadEmployees(){      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Memuat data...</td></tr>';
     const qs = buildQuery();
-    // Endpoint API dari router hr app
     const url = `/api/hr/employees/${qs ? ('?'+qs) : ''}`;
 
     try{
       const data = await apiFetch(url);
-      // DRF default: list akan berbentuk {results:[]} jika pagination enabled
       const items = data.results || data;
       renderRows(items);
     }catch(e){
       console.error(e);
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuat data karyawan</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Gagal memuat data karyawan</td></tr>';
     }
   }
 
@@ -268,9 +607,123 @@
   addBtn?.addEventListener('click', ()=>{
     hideAlert();
     formEl?.reset();
+    editingEmployeeId = null;
+    if (modalTitleEl) modalTitleEl.textContent = 'Tambah Karyawan';
+    if (modalSubtitleEl) modalSubtitleEl.textContent = 'Lengkapi data karyawan baru';
+    if (modalIconEl) {
+      modalIconEl.className = 'fas fa-user-plus';
+      modalIconEl.style.animation = 'none';
+    }
     modal?.show();
   });
 
+  // Edit employee: fetched via direct fetch and populated in form
+  window.handleEditEmployee = async function(id) {
+    try {
+      hideAlert();
+      const emp = await apiFetch(`/api/hr/employees/${id}/`);
+      formEl?.reset();
+      editingEmployeeId = id;
+      if (modalTitleEl) modalTitleEl.textContent = 'Edit Karyawan';
+      if (modalSubtitleEl) modalSubtitleEl.textContent = 'Perbarui data karyawan';
+      if (modalIconEl) {
+        modalIconEl.className = 'fas fa-user-edit';
+        modalIconEl.style.animation = 'iconPulse 0.5s ease';
+      }
+
+      // Populate form fields
+      const fd = new FormData(formEl);
+      // Nama - use user_name from API
+      const nameInput = formEl.querySelector('[name="name"]');
+      if (nameInput) nameInput.value = emp.user_name || '';
+
+      // Departemen - find the option with matching department name
+      const deptSelect = document.getElementById('departmentSelect');
+      if (deptSelect && emp.department_name) {
+        for (let i = 0; i < deptSelect.options.length; i++) {
+          if (deptSelect.options[i].textContent === emp.department_name) {
+            deptSelect.value = deptSelect.options[i].value;
+            break;
+          }
+        }
+      }
+
+      // Jabatan
+      const posInput = formEl.querySelector('[name="position"]');
+      if (posInput) posInput.value = emp.position_name || '';
+
+      // Status
+      const statusSelect = formEl.querySelector('[name="status"]');
+      if (statusSelect && emp.status) {
+        for (let i = 0; i < statusSelect.options.length; i++) {
+          if (statusSelect.options[i].value === emp.status) {
+            statusSelect.value = emp.status;
+            break;
+          }
+        }
+      }
+
+      // Tanggal Join
+      const dateInput = formEl.querySelector('[name="join_date"]');
+      if (dateInput && emp.join_date) {
+        dateInput.value = emp.join_date;
+      }
+
+      modal?.show();
+    } catch (e) {
+      console.error(e);
+      showToast('Gagal memuat data karyawan', 'error');
+    }
+  };
+
+  // Delete employee: show confirmation then delete
+  window.handleDeleteEmployee = function(id) {
+    deleteTargetId = id;
+    // Fetch employee name to show in confirmation
+    apiFetch(`/api/hr/employees/${id}/`).then(emp => {
+      if (deleteEmployeeNameEl) {
+        deleteEmployeeNameEl.textContent = emp.user_name || 'Karyawan ini';
+      }
+      deleteModal?.show();
+    }).catch(() => {
+      if (deleteEmployeeNameEl) deleteEmployeeNameEl.textContent = 'Karyawan ini';
+      deleteModal?.show();
+    });
+  };
+
+  // Confirm delete
+  btnConfirmDelete?.addEventListener('click', async function() {
+    if (!deleteTargetId) return;
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menghapus...';
+    try {
+      const csrfToken = getCsrfToken();
+      const res = await fetch(`/api/hr/employees/${deleteTargetId}/`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? {'X-CSRFToken': csrfToken} : {})
+        }
+      });
+      if (res.ok || res.status === 204) {
+        deleteModal?.hide();
+        showToast('Karyawan berhasil dihapus!', 'success');
+        loadEmployees();
+      } else {
+        const err = await res.json().catch(()=>null);
+        showToast(err?.detail || 'Gagal menghapus karyawan', 'error');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Gagal menghapus karyawan', 'error');
+    }
+    deleteTargetId = null;
+    this.disabled = false;
+    this.innerHTML = '<i class="fas fa-trash me-2"></i>Hapus';
+  });
+
+  // Save button: POST for create, PUT for edit
   saveBtn?.addEventListener('click', async ()=>{
     try{
       hideAlert();
@@ -278,15 +731,6 @@
 
       const fd = new FormData(formEl);
 
-      // Serializer EmployeeDetailSerializer expects:
-      // - employee.user (FK OneToOne) -> DRF will require a PK for `user`
-      //   sehingga kita tidak dapat membuat employee via endpoint ini hanya dengan username/email.
-      // Untuk sekarang, payload minimal yang valid adalah `user` (id), plus field employee wajib.
-      // (Jika backend Anda diharapkan menerima nested user fields, perlu penyesuaian serializer. )
-      // Form saat ini hanya menyediakan: username (sebagai Nama), email, status, join_date.
-      // Backend Employee tetap butuh `user` (PK) dan relasi lain mungkin wajib (tergantung model/serializer).
-      // Karena saat ini belum ada UI untuk memilih department/position/user_id,
-      // payload yang dikirim disesuaikan dengan field yang tersedia.
       const payload = {
         name: fd.get('name'),
         department_code: fd.get('department') || undefined,
@@ -295,15 +739,12 @@
         join_date: fd.get('join_date')
       };
 
-      // CSRF token untuk SessionAuthentication
-      const csrfToken = (() => {
-        // 1) cek cookie csrftoken
-        const m = document.cookie.match(/(?:^|;\\s*)csrftoken=([^;]+)/);
-        return m ? decodeURIComponent(m[1]) : '';
-      })();
+      const csrfToken = getCsrfToken();
+      const method = editingEmployeeId ? 'PUT' : 'POST';
+      const url = editingEmployeeId ? `/api/hr/employees/${editingEmployeeId}/` : '/api/hr/employees/';
 
-      const res = await fetch('/api/hr/employees/', {
-        method: 'POST',
+      const res = await fetch(url, {
+        method: method,
         credentials: 'include',
         headers: {
           'Content-Type':'application/json',
@@ -318,7 +759,6 @@
         if(err?.detail) {
           msg = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
         } else if(err && typeof err === 'object') {
-          // Field-level errors: tampilkan dalam format yang mudah dibaca
           const lines = [];
           for(const [field, errors] of Object.entries(err)) {
             if(Array.isArray(errors)) {
@@ -335,6 +775,13 @@
       }
 
       modal?.hide();
+      editingEmployeeId = null;
+      if (modalTitleEl) modalTitleEl.textContent = 'Tambah Karyawan';
+      if (modalSubtitleEl) modalSubtitleEl.textContent = 'Lengkapi data karyawan baru';
+      if (modalIconEl) {
+        modalIconEl.className = 'fas fa-user-plus';
+        modalIconEl.style.animation = 'none';
+      }
       await loadEmployees();
     }catch(e){
       console.error(e);
@@ -342,8 +789,19 @@
     }
   });
 
+  // Clean up state when modal is hidden (by any means)
+  modalEl?.addEventListener('hidden.bs.modal', function() {
+    editingEmployeeId = null;
+    if (modalTitleEl) modalTitleEl.textContent = 'Tambah Karyawan';
+    if (modalSubtitleEl) modalSubtitleEl.textContent = 'Lengkapi data karyawan baru';
+    if (modalIconEl) {
+      modalIconEl.className = 'fas fa-user-plus';
+      modalIconEl.style.animation = 'none';
+    }
+    hideAlert();
+  });
+
   loadEmployees();
 })();
 </script>
 {% endblock %}
-

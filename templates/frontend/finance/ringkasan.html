@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h2><i class="fas fa-chart-pie me-2"></i>Ringkasan Bulanan</h2>
+      <p>Rekapitulasi transaksi keuangan per bulan</p>
+    </div>
+    <div class="d-flex gap-2">
+      <select class="form-select" id="summaryYear" style="border:2px solid #27ae60;border-radius:12px;padding:8px 14px;min-width:120px;"></select>
+      <button class="btn btn-success" onclick="loadSummary()">
+        <i class="fas fa-sync me-1"></i> Muat Ulang
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingState" class="text-center py-5">
+    <div class="spinner-border text-success mb-3" role="status" style="width:3rem;height:3rem;"><span class="visually-hidden">Loading...</span></div>
+    <p class="text-muted">Memuat ringkasan...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="errorState" class="text-center py-5" style="display:none;">
+    <i class="fas fa-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+    <p class="text-muted mt-3">Gagal memuat data. Silakan coba lagi.</p>
+    <button class="btn btn-success" onclick="loadSummary()"><i class="fas fa-sync me-1"></i>Muat Ulang</button>
+  </div>
+
+  <!-- Content -->
+  <div id="summaryContent" style="display:none;">
+    <!-- Annual Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card-sm">
+          <div class="stat-icon-sm bg-success-soft"><i class="fas fa-arrow-up text-success"></i></div>
+          <h6 style="font-size:13px;color:#666;margin:8px 0 2px;">Total Pemasukan</h6>
+          <h3 class="fw-bold text-success mb-0" id="yearTotalDebit" style="font-size:1.2rem;">Rp 0</h3>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card-sm">
+          <div class="stat-icon-sm bg-danger-soft"><i class="fas fa-arrow-down text-danger"></i></div>
+          <h6 style="font-size:13px;color:#666;margin:8px 0 2px;">Total Pengeluaran</h6>
+          <h3 class="fw-bold text-danger mb-0" id="yearTotalKredit" style="font-size:1.2rem;">Rp 0</h3>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card-sm">
+          <div class="stat-icon-sm bg-primary-soft"><i class="fas fa-calculator text-primary"></i></div>
+          <h6 style="font-size:13px;color:#666;margin:8px 0 2px;">Saldo Akhir</h6>
+          <h3 class="fw-bold mb-0" id="yearTotalSaldo" style="font-size:1.2rem;color:#1b4e8f;">Rp 0</h3>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card-sm">
+          <div class="stat-icon-sm bg-warning-soft"><i class="fas fa-list text-warning"></i></div>
+          <h6 style="font-size:13px;color:#666;margin:8px 0 2px;">Total Transaksi</h6>
+          <h3 class="fw-bold mb-0" id="yearTotalCount" style="font-size:1.2rem;color:#1b4e8f;">0</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Table -->
+    <div class="data-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Rekapitulasi Bulanan</h5>
+        <div><span id="monthCount" class="badge bg-primary">0</span> bulan</div>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Bulan</th>
+              <th style="width:150px;">Total Debit (Rp)</th>
+              <th style="width:150px;">Total Kredit (Rp)</th>
+              <th style="width:150px;">Saldo (Rp)</th>
+              <th style="width:100px;">Transaksi</th>
+            </tr>
+          </thead>
+          <tbody id="summaryBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-container{padding:24px 0 40px;}
+.page-header h2{color:#27ae60;font-weight:800;}
+.page-header h2 i{color:#27ae60;}
+
+.stat-card-sm{background:#fff;border:2px solid #27ae60;border-radius:16px;padding:16px 20px;box-shadow:0 4px 16px rgba(39,174,96,.1);transition:all .3s ease;}
+.stat-card-sm:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(39,174,96,.18);}
+.stat-icon-sm{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.bg-success-soft{background:rgba(40,167,69,.1);}
+.bg-danger-soft{background:rgba(220,53,69,.1);}
+.bg-primary-soft{background:rgba(13,110,253,.1);}
+.bg-warning-soft{background:rgba(255,193,7,.15);}
+
+.data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;border-right:1px solid rgba(255,255,255,.15);}
+.table thead th:last-child{border-right:none;}
+.table tbody td{vertical-align:middle;padding:10px 15px;border-bottom:1px solid #e8f5e9;}
+.table tbody tr:hover{background:rgba(39,174,96,.04);}
+.table .total-row td{font-weight:700!important;background:linear-gradient(135deg,rgba(39,174,96,.06),rgba(39,174,96,.02));border-top:2px solid #27ae60;color:#1b4e8f;}
+
+.text-debit{color:#27ae60;font-weight:600;}
+.text-kredit{color:#dc3545;font-weight:600;}
+.text-saldo{font-weight:700;color:#1b4e8f;}
+
+.bulan-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,rgba(39,174,96,.1),rgba(39,174,96,.05));
+  color:#27ae60;
+  font-weight:700;
+  padding:6px 16px;
+  border-radius:20px;
+  font-size:0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function populateYear() {
+  const sel = document.getElementById('summaryYear');
+  const y = new Date().getFullYear();
+  for (let i = y; i >= y - 3; i--) {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = i;
+    if (i === y) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+function formatRp(v) {
+  return 'Rp ' + (v || 0).toLocaleString('id', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+async function loadSummary() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('summaryContent').style.display = 'none';
+  const year = document.getElementById('summaryYear').value;
+
+  try {
+    // Fetch all journal entries for the year
+    const res = await fetch('/api/finance/journal/?year=' + year + '&page_size=500', {credentials:'include'});
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const entries = data.results || data;
+
+    // Group by month
+    const months = {};
+    entries.forEach(entry => {
+      if (!entry.date) return;
+      const d = new Date(entry.date + 'T00:00:00');
+      const m = d.getMonth() + 1;
+      if (!months[m]) months[m] = { debit: 0, credit: 0, count: 0 };
+
+      const debit = parseFloat(entry.total_debit || 0);
+      const credit = parseFloat(entry.total_credit || 0);
+      months[m].debit += debit;
+      months[m].credit += credit;
+      months[m].count++;
+    });
+
+    // Calculate totals
+    let yearDebit = 0, yearKredit = 0, yearCount = 0;
+    Object.values(months).forEach(m => {
+      yearDebit += m.debit;
+      yearKredit += m.credit;
+      yearCount += m.count;
+    });
+
+    document.getElementById('yearTotalDebit').textContent = formatRp(yearDebit);
+    document.getElementById('yearTotalKredit').textContent = formatRp(yearKredit);
+    document.getElementById('yearTotalSaldo').textContent = formatRp(yearDebit - yearKredit);
+    document.getElementById('yearTotalCount').textContent = yearCount;
+
+    // Render monthly table
+    const body = document.getElementById('summaryBody');
+    const sortedMonths = Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
+    document.getElementById('monthCount').textContent = sortedMonths.length;
+
+    if (sortedMonths.length === 0) {
+      body.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Belum ada data untuk tahun ini</td></tr>';
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('summaryContent').style.display = 'block';
+      return;
+    }
+
+    body.innerHTML = sortedMonths.map(m => {
+      const data = months[m];
+      const saldo = data.debit - data.credit;
+      return `
+        <tr>
+          <td><span class="bulan-badge">${MONTHS[parseInt(m)-1]}</span></td>
+          <td class="text-end text-debit">${formatRp(data.debit)}</td>
+          <td class="text-end text-kredit">${formatRp(data.credit)}</td>
+          <td class="text-end text-saldo">${formatRp(saldo)}</td>
+          <td class="text-center"><span class="badge bg-primary rounded-pill">${data.count}</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    // Total row
+    body.innerHTML += `
+      <tr class="total-row">
+        <td>TOTAL</td>
+        <td class="text-end">${formatRp(yearDebit)}</td>
+        <td class="text-end">${formatRp(yearKredit)}</td>
+        <td class="text-end">${formatRp(yearDebit - yearKredit)}</td>
+        <td class="text-center">${yearCount}</td>
+      </tr>
+    `;
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('summaryContent').style.display = 'block';
+  } catch (e) {
+    console.error(e);
+    document.getElementById('loadingState').style.display = 'none';
+    const errEl = document.getElementById('errorState');
+    if (errEl) errEl.style.display = 'block';
+  }
+}
+
+// Initialize
+populateYear();
+document.getElementById('summaryYear').addEventListener('change', loadSummary);
+loadSummary();
+</script>
+{% endblock %}

@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h2><i class="fas fa-book me-2"></i>Jurnal Umum</h2>
+      <p>Catat transaksi pemasukan dan pengeluaran harian</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-success" onclick="openAddModal()">
+        <i class="fas fa-plus me-1"></i> Tambah Transaksi
+      </button>
+      <button class="btn btn-outline-success" onclick="toggleFilter()">
+        <i class="fas fa-filter me-1"></i> Filter
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div id="filterPanel" class="filter-panel" style="display:none;">
+    <div class="filter-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Bulan</label>
+          <select class="form-select" id="filterMonth">
+            <option value="">Semua</option>
+            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+            <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+            <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Tahun</label>
+          <select class="form-select" id="filterYear"></select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button class="btn btn-success flex-fill" onclick="applyFilter()"><i class="fas fa-check me-1"></i>Terapkan</button>
+          <button class="btn btn-outline-secondary" onclick="resetFilter()"><i class="fas fa-undo"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingState" class="text-center py-5">
+    <div class="spinner-border text-success mb-3" role="status" style="width:3rem;height:3rem;"><span class="visually-hidden">Loading...</span></div>
+    <p class="text-muted">Memuat jurnal umum...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="errorState" class="text-center py-5" style="display:none;">
+    <i class="fas fa-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+    <p class="text-muted mt-3">Gagal memuat data. Silakan coba lagi.</p>
+    <button class="btn btn-success" onclick="loadJurnal()"><i class="fas fa-sync me-1"></i>Muat Ulang</button>
+  </div>
+
+  <!-- Content -->
+  <div id="jurnalContent" style="display:none;">
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4">
+        <div class="stat-card-sm"><div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-sm bg-success-soft"><i class="fas fa-arrow-up text-success"></i></div>
+          <div><h6 class="mb-0 fw-semibold" id="totalDebit">Rp 0</h6><small class="text-muted">Total Debit</small></div>
+        </div></div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="stat-card-sm"><div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-sm bg-danger-soft"><i class="fas fa-arrow-down text-danger"></i></div>
+          <div><h6 class="mb-0 fw-semibold" id="totalKredit">Rp 0</h6><small class="text-muted">Total Kredit</small></div>
+        </div></div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="stat-card-sm"><div class="d-flex align-items-center gap-3">
+          <div class="stat-icon-sm bg-primary-soft"><i class="fas fa-calculator text-primary"></i></div>
+          <div><h6 class="mb-0 fw-semibold" id="totalSaldo">Rp 0</h6><small class="text-muted">Saldo Akhir</small></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- Tabel Jurnal -->
+    <div class="data-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Daftar Transaksi</h5>
+        <div><span id="entryCount" class="badge bg-primary">0</span> entri</div>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:50px;">No</th>
+              <th style="width:110px;">Tanggal</th>
+              <th>Keterangan</th>
+              <th style="width:150px;">Debit (Rp)</th>
+              <th style="width:150px;">Kredit (Rp)</th>
+              <th style="width:150px;">Total (Rp)</th>
+              <th style="width:50px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="jurnalBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tambah Transaksi -->
+<div class="modal fade" id="entryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius:18px;overflow:hidden;">
+      <div class="modal-header" style="background:linear-gradient(135deg,rgba(39,174,96,.06),transparent);border-bottom:2px solid #27ae60;padding:18px 24px;">
+        <h5 class="modal-title fw-bold" style="color:#1b4e8f;" id="entryModalTitle">
+          <i class="fas fa-plus-circle me-2" style="color:#27ae60;" id="entryModalIcon"></i>Tambah Transaksi
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="entryForm" onsubmit="return false;">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Tanggal <span class="text-danger">*</span></label>
+            <input type="date" class="form-control input-green" id="entryDate" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Keterangan <span class="text-danger">*</span></label>
+            <textarea class="form-control input-green" id="entryDescription" rows="2" placeholder="Deskripsi transaksi..." required></textarea>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Debit (Rp) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text input-green" style="border-right:none;background:rgba(39,174,96,.06);color:#27ae60;font-weight:600;">Rp</span>
+                <input type="number" class="form-control input-green" id="entryDebit" min="0" step="0.01" placeholder="0" style="border-left:none;">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Kredit (Rp)</label>
+              <div class="input-group">
+                <span class="input-group-text input-green" style="border-right:none;background:rgba(39,174,96,.06);color:#dc3545;font-weight:600;">Rp</span>
+                <input type="number" class="form-control input-green" id="entryKredit" min="0" step="0.01" placeholder="0" style="border-left:none;">
+              </div>
+            </div>
+          </div>
+          <div id="entryAlert" class="alert alert-danger d-none mt-3 mb-0 py-2" style="border-radius:10px;font-size:0.9rem;"></div>
+        </form>
+      </div>
+      <div class="modal-footer" style="border-top:1px solid #e8f5e9;padding:14px 24px;">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">
+          <i class="fas fa-times me-1"></i>Batal
+        </button>
+        <button type="button" class="btn btn-success" id="btnSaveEntry" style="border-radius:10px;padding:8px 24px;">
+          <i class="fas fa-save me-1"></i>Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
+      <div class="modal-body text-center p-4">
+        <div style="width:70px;height:70px;margin:0 auto;border-radius:50%;background:linear-gradient(135deg,rgba(220,53,69,0.1),rgba(220,53,69,0.05));display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <i class="fas fa-trash-alt" style="font-size:1.8rem;color:#dc3545;"></i>
+        </div>
+        <h5 class="fw-bold mb-2">Hapus Transaksi?</h5>
+        <p class="text-muted mb-1" style="font-size:0.9rem;">Data yang dihapus <span class="text-danger fw-semibold">tidak dapat dikembalikan</span>.</p>
+        <p class="fw-semibold text-danger mb-3" id="deleteEntryDesc" style="font-size:0.95rem;"></p>
+        <div class="d-flex gap-3 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal" style="border-radius:10px;"><i class="fas fa-times me-1"></i>Batal</button>
+          <button type="button" class="btn btn-danger flex-fill" id="btnConfirmDelete" style="border-radius:10px;"><i class="fas fa-trash me-1"></i>Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-container{padding:24px 0 40px;}
+.page-header h2{color:#27ae60;font-weight:800;}
+.page-header h2 i{color:#27ae60;}
+
+.filter-panel{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);margin:14px 0;overflow:hidden;animation:slideDown .3s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.filter-body{padding:20px;}
+.filter-panel .form-control,.filter-panel .form-select{border:2px solid #27ae60;border-radius:12px;padding:10px 14px;}
+.filter-panel .form-control:focus,.filter-panel .form-select:focus{border-color:#27ae60;box-shadow:0 0 0 3px rgba(39,174,96,.15);}
+
+.stat-card-sm{background:#fff;border:2px solid #27ae60;border-radius:16px;padding:16px 20px;box-shadow:0 4px 16px rgba(39,174,96,.1);transition:all .3s ease;}
+.stat-card-sm:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(39,174,96,.18);}
+.stat-icon-sm{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.bg-success-soft{background:rgba(40,167,69,.1);}
+.bg-danger-soft{background:rgba(220,53,69,.1);}
+.bg-primary-soft{background:rgba(13,110,253,.1);}
+
+.data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;border-right:1px solid rgba(255,255,255,.15);}
+.table thead th:last-child{border-right:none;}
+.table tbody td{vertical-align:middle;padding:10px 15px;border-bottom:1px solid #e8f5e9;}
+.table tbody tr:hover{background:rgba(39,174,96,.04);}
+.table .total-row td{font-weight:700!important;background:linear-gradient(135deg,rgba(39,174,96,.06),rgba(39,174,96,.02));border-top:2px solid #27ae60;color:#1b4e8f;}
+
+.text-debit{color:#27ae60;font-weight:600;}
+.text-kredit{color:#dc3545;font-weight:600;}
+.text-saldo{font-weight:700;color:#1b4e8f;}
+
+.input-green{border:2px solid #27ae60!important;border-radius:12px!important;padding:10px 14px!important;transition:all .3s ease!important;}
+.input-green:focus{border-color:#27ae60!important;box-shadow:0 0 0 3px rgba(39,174,96,.15)!important;}
+.input-green::placeholder{color:#adb5bd;font-size:.9rem;}
+
+.btn-action{width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;border:none;transition:all .2s ease;font-size:.85rem;padding:0;margin:0 2px;}
+.btn-action-delete{background:#dc3545;color:white;}
+.btn-action-delete:hover{background:#c82333;transform:translateY(-1px);box-shadow:0 3px 10px rgba(220,53,69,.3);}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let entries = [];
+let deleteTargetId = null;
+
+function toggleFilter() {
+  const p = document.getElementById('filterPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+function populateYearFilter() {
+  const sel = document.getElementById('filterYear');
+  const y = new Date().getFullYear();
+  for (let i = y - 2; i <= y + 1; i++) {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = i;
+    if (i === y) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+function formatRp(v) {
+  return 'Rp ' + (v || 0).toLocaleString('id', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function getCsrfToken() {
+  const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+}
+
+async function loadJurnal() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('errorState').style.display = 'none';
+  document.getElementById('jurnalContent').style.display = 'none';
+
+  try {
+    const params = new URLSearchParams();
+    const m = document.getElementById('filterMonth').value;
+    const y = document.getElementById('filterYear').value;
+    if (m) params.set('month', m);
+    if (y) params.set('year', y);
+
+    const res = await fetch('/api/finance/journal/' + (params.toString() ? '?' + params.toString() : ''), {credentials:'include'});
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    entries = data.results || data;
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('jurnalContent').style.display = 'block';
+    renderJurnal();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+  }
+}
+
+function renderJurnal() {
+  const body = document.getElementById('jurnalBody');
+  const items = entries;
+
+  if (!items || items.length === 0) {
+    body.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Belum ada transaksi. Klik "Tambah Transaksi" untuk memulai.</td></tr>';
+    document.getElementById('entryCount').textContent = '0';
+    document.getElementById('totalDebit').textContent = formatRp(0);
+    document.getElementById('totalKredit').textContent = formatRp(0);
+    document.getElementById('totalSaldo').textContent = formatRp(0);
+    return;
+  }
+
+  // For each entry, sum all items' debits and credits
+  const rows = [];
+  let totalDebit = 0, totalKredit = 0, runningTotal = 0;
+
+  items.forEach((entry, idx) => {
+    const debit = parseFloat(entry.total_debit || 0);
+    const credit = parseFloat(entry.total_credit || 0);
+    totalDebit += debit;
+    totalKredit += credit;
+    runningTotal += debit - credit;
+
+    rows.push({
+      id: entry.id,
+      no: idx + 1,
+      date: entry.date || '-',
+      description: entry.description || '-',
+      debit: debit,
+      credit: credit,
+      total: runningTotal
+    });
+  });
+
+  document.getElementById('entryCount').textContent = rows.length;
+  document.getElementById('totalDebit').textContent = formatRp(totalDebit);
+  document.getElementById('totalKredit').textContent = formatRp(totalKredit);
+  document.getElementById('totalSaldo').textContent = formatRp(runningTotal);
+
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td class="text-center">${r.no}</td>
+      <td>${r.date}</td>
+      <td>${escapeHtml(r.description)}</td>
+      <td class="text-end text-debit">${r.debit > 0 ? formatRp(r.debit) : '-'}</td>
+      <td class="text-end text-kredit">${r.credit > 0 ? formatRp(r.credit) : '-'}</td>
+      <td class="text-end text-saldo">${formatRp(r.total)}</td>
+      <td class="text-center">
+        <button class="btn-action btn-action-delete" onclick="openDeleteModal(${r.id})" title="Hapus">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Total row
+  body.innerHTML += `
+    <tr class="total-row">
+      <td colspan="3" class="text-end">TOTAL</td>
+      <td class="text-end">${formatRp(totalDebit)}</td>
+      <td class="text-end">${formatRp(totalKredit)}</td>
+      <td class="text-end">${formatRp(runningTotal)}</td>
+      <td></td>
+    </tr>
+  `;
+}
+
+// ============ TAMBAH TRANSAKSI ============
+
+function openAddModal() {
+  document.getElementById('entryModalTitle').innerHTML = '<i class="fas fa-plus-circle me-2" style="color:#27ae60;"></i>Tambah Transaksi';
+  document.getElementById('entryForm').reset();
+  document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('entryAlert').classList.add('d-none');
+
+  const btn = document.getElementById('btnSaveEntry');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-save me-1"></i>Simpan';
+
+  new bootstrap.Modal(document.getElementById('entryModal')).show();
+}
+
+document.getElementById('btnSaveEntry')?.addEventListener('click', async function() {
+  const date = document.getElementById('entryDate').value;
+  const desc = document.getElementById('entryDescription').value.trim();
+  const debit = parseFloat(document.getElementById('entryDebit').value) || 0;
+  const credit = parseFloat(document.getElementById('entryKredit').value) || 0;
+  const alertEl = document.getElementById('entryAlert');
+
+  if (!date) { showAlert('Tanggal harus diisi!'); return; }
+  if (!desc) { showAlert('Keterangan harus diisi!'); return; }
+  if (debit <= 0 && credit <= 0) { showAlert('Minimal satu sisi (Debit atau Kredit) harus diisi!'); return; }
+
+  this.disabled = true;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+
+  try {
+    const csrf = getCsrfToken();
+
+    // Cari akun Kas (default) untuk item jurnal
+    let kasAccountId = null;
+    const accRes = await fetch('/api/finance/accounts/?is_cash=true&is_active=true', {credentials:'include'});
+    if (accRes.ok) {
+      const accData = await accRes.json();
+      const accs = accData.results || accData;
+      if (accs.length > 0) {
+        kasAccountId = accs[0].id;
+      }
+    }
+
+    const payload = {
+      date: date,
+      description: desc,
+      status: 'posted',
+      items: []
+    };
+
+    if (debit > 0 && kasAccountId) {
+      payload.items.push({account: kasAccountId, description: desc, debit: debit, credit: 0});
+    }
+    if (credit > 0 && kasAccountId) {
+      payload.items.push({account: kasAccountId, description: desc, debit: 0, credit: credit});
+    }
+
+    const res = await fetch('/api/finance/journal/', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {'Content-Type':'application/json', 'X-CSRFToken': csrf},
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      let msg = '';
+      if (err.items) msg = 'Akun keuangan belum tersedia. Hubungi admin.';
+      else if (err.description) msg = Array.isArray(err.description) ? err.description[0] : err.description;
+      else if (err.detail) msg = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
+      else msg = 'Gagal menyimpan (' + res.status + ')';
+      throw new Error(msg);
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('entryModal')).hide();
+    SIMAN.showToast('Transaksi berhasil disimpan!', 'success');
+    loadJurnal();
+  } catch (e) {
+    console.error(e);
+    showAlert(e.message || 'Gagal menyimpan transaksi');
+  }
+
+  this.disabled = false;
+  this.innerHTML = '<i class="fas fa-save me-1"></i>Simpan';
+});
+
+function showAlert(msg) {
+  const el = document.getElementById('entryAlert');
+  el.classList.remove('d-none');
+  el.textContent = msg;
+}
+
+// ============ DELETE ============
+
+function openDeleteModal(id) {
+  deleteTargetId = id;
+  const entry = entries.find(e => e.id === id);
+  document.getElementById('deleteEntryDesc').textContent = entry ? (entry.description?.substring(0, 60) || 'Transaksi ini') : 'Transaksi ini';
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+document.getElementById('btnConfirmDelete')?.addEventListener('click', async function() {
+  if (!deleteTargetId) return;
+  this.disabled = true;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menghapus...';
+
+  try {
+    const csrf = getCsrfToken();
+    const res = await fetch(`/api/finance/journal/${deleteTargetId}/`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {'X-CSRFToken': csrf}
+    });
+    if (res.ok || res.status === 204) {
+      bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+      SIMAN.showToast('Transaksi berhasil dihapus!', 'success');
+      loadJurnal();
+    } else {
+      SIMAN.showToast('Gagal menghapus transaksi', 'error');
+    }
+  } catch (e) {
+    console.error(e);
+    SIMAN.showToast('Gagal menghapus transaksi', 'error');
+  }
+
+  deleteTargetId = null;
+  this.disabled = false;
+  this.innerHTML = '<i class="fas fa-trash me-1"></i>Hapus';
+});
+
+function applyFilter() {
+  if (document.getElementById('filterPanel').style.display !== 'none') toggleFilter();
+  loadJurnal();
+}
+
+function resetFilter() {
+  const today = new Date();
+  document.getElementById('filterMonth').value = '';
+  document.getElementById('filterYear').value = today.getFullYear();
+  if (document.getElementById('filterPanel').style.display !== 'none') toggleFilter();
+  loadJurnal();
+}
+
+function escapeHtml(t) {
+  if (!t) return '';
+  const d = document.createElement('div');
+  d.textContent = t;
+  return d.innerHTML;
+}
+
+// Initialize
+populateYearFilter();
+loadJurnal();
+</script>
+{% endblock %}
