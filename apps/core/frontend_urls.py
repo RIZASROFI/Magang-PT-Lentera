@@ -50,13 +50,6 @@ urlpatterns = [
     path('finance/jurnal/', views.finance_jurnal, name='finance_jurnal'),
     path('finance/ringkasan/', views.finance_ringkasan, name='finance_ringkasan'),
 
-    # Sales Frontend
-    path('sales/customers/', views.sales_customers, name='sales_customers'),
-    path('sales/quotations/', views.sales_quotations, name='sales_quotations'),
-    path('sales/orders/', views.sales_orders, name='sales_orders'),
-    path('sales/vendors/', views.sales_vendors, name='sales_vendors'),
-    path('sales/purchase-orders/', views.sales_purchase_orders, name='sales_purchase_orders'),
-
     # HR Frontend
     path('hr/attendances/', views.hr_attendances, name='hr_attendances'),
     path('hr/salaries/', views.hr_salaries, name='hr_salaries'),

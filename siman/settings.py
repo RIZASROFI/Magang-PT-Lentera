@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'apps.inventory',
     'apps.finance',
     'apps.hr',
-    'apps.sales',
     # Django apps
     'django.contrib.admin',
     'django.contrib.auth',

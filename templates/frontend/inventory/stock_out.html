@@ -127,7 +127,7 @@
     font-size: 0.78rem; font-weight: 500;
 }
 .so-type-badge--project { background: rgba(26, 115, 232, 0.1); color: var(--so-primary); }
-.so-type-badge--sales { background: rgba(16, 185, 129, 0.1); color: #059669; }
+
 .so-type-badge--return { background: rgba(245, 158, 11, 0.1); color: #d97706; }
 .so-type-badge--damaged { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
 
@@ -250,7 +250,7 @@
                 <i class="fas fa-arrow-up me-2" style="-webkit-text-fill-color: initial; color: #e8481a;"></i>
                 Barang Keluar
             </h1>
-            <p class="so-header__subtitle">Kelola transaksi pengeluaran barang untuk proyek, penjualan, dan lainnya</p>
+            <p class="so-header__subtitle">Kelola transaksi pengeluaran barang untuk proyek, retur, dan lainnya</p>
         </div>
         <div class="so-header__actions d-flex gap-2">
             <button type="button" class="btn btn-so-primary" onclick="showCreateModal()">
@@ -574,7 +574,7 @@
                                 <select class="form-select" id="createOutType" required>
                                     <option value="">-- Pilih Tipe --</option>
                                     <option value="project">🏗️ Proyek</option>
-                                    <option value="sales">🛒 Penjualan</option>
+
                                     <option value="return">🔄 Retur Supplier</option>
                                     <option value="damaged">⚠️ Barang Rusak</option>
                                 </select>
@@ -682,9 +682,9 @@ function soBadge(status) {
 }
 
 function soTypeBadge(outType) {
-    var labels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'damaged': 'Barang Rusak' };
-    var icons = { 'project': 'fa-hard-hat', 'sales': 'fa-shopping-cart', 'return': 'fa-undo', 'damaged': 'fa-exclamation-triangle' };
-    var cls = { 'project': 'so-type-badge--project', 'sales': 'so-type-badge--sales', 'return': 'so-type-badge--return', 'damaged': 'so-type-badge--damaged' };
+    var labels = { 'project': 'Proyek', 'return': 'Retur Supplier', 'damaged': 'Barang Rusak' };
+    var icons = { 'project': 'fa-hard-hat', 'return': 'fa-undo', 'damaged': 'fa-exclamation-triangle' };
+    var cls = { 'project': 'so-type-badge--project', 'return': 'so-type-badge--return', 'damaged': 'so-type-badge--damaged' };
     var s = outType || '-';
     return '<span class="so-type-badge ' + (cls[s] || 'so-type-badge--project') + '"><i class="fas ' + (icons[s] || 'fa-tag') + ' me-1" style="font-size:0.65rem;"></i>' + (labels[s] || s) + '</span>';
 }
@@ -795,7 +795,7 @@ async function loadDetail(id) {
         var res = await SIMAN.apiRequest('/inventory/stock-out/' + id + '/');
         var items = (res && (res.items || res.stock_out_items)) || [];
 
-        var outTypeLabels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'damaged': 'Barang Rusak' };
+        var outTypeLabels = { 'project': 'Proyek', 'return': 'Retur Supplier', 'damaged': 'Barang Rusak' };
 
         var infoHtml = '<div class="so-detail-info">' +
             '<div class="so-detail-info__header"><i class="fas fa-info-circle"></i> Informasi Transaksi</div>' +

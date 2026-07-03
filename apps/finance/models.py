@@ -152,8 +152,6 @@ class Income(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     description = models.TextField(blank=True)
     
-    # customer jika dari penjualan
-    customer = models.ForeignKey('sales.Customer', on_delete=models.SET_NULL, null=True, blank=True, related_name='incomes')
     project = models.ForeignKey('projects.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='incomes')
     
     # Pembayaran
@@ -281,7 +279,6 @@ class Invoice(models.Model):
     
     invoice_number = models.CharField(max_length=50, unique=True)
     invoice_type = models.CharField(max_length=20, choices=INVOICE_TYPE_CHOICES, default='invoice')
-    customer = models.ForeignKey('sales.Customer', on_delete=models.PROTECT, related_name='invoices')
     project = models.ForeignKey('projects.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
     
     date = models.DateField()
@@ -309,7 +306,7 @@ class Invoice(models.Model):
         ordering = ['-date']
     
     def __str__(self):
-        return f"{self.invoice_number} - {self.customer.name}"
+        return f"{self.invoice_number}"
     
     def save(self, *args, **kwargs):
         if not self.invoice_number:
@@ -352,7 +349,6 @@ class Payment(models.Model):
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default='invoice')
     
     invoice = models.ForeignKey(Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-    customer = models.ForeignKey('sales.Customer', on_delete=models.PROTECT, related_name='payments')
     
     date = models.DateField()
     amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)

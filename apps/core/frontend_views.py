@@ -312,53 +312,6 @@ def finance_ringkasan(request):
     return render(request, 'frontend/finance/ringkasan.html', context)
 
 
-# ===================== SALES VIEWS =====================
-
-@login_required(login_url='frontend:login')
-def sales_customers(request):
-    """Daftar Customer"""
-    context = {
-        'page_title': 'Data Customer',
-    }
-    return render(request, 'frontend/sales/customers.html', context)
-
-
-@login_required(login_url='frontend:login')
-def sales_quotations(request):
-    """Daftar Quotation"""
-    context = {
-        'page_title': 'Quotation',
-    }
-    return render(request, 'frontend/sales/quotations.html', context)
-
-
-@login_required(login_url='frontend:login')
-def sales_orders(request):
-    """Daftar Sales Order"""
-    context = {
-        'page_title': 'Sales Order',
-    }
-    return render(request, 'frontend/sales/orders.html', context)
-
-
-@login_required(login_url='frontend:login')
-def sales_vendors(request):
-    """Daftar Vendor"""
-    context = {
-        'page_title': 'Data Vendor',
-    }
-    return render(request, 'frontend/sales/vendors.html', context)
-
-
-@login_required(login_url='frontend:login')
-def sales_purchase_orders(request):
-    """Daftar Purchase Order"""
-    context = {
-        'page_title': 'Purchase Order',
-    }
-    return render(request, 'frontend/sales/purchase_orders.html', context)
-
-
 # ===================== HR VIEWS =====================
 
 @login_required(login_url='frontend:login')

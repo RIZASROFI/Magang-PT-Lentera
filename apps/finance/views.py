@@ -154,12 +154,12 @@ class IncomeViewSet(viewsets.ModelViewSet):
     queryset = Income.objects.all()
     serializer_class = IncomeSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['category', 'status', 'customer', 'project']
+    filterset_fields = ['category', 'status', 'project']
     search_fields = ['income_number', 'description']
     ordering = ['-date']
     
     def get_queryset(self):
-        queryset = Income.objects.select_related('category', 'account', 'customer', 'project', 'created_by')
+        queryset = Income.objects.select_related('category', 'account', 'project', 'created_by')
         
         status_filter = self.request.query_params.get('status')
         if status_filter:
@@ -266,7 +266,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     """ViewSet untuk Invoice"""
     queryset = Invoice.objects.all()
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['customer', 'project', 'status']
+    filterset_fields = ['project', 'status']
     search_fields = ['invoice_number']
     ordering = ['-date']
     
@@ -276,7 +276,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         return InvoiceSerializer
     
     def get_queryset(self):
-        queryset = Invoice.objects.select_related('customer', 'project', 'created_by')
+        queryset = Invoice.objects.select_related('project', 'created_by')
         
         status_filter = self.request.query_params.get('status')
         if status_filter:
@@ -306,16 +306,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['customer', 'invoice', 'payment_type']
+    filterset_fields = ['invoice', 'payment_type']
     search_fields = ['payment_number']
     ordering = ['-date']
     
     def get_queryset(self):
-        queryset = Payment.objects.select_related('invoice', 'customer', 'account', 'created_by')
-        
-        customer = self.request.query_params.get('customer')
-        if customer:
-            queryset = queryset.filter(customer_id=customer)
+        queryset = Payment.objects.select_related('invoice', 'account', 'created_by')
         
         return queryset
     

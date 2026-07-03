@@ -109,7 +109,6 @@ class IncomeCategorySerializer(serializers.ModelSerializer):
 class IncomeSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
     account_name = serializers.ReadOnlyField(source='account.name')
-    customer_name = serializers.ReadOnlyField(source='customer.name')
     project_name = serializers.ReadOnlyField(source='project.name')
     created_by_name = serializers.ReadOnlyField(source='created_by.email')
     
@@ -117,7 +116,7 @@ class IncomeSerializer(serializers.ModelSerializer):
         model = Income
         fields = [
             'id', 'income_number', 'date', 'category', 'category_name', 'amount',
-            'description', 'customer', 'customer_name', 'project', 'project_name',
+            'description', 'project', 'project_name',
             'account', 'account_name', 'cheque_number', 'cheque_date',
             'status', 'notes', 'created_by', 'created_by_name', 
             'is_completed', 'created_at', 'updated_at'
@@ -161,14 +160,13 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
 
 class InvoiceSerializer(serializers.ModelSerializer):
     items = InvoiceItemSerializer(many=True)
-    customer_name = serializers.ReadOnlyField(source='customer.name')
     project_name = serializers.ReadOnlyField(source='project.name')
     created_by_name = serializers.ReadOnlyField(source='created_by.email')
     
     class Meta:
         model = Invoice
         fields = [
-            'id', 'invoice_number', 'invoice_type', 'customer', 'customer_name',
+            'id', 'invoice_number', 'invoice_type',
             'project', 'project_name', 'date', 'due_date',
             'subtotal', 'tax', 'discount', 'total',
             'amount_paid', 'amount_due', 'status', 'notes',
@@ -193,20 +191,18 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 
 class InvoiceListSerializer(serializers.ModelSerializer):
-    customer_name = serializers.ReadOnlyField(source='customer.name')
     project_name = serializers.ReadOnlyField(source='project.name')
     
     class Meta:
         model = Invoice
         fields = [
-            'id', 'invoice_number', 'invoice_type', 'customer', 'customer_name',
+            'id', 'invoice_number', 'invoice_type',
             'project', 'project_name', 'date', 'due_date', 'total',
             'amount_paid', 'amount_due', 'status'
         ]
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    customer_name = serializers.ReadOnlyField(source='customer.name')
     invoice_number = serializers.ReadOnlyField(source='invoice.invoice_number')
     account_name = serializers.ReadOnlyField(source='account.name')
     created_by_name = serializers.ReadOnlyField(source='created_by.email')
@@ -215,7 +211,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = [
             'id', 'payment_number', 'payment_type', 'invoice', 'invoice_number',
-            'customer', 'customer_name', 'date', 'amount',
+            'date', 'amount',
             'account', 'account_name', 'cheque_number', 'cheque_date', 'bank',
             'notes', 'created_by', 'created_by_name', 'created_at'
         ]

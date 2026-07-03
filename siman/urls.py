@@ -19,7 +19,6 @@ urlpatterns = [
     path('api/inventory/', include('apps.inventory.urls')),
     path('api/finance/', include('apps.finance.urls')),
     path('api/hr/', include('apps.hr.urls')),
-    path('api/sales/', include('apps.sales.urls')),
     
     # Frontend URLs
     path('', include(('apps.core.frontend_urls', 'frontend'))),

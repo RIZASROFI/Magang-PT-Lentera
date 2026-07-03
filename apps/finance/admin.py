@@ -40,7 +40,7 @@ class IncomeCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Income)
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ['income_number', 'date', 'category', 'amount', 'customer', 'status']
+    list_display = ['income_number', 'date', 'category', 'amount', 'status']
     list_filter = ['status', 'category', 'date']
     search_fields = ['income_number', 'description']
     date_hierarchy = 'date'
@@ -68,16 +68,16 @@ class InvoiceItemInline(admin.TabularInline):
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ['invoice_number', 'customer', 'date', 'total', 'status']
+    list_display = ['invoice_number', 'date', 'total', 'status']
     list_filter = ['status', 'invoice_type', 'date']
-    search_fields = ['invoice_number', 'customer__name']
+    search_fields = ['invoice_number']
     inlines = [InvoiceItemInline]
     date_hierarchy = 'date'
 
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['payment_number', 'customer', 'date', 'amount', 'account']
+    list_display = ['payment_number', 'date', 'amount', 'account']
     list_filter = ['date', 'payment_type']
-    search_fields = ['payment_number', 'customer__name']
+    search_fields = ['payment_number']
     date_hierarchy = 'date'

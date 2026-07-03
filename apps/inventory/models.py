@@ -184,7 +184,6 @@ class StockOut(models.Model):
     
     OUT_TYPE_CHOICES = [
         ('project', 'Proyek'),
-        ('sales', 'Penjualan'),
         ('return', 'Retur Supplier'),
         ('adjustment', 'Penyesuaian'),
         ('damaged', 'Barang Rusak'),

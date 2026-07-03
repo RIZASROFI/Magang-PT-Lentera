@@ -11,7 +11,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('inventory', '0001_initial'),
-        ('sales', '0001_initial'),
         ('projects', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -56,7 +55,6 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='invoices', to=settings.AUTH_USER_MODEL)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='invoices', to='sales.customer')),
                 ('project', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='invoices', to='projects.project')),
             ],
             options={
@@ -103,7 +101,6 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('account', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='payments', to='finance.account')),
                 ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payments', to=settings.AUTH_USER_MODEL)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='payments', to='sales.customer')),
                 ('invoice', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payments', to='finance.invoice')),
             ],
             options={
@@ -176,7 +173,6 @@ class Migration(migrations.Migration):
                 ('account', models.ForeignKey(help_text='Akun Kas/Bank', on_delete=django.db.models.deletion.PROTECT, related_name='incomes', to='finance.account')),
                 ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='incomes', to='finance.incomecategory')),
                 ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='incomes', to=settings.AUTH_USER_MODEL)),
-                ('customer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='incomes', to='sales.customer')),
                 ('project', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='incomes', to='projects.project')),
             ],
             options={

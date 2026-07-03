@@ -802,13 +802,13 @@ class Command(BaseCommand):
             so, _ = StockOut.objects.get_or_create(
                 transaction_number=f'SO-DUMMY-{202401:06d}{i+1:04d}',
                 defaults={
-                    'out_type': random.choice(['project', 'sales', 'adjustment']),
+                    'out_type': random.choice(['project', 'adjustment']),
                     'project': proj,
                     'transaction_date': date.today() - timedelta(days=random.randint(1, 30)),
                     'delivered_date': date.today() - timedelta(days=random.randint(1, 30)),
                     'reference_number': f'SPK/{2024}/{random.randint(100, 999)}',
                     'status': 'completed' if i < 7 else 'approved',
-                    'notes': f'Barang keluar untuk proyek' if proj else 'Barang keluar penjualan',
+                    'notes': f'Barang keluar untuk proyek' if proj else 'Barang keluar',
                     'total_items': random.randint(5, 50),
                     'total_amount': random.randint(2000000, 30000000),
                     'created_by': random.choice(all_staff),
@@ -968,86 +968,12 @@ class Command(BaseCommand):
         self.stdout.write(f"  [OK] Expense Categories: {ExpenseCategory.objects.count()}")
 
         # ============================================================
-        # 31. SALES - CUSTOMERS
-        # ============================================================
-        self.stdout.write("Seeding Sales Customers...")
-        from apps.sales.models import Customer
-
-        customers_data = [
-            ('CUST-001', 'PT Maju Jaya', 'Bambang', '08110000001', 'Jl. Merdeka No. 45', 'Jakarta', '01.234.567.8-001.000'),
-            ('CUST-002', 'PT Mall Indah', 'Siti Rahayu', '08110000002', 'Jl. Sudirman No. 10', 'Jakarta', '01.234.567.8-002.000'),
-            ('CUST-003', 'PT Teknologi Maju', 'Doni Prasetyo', '08110000003', 'Jl. Gatot Subroto No. 88', 'Bandung', '01.234.567.8-003.000'),
-            ('CUST-004', 'PT Bank Sejahtera', 'Adi Nugroho', '08110000004', 'Jl. Thamrin No. 1', 'Jakarta', '01.234.567.8-004.000'),
-            ('CUST-005', 'PT Telkom Akses', 'Rudi Hartono', '08110000005', 'Jl. Asia Afrika No. 100', 'Bandung', '01.234.567.8-005.000'),
-            ('CUST-006', 'PT Logistik Nusantara', 'Yanto Susilo', '08110000006', 'Jl. Pelabuhan No. 50', 'Surabaya', '01.234.567.8-006.000'),
-            ('CUST-007', 'Yayasan Pendidikan', 'Drs. H. Ahmad', '08110000007', 'Jl. Pendidikan No. 20', 'Yogyakarta', '01.234.567.8-007.000'),
-            ('CUST-008', 'PT Asuransi Jiwa', 'Deni Hermawan', '08110000008', 'Jl. Kuningan No. 5', 'Jakarta', '01.234.567.8-008.000'),
-            ('CUST-009', 'Perumahan Griya Indah', 'RW 05', '08110000009', 'Jl. Flamboyan No. 1', 'Tangerang', '01.234.567.8-009.000'),
-            ('CUST-010', 'PT Anugerah Abadi', 'Hendra Gunawan', '08110000010', 'Jl. Raya No. 99', 'Jakarta', '01.234.567.8-010.000'),
-        ]
-
-        customers = {}
-        for code, name, cp, phone, addr, city, npwp in customers_data:
-            cust, _ = Customer.objects.get_or_create(
-                code=code,
-                defaults={
-                    'name': name,
-                    'contact_person': cp,
-                    'phone': phone,
-                    'email': f'{name.lower().replace(" ", "")}@gmail.com',
-                    'address': addr,
-                    'city': city,
-                    'province': 'DKI Jakarta' if city == 'Jakarta' else city,
-                    'npwp': npwp,
-                    'business_type': 'Perusahaan',
-                    'is_active': True,
-                }
-            )
-            customers[code] = cust
-        self.stdout.write(f"  [OK] Customers: {Customer.objects.count()}")
-
-        # ============================================================
-        # 32. SALES - VENDORS
-        # ============================================================
-        self.stdout.write("Seeding Sales Vendors...")
-        from apps.sales.models import Vendor
-
-        vendors_data = [
-            ('VEND-001', 'PT Hikvision Indonesia', 'Bambang Supomo'),
-            ('VEND-002', 'PT Dahua Technology', 'Susi Susanti'),
-            ('VEND-003', 'CV LanPro Networking', 'Hendra Kurniawan'),
-            ('VEND-004', 'PT Videotron Solution', 'Rudi Hermawan'),
-            ('VEND-005', 'PT Kabelindo Utama', 'Ani Lestari'),
-            ('VEND-006', 'PT UPS Solution', 'Doni Firmansyah'),
-            ('VEND-007', 'CV Aksesoris Komputer', 'Lina Marlina'),
-            ('VEND-008', 'PT Tools Indonesia', 'Rizky Pratama'),
-            ('VEND-009', 'CV Elektronik Jaya', 'Sari Wulandari'),
-            ('VEND-010', 'PT General Suplai', 'Budi Hartono'),
-        ]
-
-        for code, name, cp in vendors_data:
-            Vendor.objects.get_or_create(
-                code=code,
-                defaults={
-                    'name': name,
-                    'contact_person': cp,
-                    'phone': f'021-{random.randint(1000000, 9999999)}',
-                    'email': f'{name.lower().replace(" ", "")}@gmail.com',
-                    'address': f'Jl. Industri No. {random.randint(1, 100)}, Jakarta',
-                    'city': 'Jakarta',
-                    'is_active': True,
-                }
-            )
-        self.stdout.write(f"  [OK] Sales Vendors: {Vendor.objects.count()}")
-
-        # ============================================================
-        # 33. FINANCE - INCOME
+        # 31. FINANCE - INCOME
         # ============================================================
         self.stdout.write("Seeding Finance Income...")
         from apps.finance.models import Income
 
         for i in range(10):
-            cust = random.choice(list(customers.values()))
             proj = random.choice(list(projects.values())) if projects else None
             amount = random.randint(5000000, 100000000)
             Income.objects.get_or_create(
@@ -1056,8 +982,7 @@ class Command(BaseCommand):
                     'date': date.today() - timedelta(days=random.randint(1, 60)),
                     'category': random.choice(list(income_cats.values())),
                     'amount': amount,
-                    'description': f'Pendapatan dari {cust.name}' + (f' untuk proyek {proj.project_code}' if proj else ''),
-                    'customer': cust,
+                    'description': f'Pendapatan untuk proyek {proj.project_code}' if proj else 'Pendapatan lain-lain',
                     'project': proj,
                     'account': accounts['1-1100'],
                     'status': random.choice(['confirmed', 'completed']),
@@ -1126,13 +1051,12 @@ class Command(BaseCommand):
         self.stdout.write(f"  [OK] Journal Entries: {JournalEntry.objects.count()}, Journal Items: {JournalEntryItem.objects.count()}")
 
         # ============================================================
-        # 36. FINANCE - INVOICES
+        # 34. FINANCE - INVOICES
         # ============================================================
         self.stdout.write("Seeding Finance Invoices...")
         from apps.finance.models import Invoice, InvoiceItem
 
         for i in range(10):
-            cust = random.choice(list(customers.values()))
             proj = random.choice(list(projects.values())) if projects else None
             total = random.randint(10000000, 200000000)
             status_list = ['sent', 'paid', 'partial', 'overdue']
@@ -1140,7 +1064,6 @@ class Command(BaseCommand):
                 invoice_number=f'INV-DUMMY-{202401:06d}{i+1:04d}',
                 defaults={
                     'invoice_type': 'invoice',
-                    'customer': cust,
                     'project': proj,
                     'date': date.today() - timedelta(days=random.randint(10, 90)),
                     'due_date': date.today() - timedelta(days=random.randint(5, 30)),
@@ -1169,7 +1092,7 @@ class Command(BaseCommand):
         self.stdout.write(f"  [OK] Invoices: {Invoice.objects.count()}, Invoice Items: {InvoiceItem.objects.count()}")
 
         # ============================================================
-        # 37. FINANCE - PAYMENTS
+        # 35. FINANCE - PAYMENTS
         # ============================================================
         self.stdout.write("Seeding Finance Payments...")
         from apps.finance.models import Payment
@@ -1181,7 +1104,6 @@ class Command(BaseCommand):
                 defaults={
                     'payment_type': 'invoice',
                     'invoice': inv,
-                    'customer': inv.customer,
                     'date': inv.due_date - timedelta(days=random.randint(0, 5)),
                     'amount': inv.amount_paid,
                     'account': accounts['1-1100'],
@@ -1191,134 +1113,6 @@ class Command(BaseCommand):
                 }
             )
         self.stdout.write(f"  [OK] Payments: {Payment.objects.count()}")
-
-        # ============================================================
-        # 38. SALES - QUOTATIONS
-        # ============================================================
-        self.stdout.write("Seeding Sales Quotations...")
-        from apps.sales.models import Quotation, QuotationItem
-
-        for i in range(10):
-            cust = random.choice(list(customers.values()))
-            proj = random.choice(list(projects.values())) if projects else None
-            total = random.randint(10000000, 150000000)
-            qt, _ = Quotation.objects.get_or_create(
-                quotation_number=f'QT-DUMMY-{202401:06d}{i+1:04d}',
-                defaults={
-                    'customer': cust,
-                    'project': proj,
-                    'date': date.today() - timedelta(days=random.randint(10, 60)),
-                    'valid_until': date.today() + timedelta(days=30),
-                    'subtotal': total,
-                    'tax': total * 11 // 100,
-                    'discount': 0,
-                    'total': total + (total * 11 // 100),
-                    'payment_terms': 'Net 30',
-                    'delivery_terms': 'FOB Jakarta',
-                    'status': random.choice(['draft', 'sent', 'accepted', 'expired']),
-                    'created_by': random.choice(all_staff),
-                }
-            )
-            for _ in range(random.randint(2, 5)):
-                item = random.choice(list(items.values())) if items else None
-                if item:
-                    qty = random.randint(2, 20)
-                    QuotationItem.objects.get_or_create(
-                        quotation=qt,
-                        item=item,
-                        defaults={
-                            'description': item.name,
-                            'quantity': qty,
-                            'unit_price': item.sell_price,
-                            'discount': 0,
-                            'total': qty * item.sell_price,
-                        }
-                    )
-        self.stdout.write(f"  [OK] Quotations: {Quotation.objects.count()}, Quotation Items: {QuotationItem.objects.count()}")
-
-        # ============================================================
-        # 39. SALES - SALES ORDERS
-        # ============================================================
-        self.stdout.write("Seeding Sales Orders...")
-        from apps.sales.models import SalesOrder, SalesOrderItem
-
-        quotations = Quotation.objects.filter(status='accepted')[:5]
-        for i in range(10):
-            cust = random.choice(list(customers.values()))
-            proj = random.choice(list(projects.values())) if projects else None
-            qt = random.choice(quotations) if quotations else None
-            total = random.randint(10000000, 150000000)
-            so, _ = SalesOrder.objects.get_or_create(
-                sales_order_number=f'SO-DUMMY-{202401:06d}{i+1:04d}',
-                defaults={
-                    'quotation': qt if random.random() > 0.5 else None,
-                    'customer': cust,
-                    'project': proj,
-                    'date': date.today() - timedelta(days=random.randint(5, 30)),
-                    'delivery_date': date.today() + timedelta(days=random.randint(7, 30)),
-                    'subtotal': total,
-                    'tax': total * 11 // 100,
-                    'discount': 0,
-                    'total': total + (total * 11 // 100),
-                    'status': random.choice(['draft', 'confirmed', 'in_progress', 'completed']),
-                    'created_by': random.choice(all_staff),
-                }
-            )
-            for _ in range(random.randint(2, 4)):
-                item = random.choice(list(items.values())) if items else None
-                if item:
-                    qty = random.randint(2, 15)
-                    SalesOrderItem.objects.get_or_create(
-                        sales_order=so,
-                        item=item,
-                        defaults={
-                            'description': item.name,
-                            'quantity': qty,
-                            'unit_price': item.sell_price,
-                            'discount': 0,
-                            'total': qty * item.sell_price,
-                        }
-                    )
-        self.stdout.write(f"  [OK] Sales Orders: {SalesOrder.objects.count()}, SO Items: {SalesOrderItem.objects.count()}")
-
-        # ============================================================
-        # 40. SALES - PURCHASE ORDERS
-        # ============================================================
-        self.stdout.write("Seeding Purchase Orders...")
-        from apps.sales.models import PurchaseOrder, PurchaseOrderItem
-
-        for i in range(10):
-            vendor_sup = random.choice(list(suppliers.values()))
-            total = random.randint(5000000, 100000000)
-            po, _ = PurchaseOrder.objects.get_or_create(
-                purchase_order_number=f'PO-DUMMY-{202401:06d}{i+1:04d}',
-                defaults={
-                    'vendor': vendor_sup,
-                    'date': date.today() - timedelta(days=random.randint(5, 45)),
-                    'delivery_date': date.today() + timedelta(days=random.randint(7, 30)),
-                    'subtotal': total,
-                    'tax': total * 11 // 100,
-                    'discount': 0,
-                    'total': total + (total * 11 // 100),
-                    'status': random.choice(['draft', 'sent', 'confirmed', 'received', 'completed']),
-                    'created_by': random.choice(all_staff),
-                }
-            )
-            for _ in range(random.randint(2, 5)):
-                item = random.choice(list(items.values())) if items else None
-                if item:
-                    qty = random.randint(5, 50)
-                    PurchaseOrderItem.objects.get_or_create(
-                        purchase_order=po,
-                        item=item,
-                        defaults={
-                            'quantity': qty,
-                            'unit_price': item.cost_price,
-                            'discount': 0,
-                            'total': qty * item.cost_price,
-                        }
-                    )
-        self.stdout.write(f"  [OK] Purchase Orders: {PurchaseOrder.objects.count()}, PO Items: {PurchaseOrderItem.objects.count()}")
 
         # ============================================================
         # SELESAI
