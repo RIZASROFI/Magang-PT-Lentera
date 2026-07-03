@@ -103,13 +103,25 @@ class StockOutListSerializer(serializers.ModelSerializer):
     """Serializer untuk list stock out"""
     project_name = serializers.ReadOnlyField(source='project.name')
     created_by_name = serializers.ReadOnlyField(source='created_by.email')
+    items_list = serializers.SerializerMethodField()
     
     class Meta:
         model = StockOut
         fields = [
             'id', 'transaction_number', 'out_type', 'project', 'project_name',
             'reference_number', 'transaction_date', 'status', 'total_items',
-            'total_amount', 'delivered_to', 'created_by_name', 'created_at'
+            'total_amount', 'delivered_to', 'created_by_name', 'created_at',
+            'items_list'
+        ]
+    
+    def get_items_list(self, obj):
+        items = obj.items.select_related('item').all()
+        return [
+            {
+                'name': it.item.name if it.item else '(item dihapus)',
+                'quantity': it.quantity
+            }
+            for it in items
         ]
 
 

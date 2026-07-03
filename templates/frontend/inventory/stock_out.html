@@ -129,13 +129,24 @@
 .so-type-badge--project { background: rgba(26, 115, 232, 0.1); color: var(--so-primary); }
 .so-type-badge--sales { background: rgba(16, 185, 129, 0.1); color: #059669; }
 .so-type-badge--return { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-.so-type-badge--adjustment { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
 .so-type-badge--damaged { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
 
 .so-date-text { font-size: 0.85rem; color: #6b7280; }
 .so-price {
     font-weight: 700; color: #dc2626; font-size: 0.9rem;
 }
+
+/* Items List in Table */
+.so-items-list {
+    display: flex; flex-direction: column; gap: 2px;
+    margin-top: 2px;
+}
+.so-item-name {
+    font-size: 0.78rem; color: #374151;
+    display: inline-flex; align-items: center; gap: 4px;
+    line-height: 1.4;
+}
+
 
 /* Action Buttons */
 .so-action-btn {
@@ -292,8 +303,8 @@
                         <th>No</th>
                         <th>Transaksi</th>
                         <th>Tipe</th>
+                        <th>Items</th>
                         <th>Proyek/Penerima</th>
-                        <th>Jumlah Barang</th>
                         <th>Tanggal</th>
                         <th>Total</th>
                         <th class="text-end">Aksi</th>
@@ -565,7 +576,6 @@
                                     <option value="project">🏗️ Proyek</option>
                                     <option value="sales">🛒 Penjualan</option>
                                     <option value="return">🔄 Retur Supplier</option>
-                                    <option value="adjustment">⚙️ Penyesuaian</option>
                                     <option value="damaged">⚠️ Barang Rusak</option>
                                 </select>
                             </div>
@@ -603,16 +613,13 @@
                         </div>
                         <div id="createItemsContainer">
                             <div class="row so-item-row item-row">
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <select class="form-select form-select-sm item-select" required>
                                         <option value="">-- Pilih Item --</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01">
+                                <div class="col-md-5">
+                                    <input type="number" class="form-control form-select-sm item-qty" placeholder="Jumlah" min="1" value="1" required>
                                 </div>
                                 <div class="col-md-1">
                                     <button type="button" class="remove-item" onclick="this.closest('.item-row').remove()">
@@ -657,6 +664,14 @@
 var allStockOuts = [];
 var allItems = [];
 var allProjects = [];
+
+// Escape HTML untuk keamanan
+function escHtml(str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(str || ''));
+    return d.innerHTML;
+}
+
 // ============ UTILITY ============
 function soBadge(status) {
     var cls = { 'draft': 'so-status-badge--draft', 'pending': 'so-status-badge--pending', 'approved': 'so-status-badge--approved', 'completed': 'so-status-badge--completed', 'canceled': 'so-status-badge--canceled' };
@@ -667,11 +682,22 @@ function soBadge(status) {
 }
 
 function soTypeBadge(outType) {
-    var labels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'adjustment': 'Penyesuaian', 'damaged': 'Barang Rusak' };
-    var icons = { 'project': 'fa-hard-hat', 'sales': 'fa-shopping-cart', 'return': 'fa-undo', 'adjustment': 'fa-sliders-h', 'damaged': 'fa-exclamation-triangle' };
-    var cls = { 'project': 'so-type-badge--project', 'sales': 'so-type-badge--sales', 'return': 'so-type-badge--return', 'adjustment': 'so-type-badge--adjustment', 'damaged': 'so-type-badge--damaged' };
+    var labels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'damaged': 'Barang Rusak' };
+    var icons = { 'project': 'fa-hard-hat', 'sales': 'fa-shopping-cart', 'return': 'fa-undo', 'damaged': 'fa-exclamation-triangle' };
+    var cls = { 'project': 'so-type-badge--project', 'sales': 'so-type-badge--sales', 'return': 'so-type-badge--return', 'damaged': 'so-type-badge--damaged' };
     var s = outType || '-';
     return '<span class="so-type-badge ' + (cls[s] || 'so-type-badge--project') + '"><i class="fas ' + (icons[s] || 'fa-tag') + ' me-1" style="font-size:0.65rem;"></i>' + (labels[s] || s) + '</span>';
+}
+
+function renderItemsList(itemsList, totalItems) {
+    if (!itemsList || !itemsList.length) {
+        return '<span class="fw-bold" style="font-size:0.9rem;color:#e8481a;">' + (totalItems || 0) + ' item</span>';
+    }
+    var countBadge = '<div><span class="fw-bold" style="font-size:0.85rem;color:#e8481a;">' + totalItems + ' item</span></div>';
+    var names = itemsList.map(function(it) {
+        return '<div class="so-item-name">' + escHtml(it.name) + '</div>';
+    }).join('');
+    return countBadge + '<div class="so-items-list">' + names + '</div>';
 }
 
 function soToast(message, type) {
@@ -747,8 +773,8 @@ function renderStockOuts(data) {
             '<td><span style="color:#9ca3af;font-weight:500;font-size:0.8rem;">' + (idx + 1) + '</span></td>' +
             '<td><div class="so-trans-num">' + (so.transaction_number || '-') + '</div><div class="so-ref-num">Ref: ' + (so.reference_number || '-') + '</div></td>' +
             '<td>' + soTypeBadge(outType) + '</td>' +
+            '<td>' + renderItemsList(so.items_list, so.total_items) + '</td>' +
             '<td><span style="font-size:0.85rem;">' + recipientHtml + '</span></td>' +
-            '<td><span class="fw-bold" style="font-size:0.9rem;color:#e8481a;">' + (so.total_items || 0) + ' item</span></td>' +
             '<td><span class="so-date-text">' + date + '</span></td>' +
             '<td><span class="so-price">' + SIMAN.formatCurrency(totalAmount) + '</span></td>' +
             '<td class="text-end"><div class="d-flex gap-1 flex-wrap justify-content-end">' + approveBtn + completeBtn + deleteBtn + detailBtn + '</div></td>' +
@@ -769,7 +795,7 @@ async function loadDetail(id) {
         var res = await SIMAN.apiRequest('/inventory/stock-out/' + id + '/');
         var items = (res && (res.items || res.stock_out_items)) || [];
 
-        var outTypeLabels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'adjustment': 'Penyesuaian', 'damaged': 'Barang Rusak' };
+        var outTypeLabels = { 'project': 'Proyek', 'sales': 'Penjualan', 'return': 'Retur Supplier', 'damaged': 'Barang Rusak' };
 
         var infoHtml = '<div class="so-detail-info">' +
             '<div class="so-detail-info__header"><i class="fas fa-info-circle"></i> Informasi Transaksi</div>' +
@@ -895,9 +921,8 @@ function addItemRow() {
     var div = document.createElement('div');
     div.className = 'row so-item-row item-row';
     div.innerHTML =
-        '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
-        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
-        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+        '<div class="col-md-6"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+        '<div class="col-md-5"><input type="number" class="form-control form-select-sm item-qty" placeholder="Jumlah" min="1" value="1" required></div>' +
         '<div class="col-md-1"><button type="button" class="remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div>';
     container.appendChild(div);
     populateCombos();
@@ -922,9 +947,8 @@ document.getElementById('stockOutCreateModal').addEventListener('hidden.bs.modal
     document.getElementById('stockOutCreateForm').reset();
     document.getElementById('createItemsContainer').innerHTML =
         '<div class="row so-item-row item-row">' +
-        '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
-        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
-        '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+        '<div class="col-md-6"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+        '<div class="col-md-5"><input type="number" class="form-control form-select-sm item-qty" placeholder="Jumlah" min="1" value="1" required></div>' +
         '<div class="col-md-1"><button type="button" class="remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
 });
 
@@ -948,9 +972,8 @@ document.getElementById('btnSaveStockOut').addEventListener('click', async funct
     itemRows.forEach(function(row) {
         var itemId = row.querySelector('.item-select').value;
         var qty = parseInt(row.querySelector('.item-qty').value) || 0;
-        var price = parseFloat(row.querySelector('.item-price').value) || 0;
         if (itemId && qty > 0) {
-            items.push({ item: parseInt(itemId), quantity: qty, unit_price: price, total: qty * price });
+            items.push({ item: parseInt(itemId), quantity: qty });
         } else if (itemId) {
             valid = false;
         }
@@ -977,9 +1000,8 @@ document.getElementById('btnSaveStockOut').addEventListener('click', async funct
                 form.reset();
                 document.getElementById('createItemsContainer').innerHTML =
                     '<div class="row so-item-row item-row">' +
-                    '<div class="col-md-5"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
-                    '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-qty" placeholder="Qty" min="1" value="1" required></div>' +
-                    '<div class="col-md-3"><input type="number" class="form-control form-select-sm item-price" placeholder="Harga" min="0" value="0" step="0.01"></div>' +
+                    '<div class="col-md-6"><select class="form-select form-select-sm item-select" required><option value="">-- Pilih Item --</option></select></div>' +
+                    '<div class="col-md-5"><input type="number" class="form-control form-select-sm item-qty" placeholder="Jumlah" min="1" value="1" required></div>' +
                     '<div class="col-md-1"><button type="button" class="remove-item" onclick="this.closest(\'.item-row\').remove()"><i class="fas fa-times"></i></button></div></div>';
                 await loadStockOuts();
             } else {

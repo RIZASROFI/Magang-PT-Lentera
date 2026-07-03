@@ -14,7 +14,7 @@
       <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle text-success"></i></div><h6>Selesai</h6><h3 id="selesaiProyek">0</h3></div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock text-info"></i></div><h6>Tertunda</h6><h3 id="tertundaProyek">0</h3></div>
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-ban text-danger"></i></div><h6>Dibatalkan</h6><h3 id="batalProyek">0</h3></div>
     </div>
   </div>
 
@@ -52,13 +52,13 @@
       if(!res.ok) throw new Error(res.status);
       const data=await res.json();
       const items=data.results||data;
-      const stats={total:items.length,progress:0,completed:0,pending:0};
+      const stats={total:items.length,progress:0,completed:0,canceled:0};
       if(items.length){
         tbody.innerHTML=items.map(p=>{
           const stat=p.status||'';
           if(stat==='progress'||stat==='in_progress'||stat==='survey'||stat==='testing') stats.progress++;
           else if(stat==='completed') stats.completed++;
-          else stats.pending++;
+          else if(stat==='canceled') stats.canceled++;
                     let calcPct=0;
           if(stat==='completed') calcPct=100;
           else if(stat==='progress'||stat==='in_progress') calcPct=50;
@@ -70,7 +70,7 @@
       document.getElementById('totalProyek').textContent=stats.total;
       document.getElementById('progressProyek').textContent=stats.progress;
       document.getElementById('selesaiProyek').textContent=stats.completed;
-      document.getElementById('tertundaProyek').textContent=stats.pending;
+      document.getElementById('batalProyek').textContent=stats.canceled;
     }catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="8" class="text-center text-danger">Gagal memuat data</td></tr>';}
   }
   load();

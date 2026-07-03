@@ -153,16 +153,16 @@ class Quotation(models.Model):
 class QuotationItem(models.Model):
     """Item dalam Quotation"""
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey('inventory.Item', on_delete=models.PROTECT)
+    item = models.ForeignKey('inventory.Item', on_delete=models.SET_NULL, null=True)
     description = models.CharField(max_length=200, blank=True)
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    
+
     class Meta:
         db_table = 'quotation_items'
-    
+
     def save(self, *args, **kwargs):
         self.total = (self.quantity * self.unit_price) - self.discount
         super().save(*args, **kwargs)
@@ -228,16 +228,16 @@ class SalesOrder(models.Model):
 class SalesOrderItem(models.Model):
     """Item dalam Sales Order"""
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey('inventory.Item', on_delete=models.PROTECT)
+    item = models.ForeignKey('inventory.Item', on_delete=models.SET_NULL, null=True)
     description = models.CharField(max_length=200, blank=True)
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    
+
     class Meta:
         db_table = 'sales_order_items'
-    
+
     def save(self, *args, **kwargs):
         self.total = (self.quantity * self.unit_price) - self.discount
         super().save(*args, **kwargs)
@@ -301,15 +301,15 @@ class PurchaseOrder(models.Model):
 class PurchaseOrderItem(models.Model):
     """Item dalam Purchase Order"""
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey('inventory.Item', on_delete=models.PROTECT)
+    item = models.ForeignKey('inventory.Item', on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    
+
     class Meta:
         db_table = 'purchase_order_items'
-    
+
     def save(self, *args, **kwargs):
         self.total = (self.quantity * self.unit_price) - self.discount
         super().save(*args, **kwargs)

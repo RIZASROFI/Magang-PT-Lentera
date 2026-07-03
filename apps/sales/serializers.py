@@ -36,11 +36,14 @@ class VendorSerializer(serializers.ModelSerializer):
 
 
 class QuotationItemSerializer(serializers.ModelSerializer):
-    item_name = serializers.ReadOnlyField(source='item.name')
+    item_name = serializers.SerializerMethodField()
     
     class Meta:
         model = QuotationItem
         fields = ['id', 'item', 'item_name', 'description', 'quantity', 'unit_price', 'discount', 'total']
+    
+    def get_item_name(self, obj):
+        return obj.item.name if obj.item else None
 
 
 class QuotationSerializer(serializers.ModelSerializer):
@@ -77,11 +80,14 @@ class QuotationSerializer(serializers.ModelSerializer):
 
 
 class SalesOrderItemSerializer(serializers.ModelSerializer):
-    item_name = serializers.ReadOnlyField(source='item.name')
+    item_name = serializers.SerializerMethodField()
     
     class Meta:
         model = SalesOrderItem
         fields = ['id', 'item', 'item_name', 'description', 'quantity', 'unit_price', 'discount', 'total']
+    
+    def get_item_name(self, obj):
+        return obj.item.name if obj.item else None
 
 
 class SalesOrderSerializer(serializers.ModelSerializer):
@@ -118,11 +124,14 @@ class SalesOrderSerializer(serializers.ModelSerializer):
 
 
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
-    item_name = serializers.ReadOnlyField(source='item.name')
+    item_name = serializers.SerializerMethodField()
     
     class Meta:
         model = PurchaseOrderItem
         fields = ['id', 'item', 'item_name', 'quantity', 'unit_price', 'discount', 'total']
+    
+    def get_item_name(self, obj):
+        return obj.item.name if obj.item else None
 
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):

@@ -282,6 +282,10 @@ class StockOutViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = StockOut.objects.select_related('project', 'created_by', 'approved_by')
         
+        # Optimasi: prefetch items untuk list view
+        if self.action == 'list':
+            queryset = queryset.prefetch_related('items__item')
+        
         # Filter status
         status_filter = self.request.query_params.get('status')
         if status_filter:
