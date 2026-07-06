@@ -724,7 +724,15 @@
     </div>
 
     {% if user.is_authenticated %}
-    <aside class="app-sidebar">
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <aside class="app-sidebar" id="appSidebar">
         <div class="app-sidebar__brand">
             {% load static %}
             <img src="{% static 'images/logo lentera.png' %}" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
@@ -820,6 +828,68 @@
             textDark: '#1b4e8f',
             textLight: '#f0f8ff'
         };
+
+        // Sidebar Toggle for Mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.getElementById('appSidebar');
+            var toggleBtn = document.getElementById('sidebarToggleBtn');
+            var overlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                if (!sidebar) return;
+                sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('active');
+                if (toggleBtn) {
+                    var icon = toggleBtn.querySelector('i');
+                    if (icon) {
+                        icon.className = sidebar.classList.contains('open')
+                            ? 'fas fa-times'
+                            : 'fas fa-bars';
+                    }
+                }
+            }
+
+            function closeSidebar() {
+                if (!sidebar) return;
+                sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('active');
+                if (toggleBtn) {
+                    var icon = toggleBtn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                }
+            }
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    closeSidebar();
+                });
+            }
+
+            // Close sidebar on link click (mobile)
+            if (sidebar) {
+                sidebar.querySelectorAll('.sidebar-link').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+        });
     </script>
     <script src="{% static 'js/app.js' %}"></script>
     

@@ -248,6 +248,68 @@
 
 {% endblock %}
 
+{% block extra_css %}
+<style>
+/* Responsive: Inventory List */
+@media (max-width: 768px) {
+    .container-fluid > .d-flex:first-child {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+    .container-fluid > .d-flex:first-child > div {
+        width: 100%;
+    }
+    .container-fluid > .d-flex:first-child .btn {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    /* Items table: hide Brand/Model (4), Min Stock (6) */
+    #itemsTable thead th:nth-child(4),
+    #itemsTable tbody td:nth-child(4),
+    #itemsTable thead th:nth-child(6),
+    #itemsTable tbody td:nth-child(6) {
+        display: none;
+    }
+    /* Stock Out table: hide Tipe (2), Total Items (5) */
+    #stockOutTable thead th:nth-child(2),
+    #stockOutTable tbody td:nth-child(2),
+    #stockOutTable thead th:nth-child(5),
+    #stockOutTable tbody td:nth-child(5) {
+        display: none;
+    }
+}
+@media (max-width: 576px) {
+    .container-fluid > .d-flex:first-child h2 {
+        font-size: 1.2rem;
+    }
+    /* Items table: hide Kategori (3), Harga Beli (7), Harga Jual (9) */
+    #itemsTable thead th:nth-child(3),
+    #itemsTable tbody td:nth-child(3),
+    #itemsTable thead th:nth-child(7),
+    #itemsTable tbody td:nth-child(7),
+    #itemsTable thead th:nth-child(9),
+    #itemsTable tbody td:nth-child(9) {
+        display: none;
+    }
+    /* Stock Out table: hide Proyek (3), Tanggal (4) */
+    #stockOutTable thead th:nth-child(3),
+    #stockOutTable tbody td:nth-child(3),
+    #stockOutTable thead th:nth-child(4),
+    #stockOutTable tbody td:nth-child(4) {
+        display: none;
+    }
+    .card-header .nav-tabs .nav-link {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.65rem;
+    }
+    .card-body {
+        padding: 0.75rem !important;
+    }
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 let items = [];

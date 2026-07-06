@@ -431,6 +431,49 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* Responsive: Projects List Table */
+@media (max-width: 768px) {
+    .container-fluid > .d-flex:first-child {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+    .container-fluid > .d-flex:first-child > div {
+        width: 100%;
+    }
+    .container-fluid > .d-flex:first-child .btn {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    /* Hide Lokasi (4), Nilai Kontrak (6) */
+    #projectsTable thead th:nth-child(4),
+    #projectsTable tbody td:nth-child(4),
+    #projectsTable thead th:nth-child(6),
+    #projectsTable tbody td:nth-child(6) {
+        display: none;
+    }
+    .card-body { padding: 0.75rem !important; }
+}
+@media (max-width: 576px) {
+    .container-fluid > .d-flex:first-child h2 {
+        font-size: 1.2rem;
+    }
+    /* Hide Klien (3) */
+    #projectsTable thead th:nth-child(3),
+    #projectsTable tbody td:nth-child(3) {
+        display: none;
+    }
+    #projectsTable thead th,
+    #projectsTable tbody td {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+    .card-header .nav-tabs .nav-link {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.6rem;
+    }
+}
 </style>
 {% endblock %}
 

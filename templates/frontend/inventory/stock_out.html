@@ -239,6 +239,31 @@
     .so-stat-card__value { font-size: 1.35rem; }
     .so-main-card__header { flex-direction: column; align-items: stretch; }
     .so-table thead th, .so-table tbody td { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+    /* Hide No (1), Proyek/Penerima (5) */
+    .so-table thead th:nth-child(1),
+    .so-table tbody td:nth-child(1),
+    .so-table thead th:nth-child(5),
+    .so-table tbody td:nth-child(5) {
+        display: none;
+    }
+    .so-main-card__header .btn { width: 100%; }
+}
+@media (max-width: 576px) {
+    .so-header { flex-direction: column; align-items: stretch !important; }
+    .so-header__title { font-size: 1.15rem; }
+    .so-header__actions .btn { font-size: 0.8rem; padding: 0.45rem 0.85rem; width: 100%; }
+    .so-stat-card { padding: 0.85rem; }
+    .so-stat-card__value { font-size: 1.15rem; }
+    .so-stat-card__icon { width: 36px; height: 36px; font-size: 1rem; }
+    .so-stat-card__label { font-size: 0.7rem; }
+    /* Hide Items (4), Tanggal (6) */
+    .so-table thead th:nth-child(4),
+    .so-table tbody td:nth-child(4),
+    .so-table thead th:nth-child(6),
+    .so-table tbody td:nth-child(6) {
+        display: none;
+    }
+    .so-table thead th, .so-table tbody td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
 }
 </style>
 

@@ -455,6 +455,30 @@
 
   @media (max-width:768px){
     .filters select{min-width: 160px;}
+    .hr-toolbar{flex-direction:column;}
+    .search-box{min-width:0;width:100%;}
+    .hr-card-header{flex-direction:column;gap:12px;align-items:stretch;}
+    .hr-card-header .hr-actions{display:flex;gap:8px;}
+    .hr-card-header .hr-actions .btn{flex:1;}
+    /* Table: hide Nomor(1), Tanggal Join(6) */
+    .hr-table thead th:nth-child(1),
+    .hr-table tbody td:nth-child(1),
+    .hr-table thead th:nth-child(6),
+    .hr-table tbody td:nth-child(6) { display:none; }
+  }
+  @media (max-width:576px){
+    .hr-page{padding:12px 0 20px;}
+    .page-header h2{font-size:1.2rem;}
+    .search-box{padding:8px 12px;}
+    .search-box input{font-size:13px;}
+    .filters{width:100%;}
+    .filters select{min-width:0;width:100%;font-size:0.85rem;padding:8px 10px;}
+    /* Table: hide Departemen(3), Jabatan(4) */
+    .hr-table thead th:nth-child(3),
+    .hr-table tbody td:nth-child(3),
+    .hr-table thead th:nth-child(4),
+    .hr-table tbody td:nth-child(4) { display:none; }
+    .hr-table thead th,.hr-table tbody td{padding:8px 10px;font-size:0.8rem;}
   }
 </style>
 {% endblock %}
