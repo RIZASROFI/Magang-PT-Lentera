@@ -14,7 +14,7 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
     <style>
-        /* Elegant Wave Gradient - Blue Water to Soft White */
+        /* Elegant Wave Gradient - Blue Water to Soft White + CCTV Features */
         :root {
             --water-blue-1: #4dabf7;
             --water-blue-2: #339af0;
@@ -49,7 +49,7 @@
             overflow-x: hidden;
         }
 
-        /* Animated Wave Background - Blue Water Theme */
+        /* Soft gradient background */
         .wave-bg {
             position: fixed;
             top: 0;
@@ -58,53 +58,6 @@
             height: 100%;
             z-index: -2;
             background: linear-gradient(180deg, var(--soft-white) 0%, var(--soft-white-light) 100%);
-        }
-
-        .wave-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 300px;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%234dabf7' fill-opacity='0.15' d='M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,213.3C960,224,1056,224,1152,213.3C1248,203,1344,181,1392,170.7L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
-            background-size: cover;
-            animation: waveFlow 20s linear infinite;
-            opacity: 0.6;
-        }
-
-        .wave:nth-child(2) {
-            bottom: 10px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23339af0' fill-opacity='0.2' d='M0,224L48,213.3C96,203,192,181,288,186.7C384,192,480,224,576,234.7C672,245,768,235,864,213.3C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
-            background-size: cover;
-            animation: waveFlow 15s linear infinite reverse;
-            opacity: 0.4;
-        }
-
-        .wave:nth-child(3) {
-            bottom: 20px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23228be6' fill-opacity='0.25' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
-            background-size: cover;
-            animation: waveFlow 25s linear infinite;
-            opacity: 0.3;
-        }
-
-        @keyframes waveFlow {
-            0% {
-                background-position-x: 0;
-            }
-            100% {
-                background-position-x: 1440px;
-            }
         }
 
         /* Blue Gradient Overlay */
@@ -119,31 +72,208 @@
             pointer-events: none;
         }
 
-        /* Red Glowing Line Effect */
-        .red-glowing-line {
+        /* Decorative Grid (like camera overlay) */
+        .cctv-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(77, 171, 247, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(77, 171, 247, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Scan Line Effect */
+        .cctv-scans {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.02) 2px,
+                rgba(0, 0, 0, 0.02) 4px
+            );
+        }
+
+        /* REC Indicator */
+        .cctv-rec {
+            position: fixed;
+            top: 16px;
+            left: 20px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .cctv-rec__dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--red-glowing);
+            box-shadow: 0 0 8px var(--red-glowing);
+            animation: recBlink 1.5s ease-in-out infinite;
+        }
+
+        .cctv-rec__label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--red-glowing);
+            text-shadow: 0 0 6px var(--red-glowing);
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes recBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* Corner Accents */
+        .cctv-corner {
+            position: fixed;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+        .cctv-corner--tl {
+            top: 0; left: 0;
+            width: 80px; height: 80px;
+            border-top: 2px solid var(--water-blue-3);
+            border-left: 2px solid var(--water-blue-3);
+        }
+        .cctv-corner--tr {
+            top: 0; right: 0;
+            width: 80px; height: 80px;
+            border-top: 2px solid var(--water-blue-3);
+            border-right: 2px solid var(--water-blue-3);
+        }
+        .cctv-corner--bl {
+            bottom: 0; left: 0;
+            width: 80px; height: 80px;
+            border-bottom: 2px solid var(--water-blue-3);
+            border-left: 2px solid var(--water-blue-3);
+        }
+        .cctv-corner--br {
+            bottom: 0; right: 0;
+            width: 80px; height: 80px;
+            border-bottom: 2px solid var(--water-blue-3);
+            border-right: 2px solid var(--water-blue-3);
+        }
+
+        /* Red glowing line at bottom */
+        .cctv-redline {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--red-glowing), var(--red-glowing-light), var(--red-glowing), transparent);
-            animation: redGlowPulse 2s ease-in-out infinite;
+            animation: recLinePulse 2s ease-in-out infinite;
             z-index: 9999;
             pointer-events: none;
         }
 
-        @keyframes redGlowPulse {
-            0%, 100% {
-                opacity: 0.6;
-                box-shadow: 0 0 5px var(--red-glowing);
-            }
-            50% {
-                opacity: 1;
-                box-shadow: 0 0 20px var(--red-glowing), 0 0 30px var(--red-glowing);
-            }
+        @keyframes recLinePulse {
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px var(--red-glowing); }
+            50% { opacity: 1; box-shadow: 0 0 20px var(--red-glowing), 0 0 30px var(--red-glowing); }
         }
 
-        /* Navbar with Black Border */
+        /* Lentera Text Watermark */
+        .lentera-watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .lentera-watermark__word {
+            position: absolute;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            opacity: 0;
+            animation: wmFadeIn 2s ease-out forwards;
+            line-height: 1;
+        }
+
+        .lentera-watermark__word--1 {
+            font-size: min(10vw, 90px);
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0s;
+            animation: wmFloat1 16s ease-in-out infinite, wmFadeIn 2s ease-out forwards;
+        }
+
+        .lentera-watermark__word--2 {
+            font-size: min(10vw, 90px);
+            top: 38%;
+            right: 5%;
+            animation-delay: 0.4s;
+            animation: wmFloat2 18s ease-in-out infinite, wmFadeIn 2s ease-out forwards;
+        }
+
+        .lentera-watermark__word--3 {
+            font-size: min(10vw, 90px);
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0.8s;
+            animation: wmFloat3 14s ease-in-out infinite, wmFadeIn 2s ease-out forwards;
+        }
+
+        @keyframes wmFadeIn {
+            from { opacity: 0; }
+            to { opacity: 0.05; }
+        }
+
+        @keyframes wmFloat1 {
+            0%, 100% { transform: translate(-50%, 0) scale(1); opacity: 0.05; }
+            50% { transform: translate(-50%, -10px) scale(1.02); opacity: 0.07; }
+        }
+
+        @keyframes wmFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.05; }
+            50% { transform: translate(-10px, -8px) scale(1.03); opacity: 0.07; }
+        }
+
+        @keyframes wmFloat3 {
+            0%, 100% { transform: translate(-50%, 0) scale(1); opacity: 0.045; }
+            50% { transform: translate(-50%, -14px) scale(1.04); opacity: 0.065; }
+        }
+
+        @media (max-width: 768px) {
+            .lentera-watermark__word--1 { font-size: min(12vw, 50px); top: 8%; }
+            .lentera-watermark__word--2 { font-size: min(12vw, 50px); top: 35%; right: 3%; }
+            .lentera-watermark__word--3 { font-size: min(12vw, 50px); bottom: 18%; }
+        }
+
+        @media (max-width: 480px) {
+            .lentera-watermark__word--1 { font-size: 11vw; top: 6%; }
+            .lentera-watermark__word--2 { font-size: 11vw; top: 32%; }
+            .lentera-watermark__word--3 { font-size: 11vw; bottom: 20%; }
+        }
+
+        /* Navbar with Transparent White */
         .navbar {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
@@ -217,7 +347,7 @@
             text-shadow: 0 0 8px var(--red-glowing);
         }
 
-        /* Dropdown with Black Border */
+        /* Dropdown */
         .dropdown-menu {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
@@ -240,7 +370,7 @@
             text-shadow: 0 0 5px var(--red-glowing);
         }
 
-        /* Cards with Black Border */
+        /* Cards */
         .card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -330,7 +460,7 @@
             margin-bottom: 15px;
         }
 
-        /* Tables with Black Borders */
+        /* Tables */
         .table {
             margin-bottom: 0;
             border: 1px solid var(--soft-border);
@@ -364,7 +494,7 @@
             border-color: var(--red-glowing);
         }
 
-        /* Form Controls with Black Borders */
+        /* Form Controls */
         .form-control, .form-select {
             border: 2px solid var(--soft-border);
             border-radius: 12px;
@@ -451,17 +581,11 @@
         }
 
         @keyframes redPulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 var(--red-glowing);
-            }
-            50% {
-                transform: scale(1.1);
-                box-shadow: 0 0 0 10px rgba(255, 17, 51, 0);
-            }
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--red-glowing); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 17, 51, 0); }
         }
 
-        /* Modal with Black Border */
+        /* Modal */
         .modal-content {
             border-radius: 24px;
             border: 2px solid var(--soft-border);
@@ -497,7 +621,7 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* Pagination with Black Borders */
+        /* Pagination */
         .pagination {
             margin-top: 30px;
         }
@@ -525,7 +649,7 @@
             color: white;
         }
 
-        /* Scrollbar with Red Glow */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -548,67 +672,56 @@
 
         /* Animations */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out;
         }
 
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .floating-wave {
-            animation: float 3s ease-in-out infinite;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
-            .stat-card {
-                margin-bottom: 20px;
-            }
-            
-            .card-header {
-                padding: 15px 20px;
-            }
-            
-            .btn {
-                padding: 8px 16px;
-            }
-
-            .container-fluid {
-                padding: 0 15px;
-            }
+            .stat-card { margin-bottom: 20px; }
+            .card-header { padding: 15px 20px; }
+            .btn { padding: 8px 16px; }
+            .container-fluid { padding: 0 15px; }
+            .cctv-corner { display: none; }
+            .cctv-rec { top: 10px; left: 12px; }
+            .cctv-rec__dot { width: 8px; height: 8px; }
+            .cctv-rec__label { font-size: 0.6rem; }
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Wave Background - Blue Water -->
+    <!-- CCTV & Videotron Background -->
     <div class="wave-bg"></div>
-    <div class="wave-container">
-        <div class="wave"></div>
-        <div class="wave"></div>
-        <div class="wave"></div>
-    </div>
-    <div class="blue-gradient-overlay"></div>
+    <div class="cctv-grid"></div>
+    <div class="cctv-scans"></div>
     
-    <!-- Red Glowing Line at Bottom -->
-    <div class="red-glowing-line"></div>
+    <!-- Tech Corner Accents -->
+    <div class="cctv-corner cctv-corner--tl"></div>
+    <div class="cctv-corner cctv-corner--tr"></div>
+    <div class="cctv-corner cctv-corner--bl"></div>
+    <div class="cctv-corner cctv-corner--br"></div>
+    
+    <!-- REC Indicator -->
+    <div class="cctv-rec">
+        <div class="cctv-rec__dot"></div>
+        <span class="cctv-rec__label">REC</span>
+    </div>
+    
+    <!-- Red Camera LED Line -->
+    <div class="cctv-redline"></div>
+    
+    <!-- Lentera Text Watermark -->
+    <div class="lentera-watermark">
+        <div class="lentera-watermark__word lentera-watermark__word--1">Lentera</div>
+        <div class="lentera-watermark__word lentera-watermark__word--2">Anugerah</div>
+        <div class="lentera-watermark__word lentera-watermark__word--3">Dimensi</div>
+    </div>
 
     {% if user.is_authenticated %}
     <aside class="app-sidebar">
@@ -666,9 +779,9 @@
         {% block content %}{% endblock %}
     </div>
     
-    <!-- Floating Water Bubble Animation -->
-    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        <div class="floating-wave" style="width: 50px; height: 50px; background: linear-gradient(135deg, rgba(77, 171, 247, 0.2), rgba(77, 171, 247, 0.05)); border: 1px solid var(--soft-border); border-radius: 50%;"></div>
+    <!-- Water Deco Element -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; pointer-events: none;">
+        <div style="width: 8px; height: 8px; background: var(--water-blue-3); border-radius: 50%; opacity: 0.3; animation: recBlink 3s ease-in-out infinite;"></div>
     </div>
     
     <!-- JavaScript -->
@@ -702,12 +815,10 @@
         // Theme colors for charts
         window.SIMAN_THEME = {
             waterBlue1: '#4dabf7',
-            waterBlue2: '#339af0',
             waterBlue3: '#228be6',
-            waterBlue4: '#1c7ed6',
             redGlowing: '#ff1133',
             textDark: '#1b4e8f',
-            softWhite: '#f0f8ff'
+            textLight: '#f0f8ff'
         };
     </script>
     <script src="{% static 'js/app.js' %}"></script>

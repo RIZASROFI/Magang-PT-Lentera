@@ -161,6 +161,91 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+{% load static %}
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0" style="border-radius: 16px; overflow: hidden; position: relative; background: #ffffff;">
+            <!-- Background Orbs -->
+            <div style="position: absolute; top: -120px; right: -80px; width: 280px; height: 280px; border-radius: 50%; background: linear-gradient(135deg, #bfdbfe, #93c5fd); filter: blur(70px); opacity: 0.25; pointer-events: none; animation: listOrbA 15s ease-in-out infinite;"></div>
+            <div style="position: absolute; bottom: -80px; left: -60px; width: 220px; height: 220px; border-radius: 50%; background: linear-gradient(135deg, #dbeafe, #bfdbfe); filter: blur(60px); opacity: 0.2; pointer-events: none; animation: listOrbB 20s ease-in-out infinite;"></div>
+
+            <style>
+                @keyframes listOrbA {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(15px, -15px) scale(1.08); }
+                }
+                @keyframes listOrbB {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(-12px, 12px) scale(1.05); }
+                }
+                @keyframes listPulseDel {
+                    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220,53,69,0.15); }
+                    50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(220,53,69,0); }
+                }
+                #deleteConfirmModal .btn-del-confirm {
+                    background: linear-gradient(135deg, #dc3545, #c82333);
+                    border: none; color: white;
+                    padding: 0.65rem 1.5rem; border-radius: 10px;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 4px 12px rgba(220,53,69,0.25);
+                }
+                #deleteConfirmModal .btn-del-confirm:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(220,53,69,0.35);
+                }
+                #deleteConfirmModal .btn-del-cancel {
+                    border: 1px solid #dee2e6; color: #6c757d;
+                    padding: 0.65rem 1.5rem; border-radius: 10px;
+                    font-weight: 600; transition: all 0.2s ease;
+                    background: white;
+                }
+                #deleteConfirmModal .btn-del-cancel:hover {
+                    background: #f8f9fa; border-color: #adb5bd; color: #495057;
+                }
+            </style>
+
+            <!-- Watermark Lentera Logo -->
+            <img src="{% static 'images/logo lentera.png' %}" alt="" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: auto; opacity: 0.04; pointer-events: none; filter: grayscale(1); z-index: 0;" onerror="this.style.display='none'">
+
+            <!-- Gradient Header Strip -->
+            <div style="height: 4px; background: linear-gradient(90deg, #2563eb, #1d4ed8, #1e40af); position: relative; z-index: 1;"></div>
+
+            <!-- Content -->
+            <div class="modal-body text-center p-5" style="position: relative; z-index: 1; background: transparent;">
+                <div class="mb-4" style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: linear-gradient(135deg, rgba(220,53,69,0.1), rgba(220,53,69,0.05)); display: flex; align-items: center; justify-content: center; animation: listPulseDel 2s ease-in-out infinite;">
+                    <i class="fas fa-trash-alt" style="font-size: 2rem; color: #dc3545;"></i>
+                </div>
+
+                <h5 class="fw-bold mb-2" style="color: #1f2937; font-size: 1.2rem;" id="deleteModalTitle">Hapus Item?</h5>
+
+                <p class="mb-1" style="font-size: 0.9rem; line-height: 1.6; color: #6b7280;" id="deleteModalDesc">
+                    Anda yakin ingin menghapus item ini? Data yang dihapus
+                    <span class="fw-semibold" style="color: #dc3545;">tidak dapat dikembalikan</span>.
+                </p>
+
+                <div class="mt-2 mb-3 p-2 rounded-3" style="background: #fff3cd; border: 1px solid #ffeeba;">
+                    <small class="fw-semibold" style="color: #856404;" id="deleteModalWarning">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Semua data terkait item ini akan ikut terhapus.
+                    </small>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <button type="button" class="btn btn-del-cancel flex-fill" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-del-confirm flex-fill" id="btnConfirmDelete">
+                        <i class="fas fa-trash me-2"></i>Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -168,6 +253,8 @@
 let items = [];
 let stockOuts = [];
 let categories = [];
+let deleteTargetId = null;
+let deleteTargetType = null; // 'item' or 'category'
 
 async function loadItems() {
     try {
@@ -225,7 +312,7 @@ function renderItems(data) {
             <td>${SIMAN.formatCurrency(item.cost_price)}</td>
             <td>
                 <a href="/inventory/items/${item.id}/edit/" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
-                <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})" title="Hapus Item"><i class="fas fa-trash"></i></button>
             </td>
             <td>${SIMAN.formatCurrency(item.sell_price)}</td>
         </tr>
@@ -267,7 +354,7 @@ function renderCategories(data) {
             <td>${cat.is_active ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-secondary">Nonaktif</span>'}</td>
             <td>
                 <button class="btn btn-sm btn-warning" onclick="editCategory(${cat.id})"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger" onclick="deleteCategory(${cat.id})"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCategory(${cat.id})" title="Hapus Kategori"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
     `).join('');
@@ -308,32 +395,68 @@ async function saveCategory() {
     }
 }
 
-async function deleteItem(id) {
-    if (confirm('Hapus item ini secara permanen? Data tidak dapat dikembalikan.')) {
-        const response = await SIMAN.apiRequest('/inventory/items/' + id + '/', 'DELETE');
-        if (response === null) {
-            return;
-        }
-        if (response.error) {
-            showToast(response.error, 'error');
-        } else {
-            showToast('Item berhasil dihapus permanen!', 'success');
-            loadItems();
-        }
-    }
+function deleteItem(id) {
+    deleteTargetId = id;
+    deleteTargetType = 'item';
+    document.getElementById('deleteModalTitle').textContent = 'Hapus Item?';
+    document.getElementById('deleteModalDesc').innerHTML = 'Anda yakin ingin menghapus item ini? Data yang dihapus <span class="fw-semibold text-danger">tidak dapat dikembalikan</span>.';
+    document.getElementById('deleteModalWarning').innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Semua data terkait item ini akan ikut terhapus.';
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    deleteModal.show();
 }
 
-async function deleteCategory(id) {
-    if (confirm('Hapus kategori ini?')) {
-        await SIMAN.apiRequest('/inventory/categories/' + id + '/', 'DELETE');
-        showToast('Kategori dihapus!', 'success');
-        loadCategories();
-    }
+function deleteCategory(id) {
+    deleteTargetId = id;
+    deleteTargetType = 'category';
+    document.getElementById('deleteModalTitle').textContent = 'Hapus Kategori?';
+    document.getElementById('deleteModalDesc').innerHTML = 'Anda yakin ingin menghapus kategori ini? Data yang dihapus <span class="fw-semibold text-danger">tidak dapat dikembalikan</span>.';
+    document.getElementById('deleteModalWarning').innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Semua data terkait kategori ini akan ikut terhapus.';
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    deleteModal.show();
 }
 
 function showStockOutModal() {
     window.location.href = '/inventory/stock-out/create/';
 }
+
+document.getElementById('btnConfirmDelete')?.addEventListener('click', async function() {
+    if (!deleteTargetId || !deleteTargetType) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menghapus...';
+    try {
+        if (deleteTargetType === 'item') {
+            const response = await SIMAN.apiRequest('/inventory/items/' + deleteTargetId + '/', 'DELETE');
+            if (response === null) {
+                // Request failed, will fall through to cleanup
+            } else if (response.error) {
+                showToast(response.error, 'error');
+            } else {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                if (modal) modal.hide();
+                showToast('Item berhasil dihapus permanen!', 'success');
+                loadItems();
+            }
+        } else if (deleteTargetType === 'category') {
+            await SIMAN.apiRequest('/inventory/categories/' + deleteTargetId + '/', 'DELETE');
+            var modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+            if (modal) modal.hide();
+            showToast('Kategori berhasil dihapus!', 'success');
+            loadCategories();
+        }
+    } catch (e) {
+        showToast('Gagal menghapus data', 'error');
+    }
+    deleteTargetId = null;
+    deleteTargetType = null;
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-trash me-2"></i>Hapus';
+});
+
+document.getElementById('deleteConfirmModal')?.addEventListener('hidden.bs.modal', function() {
+    deleteTargetId = null;
+    deleteTargetType = null;
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     loadItems();
