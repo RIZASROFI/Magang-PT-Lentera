@@ -87,10 +87,19 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
         'OPTIONS': {
-            'sslmode': 'disable',
+            'sslmode': os.getenv('DB_SSLMODE', 'require'),
         },
     }
 }
+
+# Neon endpoint ID untuk koneksi database (SNI workaround untuk Windows/libpq lama)
+# Format: 'endpoint=<endpoint-id>' (bagian pertama hostname sebelum titik)
+# Neon endpoint ID untuk koneksi database (SNI workaround untuk Windows/libpq lama)
+# Format: 'endpoint=<endpoint-id>' (bagian pertama hostname sebelum titik)
+_neon_options = os.getenv('DB_OPTIONS')
+if _neon_options:
+    if 'options' not in DATABASES['default']['OPTIONS']:
+        DATABASES['default']['OPTIONS']['options'] = _neon_options
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
