@@ -81,9 +81,14 @@
 
     <!-- Tabel Jurnal -->
     <div class="data-card">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="m-0">Daftar Transaksi</h5>
-        <div><span id="entryCount" class="badge bg-primary">0</span> entri</div>
+        <div class="d-flex align-items-center gap-2">
+          <span><span id="entryCount" class="badge bg-primary">0</span> entri</span>
+          <button class="btn btn-sm btn-outline-primary flex-shrink-0" onclick="exportJurnalToPDF()" title="Export ke PDF">
+            <i class="fas fa-file-pdf"></i><span class="d-none d-sm-inline ms-1"> Export PDF</span>
+          </button>
+        </div>
       </div>
       <div class="table-responsive">
         <table class="table">
@@ -197,7 +202,7 @@
 .bg-primary-soft{background:rgba(13,110,253,.1);}
 
 .data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
-.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:12px 18px;gap:8px;flex-wrap:wrap;}
 .table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;border-right:1px solid rgba(255,255,255,.15);}
 .table thead th:last-child{border-right:none;}
 .table tbody td{vertical-align:middle;padding:10px 15px;border-bottom:1px solid #e8f5e9;}
@@ -273,6 +278,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 let entries = [];
 let deleteTargetId = null;
@@ -546,6 +552,30 @@ function escapeHtml(t) {
   d.textContent = t;
   return d.innerHTML;
 }
+
+// ============ EXPORT PDF ============
+
+window.exportJurnalToPDF = function() {
+  const element = document.querySelector('.page-container');
+  const opt = {
+    margin:       8,
+    filename:     'jurnal-umum.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, scrollY: 0, logging: false },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+  const btn = document.querySelector('[onclick="exportJurnalToPDF()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="d-none d-sm-inline ms-1"> Memproses...</span>'; }
+  html2pdf().set(opt).from(element).save()
+    .then(function() {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-pdf"></i><span class="d-none d-sm-inline ms-1"> Export PDF</span>'; }
+    })
+    .catch(function(err) {
+      console.error('PDF export gagal:', err);
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-pdf"></i><span class="d-none d-sm-inline ms-1"> Export PDF</span>'; }
+      alert('Gagal mengekspor PDF. Silakan coba lagi.');
+    });
+};
 
 // Initialize
 populateYearFilter();

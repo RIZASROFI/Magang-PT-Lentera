@@ -19,7 +19,12 @@
   </div>
 
   <div class="data-card">
-    <div class="card-header"><h5 class="m-0">Daftar Progress Proyek</h5></div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="m-0">Daftar Progress Proyek</h5>
+      <button class="btn btn-sm btn-outline-primary flex-shrink-0" onclick="exportToPDF()" title="Export ke PDF">
+        <i class="fas fa-file-pdf"></i><span class="d-none d-sm-inline ms-1"> Export PDF</span>
+      </button>
+    </div>
     <div class="table-responsive"><table class="table"><thead><tr><th>No. Proyek</th><th>Proyek</th><th>Lokasi</th><th>Tanggal Mulai</th><th>Nilai Kontrak</th><th>Progress</th><th>Status</th><th>Tenggat</th></tr></thead><tbody id="tableBody"><tr><td colspan="8" class="text-center text-muted">Memuat data...</td></tr></tbody></table></div>
   </div>
 </div>
@@ -33,7 +38,7 @@
 .stat-card h6{color:#666;font-size:13px;margin-bottom:5px;}
 .stat-card h3{font-weight:800;margin:0;color:#1b4e8f;}
 .data-card{background:#fff;border:2px solid #27ae60;border-radius:18px;box-shadow:0 10px 28px rgba(39,174,96,.15);overflow:hidden;}
-.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:16px 18px;}
+.data-card .card-header{background:linear-gradient(135deg,rgba(39,174,96,.05),transparent);border-bottom:2px solid #27ae60;padding:12px 18px;gap:8px;flex-wrap:wrap;}
 .table thead th{background:#27ae60;color:#fff;font-weight:700;padding:12px 15px;}
 .table tbody td{vertical-align:middle;padding:10px 15px;}
 .table tbody tr:hover{background:rgba(39,174,96,.05);}
@@ -42,8 +47,32 @@
 </style>
 {% endblock %}
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function(){
+
+window.exportToPDF = function() {
+  const element = document.querySelector('.page-container');
+  const opt = {
+    margin:       8,
+    filename:     'daftar-progress-proyek.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, scrollY: 0, logging: false },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+  // Tampilkan indikator loading
+  const btn = document.querySelector('[onclick="exportToPDF()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...'; }
+  html2pdf().set(opt).from(element).save()
+    .then(function() {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Export PDF'; }
+    })
+    .catch(function(err) {
+      console.error('PDF export gagal:', err);
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-pdf me-1"></i> Export PDF'; }
+      alert('Gagal mengekspor PDF. Silakan coba lagi.');
+    });
+};
   const tbody=document.getElementById('tableBody');
   async function load(){
     tbody.innerHTML='<tr><td colspan="8" class="text-center text-muted">Memuat data...</td></tr>';
